@@ -1,6 +1,7 @@
 ---
 阅读进度
-Python编程：从入门到实践（第2版）		继续第7章
+Python编程：从入门到实践（第2版）		继续第9章
+python基础教程（第三版）				继续2.3.2
 
 ---
 # 基础知识
@@ -14,14 +15,50 @@ print(3 ** 2)
 Python没有内置的常量类型，通常使用全大写将某个变量视为常量，如MAX_CONNECTIONS = 5000
 ## 注释
 用一个“#”
-## min、max、求和sum
+## min、max、sum、len
 ```
 even_numbers = list(range(2, 11, 2))	# 可以指定步长
 print(min(even_numbers))
 print(max(even_numbers))
 print(sum(even_numbers))
+print(len(even_numbers))
+
+```
+## input、int
+```
+#!/usr/bin/python3
+height = input("How tall are you, in inches? ")
+height = int(height)
+if height >= 48:
+ print("\nYou're tall enough to ride!")
+else:
+ print("\nYou'll be able to ride when you're a little older.")
+
 ```
 # 字符串
+## 类型
+多行的、原始的、还有图标的...
+```
+#!/usr/bin/python3
+print('''This is a very long string. It continues here. 
+And it's not over yet. "Hello, world!" 
+Still here.''')
+print(r'C:\Program Files\fnord\foo\bar\baz\frozz\bozz')
+print(r'Let\'s go!') 
+print('C:\\nowhere') 
+print(r'C:\Program Files\foo\bar' '\\') 
+print("This is a cat: \N{Cat}")
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+This is a very long string. It continues here. 
+And it's not over yet. "Hello, world!" 
+Still here.
+C:\Program Files\fnord\foo\bar\baz\frozz\bozz
+Let\'s go!
+C:\nowhere
+C:\Program Files\foo\bar\
+This is a cat: 🐈
+```
 ## 大写、小写、驼峰
 ```
 #!/usr/bin/python3
@@ -51,7 +88,10 @@ ada lovelace
 Hello, Ada Lovelace!
 ```
 ## 去空白
-lstrip、strip、rstrip
+- lstrip
+- strip
+- rstrip
+  可用于在read文件后去除文件末尾多余的空白或换行，见文件读取案例
 ## 比较
 依然使用==与!=
 ```
@@ -65,6 +105,18 @@ print(car.lower() == 'audi')
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
 Hold the anchovies!
 True
+```
+## n倍字符串
+使用乘法*，效果同perl
+```
+print('python ' * 5) # python python python python python 
+```
+## 检测包含字符
+```
+permissions = 'rw' 
+print('w' in permissions)	# True
+subject = '$$$ Get rich now!!! $$$' 
+print('$$$' in subject)		# True
 ```
 # 列表
 列表非常适合用于存储在程序运行期间可能变化的数据集。列表元素是可以修改的。使用中括号定义
@@ -89,7 +141,7 @@ specialized
 redline
 My first bicycle was a Trek.
 ```
-## range生成列表
+## 使用range初始化
 ```
 #!/usr/bin/python3
 for value in range(1, 6):	# 产生列表[1,2,3,4,5]，注意没有6
@@ -115,6 +167,18 @@ print(squares)
 10
 30
 [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+```
+## 使用*初始化
+生成包含n个指定初值元素的列表
+```
+sequence = [None] * 10  # [None, None, None, None, None, None, None, None, None, None]
+```
+## 使用list初始化
+```
+arr = list('Hello')
+print(arr)	# ['H', 'e', 'l', 'l', 'o']
+
+可以使用 ''.join(somelist) 再连起来
 ```
 ## 复制列表
 这里是2个列表对象
@@ -143,6 +207,10 @@ print(friend_foods)
 ['pizza', 'falafel', 'carrot cake', 'cannoli']
 ['pizza', 'falafel', 'carrot cake', 'cannoli']
 ```
+## 列表拼接（相加）
+```
+print([1, 2, 3] + [4, 5, 6])	# [1, 2, 3, 4, 5, 6]
+```
 ## 增删改查
 ```
 #!/usr/bin/python3
@@ -165,8 +233,21 @@ print(f"The first motorcycle I owned was a {first_owned.title()}.")
 
 print("----------------")
 motorcycles = ['honda', 'yamaha', 'suzuki', 'ducati']
-motorcycles.remove('ducati')	# 删除指定内容，默认仅去除第一个，全部去除需要循环
+motorcycles.remove('ducati')	# 删除指定内容，默认仅去除第一个，全部去除需要循环，参考下面
 print(motorcycles)
+```
+循环去除指定元素
+```
+#!/usr/bin/python3
+pets = ['dog', 'cat', 'dog', 'goldfish', 'cat', 'rabbit', 'cat']
+print(pets)
+while 'cat' in pets:
+	pets.remove('cat')
+print(pets)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+['dog', 'cat', 'dog', 'goldfish', 'cat', 'rabbit', 'cat']
+['dog', 'dog', 'goldfish', 'rabbit']
 ```
 ## 排序与反序
 sort会保存，sorted是返回临时结果
@@ -211,7 +292,20 @@ print('david' in magicians)
 if 'xxx' not in magicians:
 	print("not in")
 ```
+只要元素类型一致即可进行检测
+```
+database = [ 
+ ['albert', '1234'], 
+ ['dilbert', '4242'], 
+ ['smith', '7524'], 
+ ['jones', '9843'] 
+] 
+username = 'smith'
+pin = '7524'
+if [username, pin] in database: print('Access granted')
+```
 ## 遍历
+for
 ```
 #!/usr/bin/python3
 magicians = ['alice', 'david', 'carolina']
@@ -221,14 +315,36 @@ for magician in magicians:
 
 print("Thank you, everyone. That was a great magic show!")
 ```
-## 切片
+while
+```
+#!/usr/bin/python3
+# 首先，创建一个待验证用户列表
+ # 和一个用于存储已验证用户的空列表。
+unconfirmed_users = ['alice', 'brian', 'candace']
+confirmed_users = []
+ # 验证每个用户，直到没有未验证用户为止。
+ # 将每个经过验证的用户都移到已验证用户列表中。
+while unconfirmed_users:
+	current_user = unconfirmed_users.pop()
+	print(f"Verifying user: {current_user.title()}")
+	confirmed_users.append(current_user)
+# 显示所有已验证的用户。
+print("\nThe following users have been confirmed:")
+for confirmed_user in confirmed_users:
+	print(confirmed_user.title())
+```
+# 切片
+- 使用切片（slicing）来访问特定范围内的元素。两个索引来指定切片的边界
+- 第一个索引指定的元素包含在切片内，但第二个索引指定的元素不包含在切片内。
+- 切片的步长默认为1，但也可以设置
+
 ```
 #!/usr/bin/python3
 players = ['charles', 'martina', 'michael', 'florence', 'eli']
 print(players[0:3])	# 0、1、2
 print(players[1:4])	# 1、2、3
-print(players[:4])	# 0、1、2、3
-print(players[2:])	# 不含0、1的其余
+print(players[:4])	# 前4个，0、1、2、3
+print(players[2:])	# 从第3个到最后，不含0、1的其余
 print(players[-3:]) # 最后3个
 
 for player in players[:3]:	# 遍历切片
@@ -244,7 +360,31 @@ Charles
 Martina
 Michael
 ```
+步长测试
+```
+#!/usr/bin/python3
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] 
+print(numbers)
+print(numbers[0:10:2])	# 从起点和终点之间每隔一个元素提取一个元素
+print(numbers[::4])	# 从序列中每隔3个元素提取1个，只需提供步长4即可。
+print(numbers[8:3:-1])
+print(numbers[10:0:-2]) 
+print(numbers[0:10:-2])
+print(numbers[::-2])
+print(numbers[5::-2]) 
+print(numbers[:5:-2])
 
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+[1, 3, 5, 7, 9]
+[1, 5, 9]
+[9, 8, 7, 6, 5]
+[10, 8, 6, 4, 2]
+[]
+[10, 8, 6, 4, 2]
+[6, 4, 2]
+[10, 8]
+```
 # 元组
 不能修改元素值的列表被称为元组。使用小括号定义
 ```
@@ -411,7 +551,7 @@ Username: mcurie
         Full name: Marie Curie
         Location: Paris
 ```
-# if
+# 判断
 ## 比较数值与字符串
 ```
 #!/usr/bin/python3
@@ -470,4 +610,277 @@ print("\nFinished making your pizza!")
 ```
 (age_0 >= 21) and (age_1 >= 21)
 (age_0 >= 21) or (age_1 >= 21)
+```
+# 循环
+## while
+```
+#!/usr/bin/python3
+prompt = "\nTell me something, and I will repeat it back to you:"
+prompt += "\nEnter 'quit' to end the program. "
+message = ""
+while message != 'quit':
+ message = input(prompt)
+ if message != 'quit':
+     print(message)
+```
+## break、continue
+# 函数
+## 定义、传值、默认值
+```
+#!/usr/bin/python3
+def describe_pet(pet_name, animal_type='dog'):
+	"""显示宠物的信息。"""
+	print(f"\nI have a {animal_type}.")
+	print(f"My {animal_type}'s name is {pet_name.title()}.")
+
+describe_pet('hamster', 'harry')
+describe_pet(pet_name='harry', animal_type='hamster')
+describe_pet(pet_name='willie')
+```
+## 返回值
+```
+def get_formatted_name(first_name, last_name, middle_name=''):
+	if middle_name:
+		full_name = f"{first_name} {middle_name} {last_name}"
+	else:
+		full_name = f"{first_name} {last_name}"
+	return full_name.title()
+
+musician = get_formatted_name('jimi', 'hendrix')
+print(musician)
+musician = get_formatted_name('john', 'hooker', 'lee')
+print(musician)
+```
+## （传址）传列表、传字典
+实际是传引用，在函数内删掉后外面也都没了
+```
+#!/usr/bin/python3
+
+def fun1(arr):
+	while(arr):
+		arr.pop()
+
+unprinted_designs = ['phone case', 'robot pendant', 'dodecahedron']
+print(unprinted_designs)
+fun1(unprinted_designs)
+print(unprinted_designs)
+
+
+
+def fun2(dict):
+	del dict['color']
+
+alien_0 = {'color': 'green', 'points': 5}
+print(alien_0)
+fun2(alien_0)
+print(alien_0)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+['phone case', 'robot pendant', 'dodecahedron']
+[]
+{'color': 'green', 'points': 5}
+{'points': 5}
+```
+## （传值）传列表切片
+实则传递的是列表的副本，外面和里面不是同一份数据
+```
+#!/usr/bin/python3
+
+def fun1(arr):
+	while(arr):
+		arr.pop()
+
+unprinted_designs = ['phone case', 'robot pendant', 'dodecahedron']
+print(unprinted_designs)
+fun1(unprinted_designs[:])
+print(unprinted_designs)
+
+
+
+def fun2(dict):
+	del dict['color']
+
+alien_0 = {'color': 'green', 'points': 5}
+print(alien_0)
+fun2(alien_0)
+print(alien_0)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+['phone case', 'robot pendant', 'dodecahedron']
+['phone case', 'robot pendant', 'dodecahedron']
+{'color': 'green', 'points': 5}
+{'points': 5}
+
+```
+
+## 传递任意个参数
+效果类似perl的ARGV与@_
+
+下例*toppings实则会变为元祖，内容为('mushrooms', 'green peppers', 'extra cheese')。也即一个*实际对应的是元祖，下面**user_info则对应字典
+```
+#!/usr/bin/python3
+
+def make_pizza(size, *toppings):
+	print(f"\nMaking a {size}-inch pizza with the following toppings:")
+	for topping in toppings:
+		print(f"- {topping}")
+make_pizza(16, 'pepperoni')
+make_pizza(12, 'mushrooms', 'green peppers', 'extra cheese')
+
+
+def build_profile(first, last, **user_info):
+	user_info['first_name'] = first
+	user_info['last_name'] = last
+	return user_info
+user_profile = build_profile('albert', 'einstein', location='princeton', field='physics')
+print(user_profile)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+
+Making a 16-inch pizza with the following toppings:
+- pepperoni
+
+Making a 12-inch pizza with the following toppings:
+- mushrooms
+- green peppers
+- extra cheese
+{'location': 'princeton', 'field': 'physics', 'first_name': 'albert', 'last_name': 'einstein'}
+```
+# 模块
+## 定义
+```
+[huawei@n148 pythontest]$ cat pizza.py 
+#!/usr/bin/python3
+def make_pizza(size, *toppings):
+        print(f"\nMaking a {size}-inch pizza with the following toppings:")
+        for topping in toppings:
+                print(f"- {topping}")
+```
+## 导入整个模块
+使用import导入文件主干名，调用需要作用域
+```
+[huawei@n148 pythontest]$ cat making_pizzas.py 
+#!/usr/bin/python3
+import pizza
+pizza.make_pizza(16, 'pepperoni')
+pizza.make_pizza(12, 'mushrooms', 'green peppers', 'extra cheese')
+[huawei@n148 pythontest]$ python3 making_pizzas.py 
+
+Making a 16-inch pizza with the following toppings:
+- pepperoni
+
+Making a 12-inch pizza with the following toppings:
+- mushrooms
+- green peppers
+- extra cheese
+```
+## 导入指定函数
+调用可以直接函数名，不需要带作用域了，其实还可以全部都导入，如 from pizza import *
+```
+[huawei@n148 pythontest]$ cat making_pizzas.py 
+#!/usr/bin/python3
+from pizza import make_pizza
+make_pizza(12, 'mushrooms', 'green peppers', 'extra cheese')
+make_pizza(16, 'pepperoni')
+[huawei@n148 pythontest]$ python3 making_pizzas.py 
+
+Making a 12-inch pizza with the following toppings:
+- mushrooms
+- green peppers
+- extra cheese
+
+Making a 16-inch pizza with the following toppings:
+- pepperoni
+```
+## 给模块或函数指定别名
+用于防止名称重复冲突
+```
+#!/usr/bin/python3
+from pizza import make_pizza as mp
+mp(12, 'mushrooms', 'green peppers', 'extra cheese')
+mp(16, 'pepperoni')
+```
+```
+#!/usr/bin/python3
+import pizza as p
+p.make_pizza(16, 'pepperoni')
+p.make_pizza(12, 'mushrooms', 'green peppers', 'extra cheese')
+```
+
+# 文件
+open()的模式如下，如果省略，Python将以默认的只读模式打开文件。
+- 读取模式 （'r' ）
+- 写入模式 （'w' ）
+- 附加模式 （'a' ）
+- 读写模式 （'r+' ）
+## 读取
+一次读入所有
+```
+#!/usr/bin/python3
+with open('pi_digits.txt') as file_object:
+	contents = file_object.read()
+print(contents.rstrip())
+```
+循环读取每一行
+```
+#!/usr/bin/python3
+with open('pi_digits.txt') as file_object:
+    lines = file_object.readlines()
+for line in lines:
+	print(line.rstrip())
+```
+## 写入与追加
+```
+#!/usr/bin/python3
+filename = 'programming.txt'
+with open(filename, 'w') as file_object:
+	file_object.write("I love programming.\n")
+	file_object.write("I love creating new games.\n")
+
+
+with open(filename, 'a') as file_object:
+	file_object.write("I also love finding meaning in large datasets.\n")
+	file_object.write("I love creating apps that can run in a browser.\n")
+
+[huawei@n148 pythontest]$ cat programming.txt 
+I love programming.
+I love creating new games.
+I also love finding meaning in large datasets.
+I love creating apps that can run in a browser.
+```
+## json
+写json
+```
+#!/usr/bin/python3
+import json
+numbers = [2, 3, 5, 7, 11, 13]
+filename = 'numbers.json'
+with open(filename, 'w') as f:
+	json.dump(numbers, f)
+```
+读json
+```
+#!/usr/bin/python3
+import json
+filename = 'numbers.json'
+numbers = []
+with open(filename) as f:
+	numbers = json.load(f)
+print(numbers)
+```
+# 异常处理
+## try、except、else
+```
+#!/usr/bin/python3
+filename = 'alice.txt'
+try:
+	with open(filename, encoding='utf-8') as f:
+		contents = f.read()
+except FileNotFoundError:
+	print(f"Sorry, the file {filename} does not exist.")
+else:
+	print("loaded")
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Sorry, the file alice.txt does not exist.
 ```
