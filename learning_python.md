@@ -1,7 +1,7 @@
 ---
 阅读进度
 Python编程：从入门到实践（第2版）		继续第9章
-python基础教程（第三版）				继续2.3.2
+python基础教程（第三版）				继续第5章
 
 ---
 # 基础知识
@@ -35,7 +35,19 @@ else:
  print("\nYou'll be able to ride when you're a little older.")
 
 ```
+# 序列与映射
+- 序列是一种数据结构，其中的元素带编号（编号从0开始）。
+- 需要将一系列值组合成数据结构并通过编号来访问各个值时，列表很有用
+- 列表、字符串和元组都属于序列，其中列表是可变的（你可修改其内容），而元组和字符串是不可变的（一旦创建，内容就是固定的）。
+- 要访问序列的一部分，可使用切片操作：提供两个指定切片起始和结束位置的索引。
+- 要修改列表，可给其元素赋值，也可使用赋值语句给切片赋值。
+- 标准序列操作（索引、切片、乘法、成员资格检查、长度、最小值和最大值）
+- 字典是Python中唯一的内置映射类型，其中的值不按顺序排列，而是存储在键下。键可能是数、字符串或元组（即k得是不可变的类型）。
+
+
 # 字符串
+字符串是不可变的，因此所有的元素赋值和切片赋值都是非法的。
+
 ## 类型
 多行的、原始的、还有图标的...
 ```
@@ -59,7 +71,7 @@ C:\nowhere
 C:\Program Files\foo\bar\
 This is a cat: 🐈
 ```
-## 大写、小写、驼峰
+## 大写、小写、首字母大小
 ```
 #!/usr/bin/python3
 name = "ada lovelace"
@@ -72,26 +84,78 @@ Ada Lovelace
 ADA LOVELACE
 ada lovelace
 ```
-## format
-f字符串是Python 3.6引入的，否则需要使用format()方法
+## 格式化
+- c风格%方式
+- shell风格
+- format方法，关于更多format控制符号参见《python基础继承第二版 3.3》
+	- 要对字典执行字符串格式设置操作，不能使用format和命名参数，而必须使用format_map。见字典的format部分案例
+- f方式，是Python 3.6引入的，用于简化format
 ```
 #!/usr/bin/python3
+from math import pi
+from string import Template
+from math import e
+import math 
+
+# c风格
+format = "Hello, %s. %s enough for ya?"
+values = ('world', 'Hot') 
+sss = format % values
+print(sss)	# Hello, world. Hot enough for ya?
+
+# shell风格
+tmpl = Template("Hello, $who! $what enough for ya?") 
+sss = tmpl.substitute(who="Mars", what="Dusty")
+print(sss)	# Hello, Mars! Dusty enough for ya?
+
+# format风格，{}里使用需要则从0开始
+sss = "{}, {} and {}".format("first", "second", "third") 
+print(sss)	# first, second and third
+print("{0}, {1} and {2}".format("first", "second", "third"))	# first, second and third
+print("{3} {0} {2} {1} {3} {0}".format("be", "not", "or", "to"))	# to be or not to be
+print("{name} is approximately {value:2f}".format(value=pi, name="π"))	# π is approximately 3.141593
+print("{name} is approximately {value}.".format(value=pi, name="π")) 	# π is approximately 3.141592653589793.
+print("{{ceci n'est pas une replacement field}}".format()) # {ceci n'est pas une replacement field}, 包含{}的字符串
+print("{foo} {} {bar} {}".format(1, 2, bar=4, foo=3))	# 3 1 4 2
+print("{foo} {1} {bar} {0}".format(1, 2, bar=4, foo=3))	# 3 2 4 1
+
+print("Euler's constant is roughly {e}.".format(e=e))	# Euler's constant is roughly 2.718281828459045.
+print(f"Euler's constant is roughly {e}.") # python3.6之后使用简写f，效果与上一句等价
 first_name = "ada"
 last_name = "lovelace"
 full_name = f"{first_name} {last_name}"
-print(full_name)
+print(full_name)	# ada lovelace
 message = f"Hello, {full_name.title()}!"
-print(message)
+print(message)	# Hello, Ada Lovelace!
+
+fullname = ["Alfred", "Smoketoomuch"] 
+print("Mr {name[1]}".format(name=fullname))	# Mr Smoketoomuch，也可以使用列表元素
+
+tmpl = "The {mod.__name__} module defines the value {mod.pi} for π" 
+sss = tmpl.format(mod=math)	# 还可以使用包（包名：mod.__name__、包里的变量：mod.pi）
+print(sss)	# The math module defines the value 3.141592653589793 for π
+```
+## 居中
+用指定字符填充两边
+```
+print("The Middle by Jimmy Eat World".center(39, "*")) 
 
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
-ada lovelace
-Hello, Ada Lovelace!
+*****The Middle by Jimmy Eat World*****
 ```
-## 去空白
+## 删两端空白或字符
 - lstrip
 - strip
+	删除两端空格，也可删除通过参数指定的字符们，见下例
 - rstrip
-  可用于在read文件后去除文件末尾多余的空白或换行，见文件读取案例
+	可用于在read文件后去除文件末尾多余的空白或换行，见文件读取案例
+```
+删除开头或末尾的指定字符，因此中间的星号未被删除。
+print('*** SPAM * for * everyone!!! ***'.strip(' *!'))
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+SPAM * for * everyone
+```
 ## 比较
 依然使用==与!=
 ```
@@ -117,6 +181,47 @@ permissions = 'rw'
 print('w' in permissions)	# True
 subject = '$$$ Get rich now!!! $$$' 
 print('$$$' in subject)		# True
+```
+## 查找
+```
+# 返回index，否则返回-1。起点和终点值（第二个和第三个参数）指定的搜索范围包含起点，但不包含终点。
+subject = "$$$ Get rich now!!! $$$"
+print(subject.find('$$$')) 
+print(subject.find('$$$', 1)) # 只指定了起点
+print(subject.find('!!!'))
+print(subject.find('!!!', 0, 16)) # 同时指定了起点和终点
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+0
+20
+16
+-1
+```
+## join、split
+```
+#!/usr/bin/python3
+seq = ['1', '2', '3', '4', '5'] 
+sep = '-'
+print(sep.join(seq)) # 1-2-3-4-5， 合并一个字符串列表
+dirs = '', 'usr', 'bin', 'env' # 这是个元祖，首元素为空用于join后开头的“/”
+print(dirs)
+print('/'.join(dirs)) 	#  /usr/bin/env
+print('C:' + '\\'.join(dirs))  # C:\usr\bin\env
+
+
+
+print('1+2+3+4+5'.split('+'))	# ['1', '2', '3', '4', '5']
+```
+## replace
+```
+s1 = 'This is a test';
+s2 = s1.replace('is', 'eez');	# 替换了两处
+print(s1)
+print(s2)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+This is a test
+Theez eez a test
 ```
 # 列表
 列表非常适合用于存储在程序运行期间可能变化的数据集。列表元素是可以修改的。使用中括号定义
@@ -181,11 +286,19 @@ print(arr)	# ['H', 'e', 'l', 'l', 'o']
 可以使用 ''.join(somelist) 再连起来
 ```
 ## 复制列表
-这里是2个列表对象
+类似深拷贝效果
+- 不能使用等号进行复制，见下例
+- 可以使用切片方式[:]
+- 还可以使用copy方法
+- 使用list方法
 ```
 #!/usr/bin/python3
 my_foods = ['pizza', 'falafel', 'carrot cake']
-friend_foods = my_foods[:]
+
+方法1：	friend_foods = my_foods[:]
+方法2：	friend_foods = my_foods.copy()
+方法3：	friend_foods = list(my_foods)
+
 my_foods.append('cannoli')
 print(my_foods)
 print(friend_foods)
@@ -194,7 +307,7 @@ print(friend_foods)
 ['pizza', 'falafel', 'carrot cake', 'cannoli']
 ['pizza', 'falafel', 'carrot cake']
 ```
-这里成一个了
+这里的结果类似引用
 ```
 #!/usr/bin/python3
 my_foods = ['pizza', 'falafel', 'carrot cake']
@@ -208,8 +321,19 @@ print(friend_foods)
 ['pizza', 'falafel', 'carrot cake', 'cannoli']
 ```
 ## 列表拼接（相加）
+- 使用加号连接，产生新的列表，原有列表不变
+- 使用extend会更新原有列表
 ```
-print([1, 2, 3] + [4, 5, 6])	# [1, 2, 3, 4, 5, 6]
+a = [1, 2, 3] 
+b = [4, 5, 6] 
+a.extend(b) # 等于 a = a + b，但extend效率高，也可以 a[len(a):] = b （但可读性差）
+print(a)	# [1, 2, 3, 4, 5, 6]
+print(b)	# [4, 5, 6]
+c = [7, 8, 9] 
+d = b + c
+print(b)	# [4, 5, 6]
+print(c)	# [7, 8, 9]
+print(d)	# [4, 5, 6, 7, 8, 9]
 ```
 ## 增删改查
 ```
@@ -221,7 +345,7 @@ motorcycles.append('suzuki')
 print(motorcycles)
 motorcycles[0] = 'ducati'	# 修改元素
 print(motorcycles)
-motorcycles.insert(1, 'aaa')	# 插入到指定位置
+motorcycles.insert(1, 'aaa')	# 插入到指定位置，也可以使用切片的插入方式（参考切片操作）
 print(motorcycles)
 del motorcycles[1]	# 删除指定索引的元素，使用pop可以得到删除的值
 print(motorcycles)
@@ -249,6 +373,10 @@ print(pets)
 ['dog', 'cat', 'dog', 'goldfish', 'cat', 'rabbit', 'cat']
 ['dog', 'dog', 'goldfish', 'rabbit']
 ```
+## 清除
+```
+numbers.clear() 
+```
 ## 排序与反序
 sort会保存，sorted是返回临时结果
 ```
@@ -260,7 +388,7 @@ cars.sort(reverse=True)	# 倒序参数
 print(cars)
 print(sorted(cars))		# 返回排序后的结果，不改变内容
 ```
-reverse将所有元素反序
+reverse将所有元素反序（直接修改列表）
 ```
 #!/usr/bin/python3
 cars = ['bmw', 'audi', 'toyota', 'subaru']
@@ -284,7 +412,21 @@ else:
 cars = ['bmw', 'audi', 'toyota', 'subaru']
 print(len(cars))
 ```
-## 检查元素存在
+## 统计
+计算指定的元素在列表中出现了多少次
+```
+print(['to', 'be', 'or', 'not', 'to', 'be'].count('to'))
+x = [[1, 2], 1, 1, [2, 1, [1, 2]]] 
+print(x.count(1))
+print(x.count([1, 2]))
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+2
+2
+1
+```
+## 检查v存在
+表达式v in l（其中l是一个列表）查找的是值而不是索引
 ```
 #!/usr/bin/python3
 magicians = ['alice', 'david', 'carolina']
@@ -303,6 +445,13 @@ database = [
 username = 'smith'
 pin = '7524'
 if [username, pin] in database: print('Access granted')
+```
+## 查找
+在列表中查找指定值第一次出现的索引，但找不到则err了...需要try才行
+```
+knights = ['We', 'are', 'the', 'knights', 'who', 'say', 'ni'] 
+print(knights.index('who')) 	# 4
+knights.index('herring')	# err
 ```
 ## 遍历
 for
@@ -333,7 +482,7 @@ print("\nThe following users have been confirmed:")
 for confirmed_user in confirmed_users:
 	print(confirmed_user.title())
 ```
-# 切片
+## 创建切片
 - 使用切片（slicing）来访问特定范围内的元素。两个索引来指定切片的边界
 - 第一个索引指定的元素包含在切片内，但第二个索引指定的元素不包含在切片内。
 - 切片的步长默认为1，但也可以设置
@@ -360,7 +509,7 @@ Charles
 Martina
 Michael
 ```
-步长测试
+## 切片的步长
 ```
 #!/usr/bin/python3
 numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] 
@@ -385,8 +534,25 @@ print(numbers[:5:-2])
 [6, 4, 2]
 [10, 8]
 ```
+## 切片的插入、删除、替换
+```
+#!/usr/bin/python3
+name = list('Perl')
+name[1:] = list('ython') # 相当于替换n个连续的元素，且无需数量一致
+print(name)	# ['P', 'y', 't', 'h', 'o', 'n']
+
+
+numbers = [1, 5] 
+numbers[1:1] = [2, 3, 4] # 相当于插入n个元素（可读性比使用insert差很多）
+print(numbers) # [1, 2, 3, 4, 5]
+numbers[1:4] = []  # 相当于删除连续的n个元素，这里还加入步长（大于1或负数的步长），那就可以跳跃清除了
+print(numbers)	# [1, 5]
+```
 # 元组
-不能修改元素值的列表被称为元组。使用小括号定义
+- 不能修改元素值的列表被称为元组。使用圆括号定义
+- 空元组用两个不包含任何内容的圆括号表示。
+- 一个值的元组要有逗号
+- 元组的切片还是元组
 ```
 #!/usr/bin/python3
 dimensions = (200, 50)	# 定义tuple
@@ -397,19 +563,75 @@ dimensions = (400, 100)	# 能重新全部赋值
 print(dimensions)	
 for dimension in dimensions:	# 遍历
 	print(dimension)
+```
+## tuple函数
 
+函数tuple的工作原理与list很像：它将一个序列作为参数，并将其转换为元组。如果参数
+已经是元组，就原封不动地返回它。
+```
+print(3 * (40 + 2))	# 这个不是元祖，因为没有逗号
+print(3 * (40 + 2,))
+print(tuple([1, 2, 3]))
+print(tuple('abc'))
+print(tuple((1, 2, 3)))
+x = 1, 2, 3
+print(x[0:2])
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+126
+(42, 42, 42)
+(1, 2, 3)
+('a', 'b', 'c')
+(1, 2, 3)
+(1, 2)
 ```
 # 字典
-## 创建访问增删改查
+- 字典由键及其相应的值组成，这种键值对称为项（item）。
+- 每个键与其值之间都用冒号（:）分隔，项之间用逗号分隔，而整个字典放在花括号内。
+- 空字典（没有任何项）用两个花括号表示，类似于下面这样：{}。
+- 在字典（以及其他映射类型）中，键必须是独一无二的，而字典中的值无需如此。
+
+## 构建方法
+- 使用tuple列表
+- 使用dict方法
+- 使用键值对
+- 使用dict.fromkeys构建所有v都一样的字典
+```
+items = [('name', 'Gumby'), ('age', 42)]  # 使用tuple列表来构建
+d = dict(items)  
+print(d)	# {'name': 'Gumby', 'age': 42}
+print(d['name'])	# Gumby
+d = dict(name='Gumby', age=42) 	# 使用dict方法构建
+print(d) # {'name': 'Gumby', 'age': 42}
+phonebook = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}	# 使用键值对方式构建
+print(phonebook)	# {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
+
+print(dict.fromkeys(['name', 'age']))	# {'name': None, 'age': None}
+print(dict.fromkeys(['name', 'age'], '(unknown)'))	# {'name': '(unknown)', 'age': '(unknown)'}
+```
+## 访问
+- [ ]
+	访问不存在的元素会error
+- get
+	安全的获取元素方式，没有则返回指定的字符串
+- setdefault
+	获取与指定键相关联的值，字典不包含指定的键时，在字典中添加指定的键值对。也可指定默认的字符串作为v，如果没有指定，默认v为None。
 ```
 #!/usr/bin/python3
 alien_0 = {'color': 'green', 'points': 5}		# 定义字典
-print(alien_0['color'])		# 访问元素
-# print(alien_0['color1'])	访问不存在的元素会error
-point_value = alien_0.get('color1', 'No point value assigned.')	# 安全的获取元素方式，没有则返回第二个字符串
-print(point_value)
-
-
+print(alien_0['color'])		# green,	访问元素
+# print(alien_0['color1'])	访问不存在的元素会error，下句使用get进行安全访问
+point_value = alien_0.get('not', 'No point value assigned.') # 安全的获取元素方式，没有则返回第二个字符串
+print(point_value)	# No point value assigned.		
+print(alien_0)	# {'color': 'green', 'points': 5}
+point_value  = alien_0.setdefault('not')	# 没有找到就添加到字典中
+print(point_value)	# None
+print(alien_0)	# {'color': 'green', 'points': 5, 'not': None}
+```
+## 增删改查
+```
+#!/usr/bin/python3
+alien_0 = {'color': 'green', 'points': 5}		# 定义字典
 print(alien_0)
 alien_0['x_position'] = 0		# 添加元素
 alien_0['y_position'] = 25
@@ -421,20 +643,98 @@ alien_0['points'] = 5
 print(alien_0)
 alien_0['color'] = 'yellow'		# 修改元素
 print(f"The alien is now {alien_0['color']}.")
-del alien_0['points']		# 删除元素
+del alien_0['points']		# 删除元素，删除还有pop
 print(alien_0)
 
 
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
-green
-No point value assigned.
 {'color': 'green', 'points': 5}
 {'color': 'green', 'points': 5, 'x_position': 0, 'y_position': 25}
 {'color': 'green', 'points': 5}
 The alien is now yellow.
 {'color': 'yellow'}
 ```
-## 遍历、keys、values、sort、set
+## update
+使用pari更新字典，字典有此k则更新v，没有k则添加此pair到字典里
+```
+d = { 
+'title': 'Python Web Site', 
+'url': 'http://www.python.org', 
+'changed': 'Mar 14 22:09:15 MET 2016' 
+} 
+
+x = {'title': 'Python Language Website'} 
+d.update(x)
+print(d);
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+{'title': 'Python Language Website', 'url': 'http://www.python.org', 'changed': 'Mar 14 22:09:15 MET 2016'}
+```
+## pop、popitem
+```
+phonebook = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
+print(phonebook.pop('Beth'))	# 9102	返回指定k进行pop的v
+print(phonebook)	# {'Alice': '2341', 'Cecil': '3258'}	剩余2个kv
+print(phonebook.popitem())	# ('Cecil', '3258')	返回随机pop的kv，但测试每次都相同
+print(phonebook)	# {'Alice': '2341'}		剩余1个kv
+```
+## 检测K存在
+表达式k in d（其中d是一个字典）查找的是键而不是值
+```
+phonebook = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}	# 使用键值对方式构建
+print(phonebook)	# {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
+print('Beth' in phonebook);	# True
+```
+## 字典视图 items
+-	返回值属于一种名为字典视图的特殊类型。字典视图可用于迭代，还可执行len与in检测。其中每个元素都为键值对，且顺序不确定。
+-	修改字典后视图会同步，但视图是只读的不允许修改
+```
+phonebook = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
+pairs = phonebook.items() 
+print("修改前")
+print(pairs)
+print(len(pairs))
+print(phonebook)
+print(('Beth', '9102') in pairs)
+print(phonebook.get('Beth', "not find") == '9102');
+
+
+print("修改字典后")
+phonebook['Beth'] = '9999'
+print(pairs)
+print(phonebook)
+print(('Beth', '9102') in pairs)
+print(phonebook.get('Beth', "not find") == '9102');
+
+print("修改视图后")
+pairs[1] = ('Beth', '0000')  不支持赋值
+print(pairs)
+print(phonebook)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+修改前
+dict_items([('Alice', '2341'), ('Beth', '9102'), ('Cecil', '3258')])
+3
+{'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
+True
+True
+修改字典后
+dict_items([('Alice', '2341'), ('Beth', '9999'), ('Cecil', '3258')])
+{'Alice': '2341', 'Beth': '9999', 'Cecil': '3258'}
+False
+False
+修改视图后
+Traceback (most recent call last):
+  File "/home/huawei/playground/pythontest/pyth.py", line 20, in <module>
+    pairs[1] = ('Beth', '0000')
+TypeError: 'dict_items' object does not support item assignment
+```
+## keys、values、sort、set
+- keys
+  	获取仅包含字典中的键的视图
+- values
+	返回一个由字典中的值组成的字典视图，如果字典中有重复的v则视图中也包含这些重复内容。
+
 ```
 #!/usr/bin/python3
 favorite_languages = {
@@ -449,7 +749,7 @@ for name in favorite_languages.keys():		# 遍历k
 	print(name.title())
 for name in sorted(favorite_languages.keys()):	# 对返回的keys排序后再遍历
  	print(f"{name.title()}, thank you for taking the poll.") 
-if 'erin' not in favorite_languages.keys():	# 判断存在k
+if 'erin' not in favorite_languages.keys():	# 判断存在k，此处是检测一个值在不在列表里，非检测k in d
 	print("Erin, please take our poll!")
 
 for language in favorite_languages.values():	# 遍历values
@@ -458,6 +758,80 @@ for language in set(favorite_languages.values()):	# 对返回的values集合进�
 	print(language.title())
 
 
+```
+## 用于format
+只要在字典中有此kv则就可以替换到format的参数里
+```
+#!/usr/bin/python3
+template = '''<html> 
+<head><title>{title}</title></head> 
+<body> 
+<h1>{title}</h1> 
+<p>{text}</p> 
+</body>''' 
+data = {'title': 'My Home Page', 'text': 'Welcome to my home page!'} 
+print(template.format_map(data)) 
+
+
+print("Cecil's phone number is {Cecil}.".format_map({'Beth': '9102', 'Alice': '2341', 'Cecil': '3258'}))
+
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+<html> 
+<head><title>My Home Page</title></head> 
+<body> 
+<h1>My Home Page</h1> 
+<p>Welcome to my home page!</p> 
+</body>
+Cecil's phone number is 3258.
+```
+## 清除
+```
+x.clear() 
+```
+## 复制
+- 依然不能使用等号，那不是复制......
+- 浅拷贝
+  
+  2个字典中machines的v（值是列表）y修改后x的也跟着变了，说明指向同一个堆地址
+```
+x = {'username': 'admin', 'machines': ['foo', 'bar', 'baz']} 
+y = x.copy() 
+y['username'] = 'mlh' 
+y['machines'].remove('bar') 
+print(x)
+print(y)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+{'username': 'admin', 'machines': ['foo', 'baz']}
+{'username': 'mlh', 'machines': ['foo', 'baz']}
+```
+- 深拷贝
+  
+  使用函数deepcopy进行拷贝
+```
+#!/usr/bin/python3
+from copy import deepcopy
+x = {'username': 'admin', 'machines': ['foo', 'bar', 'baz']} 
+y = deepcopy(x)  
+y['username'] = 'mlh' 
+y['machines'].remove('bar') 
+print(x)
+print(y)
+
+d = {} 
+d['names'] = ['Alfred', 'Bertrand'] 
+c = d.copy() 
+dc = deepcopy(d) 
+d['names'].append('Clive') 
+print(c)
+print(dc)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+{'username': 'admin', 'machines': ['foo', 'bar', 'baz']}
+{'username': 'mlh', 'machines': ['foo', 'baz']}
+{'names': ['Alfred', 'Bertrand', 'Clive']}
+{'names': ['Alfred', 'Bertrand']}
 ```
 # 复杂数据结构
 ## 列表里存字典
@@ -550,6 +924,53 @@ Username: aeinstein
 Username: mcurie
         Full name: Marie Curie
         Location: Paris
+```
+### 通讯录案例
+演示了通过"[][]"来访问内层字典的元素值
+```
+#!/usr/bin/python3
+
+people = { 
+ 'Alice': { 
+ 'phone': '2341', 
+ 'addr': 'Foo drive 23' 
+ }, 
+ 'Beth': { 
+ 'phone': '9102', 
+ 'addr': 'Bar street 42' 
+ }, 
+'Cecil': { 
+ 'phone': '3158', 
+ 'addr': 'Baz avenue 90' 
+ } 
+}
+
+# 电话号码和地址的描述性标签，供打印输出时使用
+labels = { 
+ 'phone': 'phone number', 
+ 'addr': 'address' 
+} 
+name = input('Name: ') 
+# 要查找电话号码还是地址？
+request = input('Phone number (p) or address (a)? ') 
+# 使用正确的键：
+if request == 'p': key = 'phone' 
+if request == 'a': key = 'addr' 
+# 使用get提供默认值
+person = people.get(name, {}) 
+label = labels.get(key, key) 
+result = person.get(key, 'not available') 
+print("{}'s {} is {}.".format(name, label, result)) 
+
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Name: Beth
+Phone number (p) or address (a)? a
+Beth's address is Bar street 42.
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Name: Cecil
+Phone number (p) or address (a)? p
+Cecil's phone number is 3158.
 ```
 # 判断
 ## 比较数值与字符串
