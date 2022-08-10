@@ -1,7 +1,7 @@
 ---
 阅读进度
 Python编程：从入门到实践（第2版）		继续第9章
-python基础教程（第三版）				继续第5章
+python基础教程（第三版）				继续第6章
 
 ---
 # 基础知识
@@ -9,6 +9,66 @@ python基础教程（第三版）				继续第5章
 - 无论是哪种运算，只要有操作数是浮点数，Python默认得到的总是浮点数，即便结果原本为整数也是如此。
 - 书写很大的数时，可使用下划线将其中的数字分组，如 universe_age = 14_000_000_000
 - 可以同时赋值多个变量 x, y, z = 0, 0, 0
+## bool
+- bool()
+- True
+- False
+```
+print(bool('I think, therefore I am'))
+print(bool(42))
+print(bool(''))
+print(True)
+print(False)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+True
+True
+False
+True
+False
+```
+## 序列解包
+将一个序列（或任何可迭代对象）解包，并将得到的值存储到一系列变量中。可用于  
+- 并行赋值
+- 交换变量值
+- 将序列赋值给元祖values
+- 解开元祖到多个变量
+- 使用*接收多个值到列表中
+- 函数参数传递（主要是上一种方式）
+
+```
+x, y, z = 1, 2, 3 # 并行赋值
+print(x, y, z) 
+x, y = y, x	# 交换变量值
+print(x, y) 
+values = 10, 20, 30 # 将序列赋值给元祖values
+print(values)
+x, y, z = values # 解开元祖到多个变量
+print(x, y, z) 
+
+scoundrel = {'name': 'Robin', 'girlfriend': 'Marion'} 
+key, value = scoundrel.popitem() # 返回元祖赋值给k和v
+print(key, value)
+a, b, *rest = [1, 2, 3, 4] 	# 可使用星号运算符（*）来收集多余的值，这样无需确保值和变量的个数相同，rest为列表
+print(rest)
+
+name = "Albus Percival Wulfric Brian Dumbledore" 
+first, *middle, last = name.split() # *变量也可在其他位置
+print(middle)
+
+a, *b, c = "abc" # 带星号的变量始终也是列表，即使元素仅1个
+print(a, b, c)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+1 2 3
+2 1
+(10, 20, 30)
+10 20 30
+girlfriend Marion
+[3, 4]
+['Percival', 'Wulfric', 'Brian']
+a ['b'] c
+```
 ## 乘方
 print(3 ** 2)
 ## 常量
@@ -35,6 +95,48 @@ else:
  print("\nYou'll be able to ride when you're a little older.")
 
 ```
+## print
+```
+print('Age:', 42) 
+name = 'Gumby' 
+salutation = 'Mr.' 
+greeting = 'Hello,' 
+print(greeting, salutation, name) 	# 多个变量间默认是空格，也可以设置间隔符，见下面
+print(greeting, ',', salutation, name) 
+print(greeting + ',', salutation, name)  # 将第一个变量与逗号连接的结果作为第一个参数
+print("I", "wish", "to", "register", "a", "complaint", sep="_")  # 设置间隔符号 
+print('Hello,', end='\n\n\n') # 设置打印的结束符号
+print('world!')
+
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Age: 42
+Hello, Mr. Gumby
+Hello, , Mr. Gumby
+Hello,, Mr. Gumby
+I_wish_to_register_a_complaint
+Hello,
+
+
+world!
+```
+## pass
+防止在if里什么都不写无法运行，可暂时用pass占位
+```
+#!/usr/bin/python3
+name = "Enid"
+if name == 'Ralph Auldus Melish': 
+	print('Welcome!') 
+elif name == 'Enid': 
+	# 还未完成……
+	pass 
+elif name == 'Bill Gates': 
+	print('Access Denied')
+
+```
+## del
+不仅会删除到对象的引用，还会删除名称本身
+## exec、eval
 # 序列与映射
 - 序列是一种数据结构，其中的元素带编号（编号从0开始）。
 - 需要将一系列值组合成数据结构并通过编号来访问各个值时，列表很有用
@@ -223,7 +325,7 @@ print(s2)
 This is a test
 Theez eez a test
 ```
-# 列表
+# 列表【】
 列表非常适合用于存储在程序运行期间可能变化的数据集。列表元素是可以修改的。使用中括号定义
 ## 定义与访问
 索引-1指向最后一个，-2则是倒数第二个，以此类推
@@ -397,6 +499,33 @@ print(cars)
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
 ['subaru', 'toyota', 'audi', 'bmw']
 ```
+## sorted、reversed
+类似于列表方法reverse和sort（sorted接受的参数也与sort类似），但可用于任何序列或可迭代的对象，且不就地修改对象，而是返回反转和排序后的版本。
+
+```
+s = [4, 3, 6, 8, 3]
+s2 = sorted(s)	# 返回一个列表
+print(s)
+print(s2)
+s = 'Hello, world!'
+s2 = sorted(s)
+print(s)
+print(s2)
+
+s3 = list(reversed(s)) # reversed返回可迭代对象
+print(s3)
+
+s4 = ''.join(reversed(s)) 
+print(s4)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+[4, 3, 6, 8, 3]
+[3, 3, 4, 6, 8]
+Hello, world!
+[' ', '!', ',', 'H', 'd', 'e', 'l', 'l', 'l', 'o', 'o', 'r', 'w']
+['!', 'd', 'l', 'r', 'o', 'w', ' ', ',', 'o', 'l', 'l', 'e', 'H']
+!dlrow ,olleH
+```
 ## 判断空列表
 ```
 #!/usr/bin/python3
@@ -454,7 +583,7 @@ print(knights.index('who')) 	# 4
 knights.index('herring')	# err
 ```
 ## 遍历
-for
+- foreach形式
 ```
 #!/usr/bin/python3
 magicians = ['alice', 'david', 'carolina']
@@ -463,8 +592,40 @@ for magician in magicians:
 	print(f"I can't wait to see your next trick, {magician.title()}.\n")
 
 print("Thank you, everyone. That was a great magic show!")
+
+
+words = ['this', 'is', 'an', 'ex', 'parrot'] 
+for word in words:
+    print(word) 
+for word in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+ 	print(word) 
+for number in range(1,11):
+    print(number) 
 ```
-while
+- enumerate  
+  即可以获得idx也能获得元素内容，有些时候可以代替下面的for
+```
+strings = "abcdefg"
+for index, string in enumerate(strings): 
+	print(index, string)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+0 a
+1 b
+2 c
+3 d
+4 e
+5 f
+6 g
+```
+- for形式
+```
+names = ['anne', 'beth', 'george', 'damon'] 
+ages = [12, 45, 32, 102] 
+for i in range(len(names)): 
+	print(names[i], 'is', ages[i], 'years old') 
+```
+- while形式
 ```
 #!/usr/bin/python3
 # 首先，创建一个待验证用户列表
@@ -548,7 +709,27 @@ print(numbers) # [1, 2, 3, 4, 5]
 numbers[1:4] = []  # 相当于删除连续的n个元素，这里还加入步长（大于1或负数的步长），那就可以跳跃清除了
 print(numbers)	# [1, 5]
 ```
-# 元组
+## zip
+- 便于同时迭代2个列表
+- 返回由元组组成的可迭代序列
+- 可使用list将其转换为列表
+
+```
+names = ['anne', 'beth', 'george', 'damon'] 
+ages = [12, 45, 32, 102] 
+for name, age in zip(names, ages): 
+	print(name, 'is', age, 'years old') 
+
+print(list(zip(range(5), range(100000000))))
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+anne is 12 years old
+beth is 45 years old
+george is 32 years old
+damon is 102 years old
+[(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
+```
+# 元组（）
 - 不能修改元素值的列表被称为元组。使用圆括号定义
 - 空元组用两个不包含任何内容的圆括号表示。
 - 一个值的元组要有逗号
@@ -585,12 +766,11 @@ print(x[0:2])
 (1, 2, 3)
 (1, 2)
 ```
-# 字典
+# 字典 { }
 - 字典由键及其相应的值组成，这种键值对称为项（item）。
 - 每个键与其值之间都用冒号（:）分隔，项之间用逗号分隔，而整个字典放在花括号内。
 - 空字典（没有任何项）用两个花括号表示，类似于下面这样：{}。
 - 在字典（以及其他映射类型）中，键必须是独一无二的，而字典中的值无需如此。
-
 ## 构建方法
 - 使用tuple列表
 - 使用dict方法
@@ -675,8 +855,16 @@ print(d);
 phonebook = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
 print(phonebook.pop('Beth'))	# 9102	返回指定k进行pop的v
 print(phonebook)	# {'Alice': '2341', 'Cecil': '3258'}	剩余2个kv
-print(phonebook.popitem())	# ('Cecil', '3258')	返回随机pop的kv，但测试每次都相同
+print(phonebook.popitem())	# ('Cecil', '3258')	返回随机pop的kv，返回值是元祖，但测试每次都相同
 print(phonebook)	# {'Alice': '2341'}		剩余1个kv
+key, value = phonebook.popitem() # 将pop的元祖赋值给k和v
+print(key, value)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+{'Alice': '2341', 'Cecil': '3258'}
+('Cecil', '3258')
+{'Alice': '2341'}
+Alice 2341
 ```
 ## 检测K存在
 表达式k in d（其中d是一个字典）查找的是键而不是值
@@ -728,6 +916,15 @@ Traceback (most recent call last):
   File "/home/huawei/playground/pythontest/pyth.py", line 20, in <module>
     pairs[1] = ('Beth', '0000')
 TypeError: 'dict_items' object does not support item assignment
+```
+## 遍历
+```
+d = {'x': 1, 'y': 2, 'z': 3} 
+for key in d: 
+	print(key, 'corresponds to', d[key]) 
+for key, value in d.items(): 
+	print(key, 'corresponds to', value) 
+
 ```
 ## keys、values、sort、set
 - keys
@@ -991,6 +1188,21 @@ Hold the anchovies!
 True
 That is not the correct answer. Please try again!
 ```
+## 比较运算符
+- 0 < age < 100  
+  Python支持链式比较，可同时使用多个比较运算符
+- == 用来检查两个对象是否相等
+- x != y  
+  x不等于y
+- x is y  
+  is用来检查两个对象是否相同（是同一个对象）
+- x is not y  
+  x和y是不同的对象
+- x in y  
+  x是容器（如序列）y的成员
+- x not in y  
+  x不是容器（如序列）y的成员
+
 ## if else
 ```
 #!/usr/bin/python3
@@ -1001,6 +1213,12 @@ if age >= 18:
 else:
 	print("Sorry, you are too young to vote.")
 	print("Please register to vote as soon as you turn 18!")
+	
+```
+## 条件表达式
+即都写在一行里
+```
+status = "friend" if name.endswith("Gumby") else "stranger" 
 ```
 ## else if
 ```
@@ -1027,10 +1245,19 @@ elif 'extra cheese' in requested_toppings:
 	print("Adding extra cheese.")
 print("\nFinished making your pizza!")
 ```
-## and、or
+## 布尔运算符 and、or
 ```
 (age_0 >= 21) and (age_1 >= 21)
 (age_0 >= 21) or (age_1 >= 21)
+如果是简单的比较则可以使用链式 1 <= number <= 10
+```
+## 断言
+```
+age = 10 
+assert 0 < age < 100 
+age = -1 
+assert 0 < age < 100, 'The age must be realistic'  # 可以自定义输出，否则就是默认
+assert 0 < age < 100 
 ```
 # 循环
 ## while
@@ -1044,7 +1271,42 @@ while message != 'quit':
  if message != 'quit':
      print(message)
 ```
+## for
+```
+words = ['this', 'is', 'an', 'ex', 'parrot'] 
+for word in words:
+    print(word) 
+
+for word in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+ 	print(word) 
+
+for number in range(1,11):
+    print(number) 
+
+d = {'x': 1, 'y': 2, 'z': 3} 
+for key in d: 
+	print(key, 'corresponds to', d[key]) 
+for key, value in d.items(): 
+	print(key, 'corresponds to', value) 
+
+
+names = ['anne', 'beth', 'george', 'damon'] 
+ages = [12, 45, 32, 102] 
+for i in range(len(names)): 
+	print(names[i], 'is', ages[i], 'years old') 
+```
 ## break、continue
+```
+from math import sqrt 
+for n in range(99, 0, -1): 
+	root = sqrt(n) 
+	if root == int(root): 
+		print(n) 
+		break
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+81		
+```		
 # 函数
 ## 定义、传值、默认值
 ```
