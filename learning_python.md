@@ -1,7 +1,7 @@
 ---
 阅读进度
 Python编程：从入门到实践（第2版）		继续第9章
-python基础教程（第三版）				继续第6章
+python基础教程（第三版）				继续第9章
 
 ---
 # 基础知识
@@ -137,6 +137,45 @@ elif name == 'Bill Gates':
 ## del
 不仅会删除到对象的引用，还会删除名称本身
 ## exec、eval
+## 命名空间、作用域
+vars函数返回当前作用域的字典，但不要修改它这样不安全...
+```
+x = 1 
+scope = vars() 
+print(scope['x'])
+scope['x'] += 1 
+print(x)
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+1
+2
+```
+## 全局变量
+- 可使用函数globals来访问全局变量，返回一个包含全局变量的字典
+```
+def combine(parameter): # 与全局变量同名的参数
+	print(parameter + globals()['parameter']) 
+
+parameter = 'berry' 	# 全局变量
+combine('Shrub') 
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Shrubberry
+```
+- 在函数内部给变量赋值时，该变量默认为局部变量，除非明确说明它是全局变量。
+```
+x = 1 
+def change_global(): 
+	global x 
+	x = x + 1 
+
+change_global() 
+print(x)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+2
+```
+## 闭包
+
 # 序列与映射
 - 序列是一种数据结构，其中的元素带编号（编号从0开始）。
 - 需要将一系列值组合成数据结构并通过编号来访问各个值时，列表很有用
@@ -647,6 +686,7 @@ for confirmed_user in confirmed_users:
 - 使用切片（slicing）来访问特定范围内的元素。两个索引来指定切片的边界
 - 第一个索引指定的元素包含在切片内，但第二个索引指定的元素不包含在切片内。
 - 切片的步长默认为1，但也可以设置
+- 切片都是副本，与原列表是不同内存，互不干涉
 
 ```
 #!/usr/bin/python3
@@ -956,7 +996,7 @@ for language in set(favorite_languages.values()):	# 对返回的values集合进�
 
 
 ```
-## 用于format
+## 格式化format
 只要在字典中有此kv则就可以替换到format的参数里
 ```
 #!/usr/bin/python3
@@ -1196,6 +1236,16 @@ That is not the correct answer. Please try again!
   x不等于y
 - x is y  
   is用来检查两个对象是否相同（是同一个对象）
+```
+names = ['Mrs. Entity', 'Mrs. Thing'] 
+n = names[:] 
+print(n is names)
+print(n == names)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+False
+True
+```
 - x is not y  
   x和y是不同的对象
 - x in y  
@@ -1396,10 +1446,13 @@ print(alien_0)
 
 ```
 
-## 传递任意个参数
-效果类似perl的ARGV与@_
+## 传递任意个参数（收集参数）
+- 参数前面的星号将提供的所有值都放在一个元组中，也就是将这些值收集起来。
+- 效果类似perl的ARGV与@_
+- 一个*实际对应的是元祖
+- **user_info则对应字典
 
-下例*toppings实则会变为元祖，内容为('mushrooms', 'green peppers', 'extra cheese')。也即一个*实际对应的是元祖，下面**user_info则对应字典
+下例* toppings实则会变为元祖，内容为('mushrooms', 'green peppers', 'extra cheese')。
 ```
 #!/usr/bin/python3
 
@@ -1428,6 +1481,87 @@ Making a 12-inch pizza with the following toppings:
 - green peppers
 - extra cheese
 {'location': 'princeton', 'field': 'physics', 'first_name': 'albert', 'last_name': 'einstein'}
+```
+- 如果在定义和调用函数时都使用*或**，将只能传递元组或字典。反而不便
+
+如下，两种方式结果一样
+```
+def with_stars(**kwds): 
+	print(kwds['name'], 'is', kwds['age'], 'years old') 
+
+def without_stars(kwds): 
+	print(kwds['name'], 'is', kwds['age'], 'years old') 
+
+args = {'name': 'Mr. Gumby', 'age': 42} 
+with_stars(**args) 
+without_stars(args) 
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Mr. Gumby is 42 years old
+Mr. Gumby is 42 years old
+```
+- 只有在定义函数（允许可变数量的参数）或调用函数时（拆分字典或序列）使用，星号才能发挥作用
+
+使用这些拆分运算符来传递参数很有用，因为这样无需操心参数个数之类的问题，如下这在调用超类的构造函数时特别有用
+```
+def foo(x, y, z, m=0, n=0): 
+	print(x, y, z, m, n) 
+def call_foo(*args, **kwds): 
+	print("Calling foo!") 
+	foo(*args, **kwds) 
+```
+综合演示
+```
+def story(**kwds): 
+	return 'Once upon a time, there was a {job} called {name}.'.format_map(kwds)
+def power(x, y, *others): 
+	if others: 
+		print('Received redundant parameters:', others) 
+	return pow(x, y) 
+def interval(start, stop=None, step=1): 
+	'Imitates range() for step > 0' 
+	if stop is None: # 如果没有给参数stop指定值，
+		start, stop = 0, start # 就调整参数start和stop的值
+	result = [] 
+	i = start # 从start开始往上数
+	while i < stop:  # 数到stop位置
+		result.append(i) # 将当前数的数附加到result末尾
+		i += step # 增加到当前数和step（> 0）之和
+	return result
+
+print(story(job='king', name='Gumby')) 
+print(story(name='Sir Robin', job='brave knight')) 
+params = {'job': 'language', 'name': 'Python'} 
+print(story(**params)) 
+del params['job'] 
+print(story(job='stroke of genius', **params)) 
+print(power(2, 3))
+print(power(3, 2))
+print(power(y=3, x=2))
+params = (5,) * 2 
+print(power(*params))
+print(power(3, 3, 'Hello, world'))
+print(interval(10))
+print(interval(1, 5))
+print(interval(3, 12, 4))
+print(power(*interval(3, 7)))
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Once upon a time, there was a king called Gumby.
+Once upon a time, there was a brave knight called Sir Robin.
+Once upon a time, there was a language called Python.
+Once upon a time, there was a stroke of genius called Python.
+8
+9
+8
+3125
+Received redundant parameters: ('Hello, world',)
+27
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[1, 2, 3, 4]
+[3, 7, 11]
+Received redundant parameters: (5, 6)
+81
 ```
 # 模块
 ## 定义
@@ -1551,8 +1685,45 @@ with open(filename) as f:
 	numbers = json.load(f)
 print(numbers)
 ```
+# 类
+## 简单使用
+## 私有方法
+```
+class Secretive: 
+	def __inaccessible(self): 
+		print("Bet you can't see me ...") 
+	def accessible(self): 
+		print("The secret message is:") 
+		self.__inaccessible() 
+
+s = Secretive() 
+s.accessible()
+s.__inaccessible()	不能调用私有方法，会失败
+```
 # 异常处理
-## try、except、else
+
+## 抛出异常
+- 使用raise语句，并将一个类（必须是Exception的子类）或实例作为参数。
+- 将类作为参数时，将自动创建一个实例，捕获到的即是此对象
+```
+raise Exception('hyperdrive overload') 
+也可不指定类型，那样下面的信息就会减少一些
+
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Traceback (most recent call last):
+  File "/home/huawei/playground/pythontest/pyth.py", line 2, in <module>
+    raise Exception('hyperdrive overload') 
+Exception: hyperdrive overload
+```
+## 异常类型
+见python基础教程第三版p133
+## 自定义的异常类
+继承自Exception
+
+class SomeCustomException(Exception): pass 
+## try、except、else、finally
+else是未触发异常的路径
 ```
 #!/usr/bin/python3
 filename = 'alice.txt'
@@ -1566,4 +1737,58 @@ else:
 
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
 Sorry, the file alice.txt does not exist.
+```
+也可以有多个捕获
+```
+try: 
+ 	x = int(input('Enter the first number: ')) 
+	y = int(input('Enter the second number: ')) 
+	print(x / y) 
+except ZeroDivisionError: 
+	print("The second number can't be zero!") 
+except TypeError: 
+	print("That wasn't a number, was it?") 
+```
+这样更精简
+```
+try: 
+	x = int(input('Enter the first number: ')) 
+	y = int(input('Enter the second number: ')) 
+	print(x / y) 
+except (ZeroDivisionError, TypeError, NameError): 
+ 	print('Your numbers were bogus ...') 
+```
+带有finally
+```
+#!/usr/bin/python3
+try: 
+	1 / 0 
+except NameError: 
+	print("Unknown variable") 
+else: 
+	print("That went well!") 
+finally: 
+	print("Cleaning up.") 
+```
+## 捕获对象
+下面的e即是异常对象
+```
+try: 
+	x = int(input('Enter the first number: ')) 
+	y = int(input('Enter the second number: ')) 
+	print(x / y) 
+except (ZeroDivisionError, TypeError) as e: 
+	print(e) 
+```
+## 捕获所有
+- 在except语句中不指定任何异常类即可
+- 更好的选择是使用except Exception as e并对异常对象进行检查。这样做将让不是从Exception派生而来的为数不多的异常成为漏网之鱼，其中包括SystemExit和KeyboardInterrupt，因为它们是从BaseException（Exception的超类）派生而来的。
+
+```
+try: 
+	x = int(input('Enter the first number: ')) 
+	y = int(input('Enter the second number: ')) 
+	print(x / y) 
+except: 
+	print('Something wrong happened ...') 
 ```
