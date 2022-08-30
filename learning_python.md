@@ -1,7 +1,7 @@
 ---
 阅读进度
-Python编程：从入门到实践（第2版）		继续第9章
-python基础教程（第三版）				继续第9章
+Python编程：从入门到实践（第2版）		继续第10章
+python基础教程（第三版）				继续第10章
 
 ---
 # 基础知识
@@ -119,6 +119,24 @@ Hello,
 
 
 world!
+```
+
+## 随机数
+- 随机整数 randint
+- 随机列表元素 choice
+```
+#!/usr/bin/python3
+
+from random import randint
+print(randint(1, 6))
+from random import choice
+players = ['charles', 'martina', 'michael', 'florence', 'eli']
+first_up = choice(players)
+print(first_up)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+3
+michael
 ```
 ## pass
 防止在if里什么都不写无法运行，可暂时用pass占位
@@ -1565,6 +1583,7 @@ Received redundant parameters: (5, 6)
 ```
 # 模块
 ## 定义
+- 普通函数模块，另见类模块
 ```
 [huawei@n148 pythontest]$ cat pizza.py 
 #!/usr/bin/python3
@@ -1573,6 +1592,22 @@ def make_pizza(size, *toppings):
         for topping in toppings:
                 print(f"- {topping}")
 ```
+
+## 导入类
+类模块的定义在上面
+```
+#!/usr/bin/python3
+from car import Car
+my_new_car = Car('audi', 'a4', 2019)
+print(my_new_car.get_descriptive_name())
+my_new_car.odometer_reading = 23
+my_new_car.read_odometer()
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+2019 Audi A4
+This car has 23 miles on it.
+```
+
 ## 导入整个模块
 使用import导入文件主干名，调用需要作用域
 ```
@@ -1623,7 +1658,172 @@ import pizza as p
 p.make_pizza(16, 'pepperoni')
 p.make_pizza(12, 'mushrooms', 'green peppers', 'extra cheese')
 ```
+## 类模块
 
+### 定义模块文件
+这里将多个类定义在一个文件里了，其实也可以分散开（见模块导入模块）
+```
+文件名 car.py
+
+#!/usr/bin/python3
+class Car:
+	def __init__(self, make, model, year):
+		self.make = make
+		self.model = model
+		self.year = year
+		self.odometer_reading = 0
+
+	def get_descriptive_name(self):
+		long_name = f"{self.year} {self.make} {self.model}"
+		return long_name.title()
+	def read_odometer(self):
+		print(f"This car has {self.odometer_reading} miles on it.")
+	def update_odometer(self, mileage):
+		if mileage >= self.odometer_reading:
+			self.odometer_reading = mileage
+		else:
+			print("You can't roll back an odometer!")
+	def increment_odometer(self, miles):
+		self.odometer_reading += miles
+
+
+class Battery:
+	def __init__(self, battery_size=75):
+		self.battery_size = battery_size
+	def describe_battery(self):
+		print(f"This car has a {self.battery_size}-kWh battery.")
+	def get_range(self):
+		if self.battery_size == 75:
+			range = 260
+		elif self.battery_size == 100:
+			range = 315
+		print(f"This car can go about {range} miles on a full charge.")
+
+
+class ElectricCar(Car):
+	def __init__(self, make, model, year):
+		super().__init__(make, model, year)
+		self.battery = Battery()
+	def describe_battery(self):
+		print(f"This car has a {self.battery_size}-kWh battery.")
+```
+### 使用类模块
+- 这里分别导入了基类与子类
+```
+#!/usr/bin/python3
+from car import Car
+my_new_car = Car('audi', 'a4', 2019)
+print(my_new_car.get_descriptive_name())
+my_new_car.odometer_reading = 23
+my_new_car.read_odometer()
+
+from car import ElectricCar
+my_tesla = ElectricCar('tesla', 'model s', 2019)
+print(my_tesla.get_descriptive_name())
+my_tesla.battery.describe_battery()
+my_tesla.battery.get_range()
+
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+2019 Audi A4
+This car has 23 miles on it.
+2019 Tesla Model S
+This car has a 75-kWh battery.
+This car can go about 260 miles on a full charge.
+
+```
+- 其实也可以从一次从模块中导入多个类
+```
+#!/usr/bin/python3
+from car import Car, ElectricCar
+my_beetle = Car('volkswagen', 'beetle', 2019)
+print(my_beetle.get_descriptive_name())
+my_tesla = ElectricCar('tesla', 'roadster', 2019)
+print(my_tesla.get_descriptive_name())
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+2019 Volkswagen Beetle
+2019 Tesla Roadster
+```
+- 还可以导入整个模块
+```
+#!/usr/bin/python3
+
+import car
+my_beetle = car.Car('volkswagen', 'beetle', 2019)
+print(my_beetle.get_descriptive_name())
+my_tesla = car.ElectricCar('tesla', 'roadster', 2019)
+print(my_tesla.get_descriptive_name())
+```
+
+## 模块导入模块
+即将不同类分散到不同文件中
+- 基类模块
+```
+[huawei@n148 pythontest]$ cat car.py 
+#!/usr/bin/python3
+
+class Car:
+        def __init__(self, make, model, year):
+                self.make = make
+                self.model = model
+                self.year = year
+                self.odometer_reading = 0
+
+        def get_descriptive_name(self):
+                long_name = f"{self.year} {self.make} {self.model}"
+                return long_name.title()
+        def read_odometer(self):
+                print(f"This car has {self.odometer_reading} miles on it.")
+        def update_odometer(self, mileage):
+                if mileage >= self.odometer_reading:
+                        self.odometer_reading = mileage
+                else:
+                        print("You can't roll back an odometer!")
+        def increment_odometer(self, miles):
+                self.odometer_reading += miles
+```
+- 子类模块，此模块需导入基类模块
+```
+[huawei@n148 pythontest]$ cat electric_car.py 
+#!/usr/bin/python3
+from car import Car
+
+class Battery:
+        def __init__(self, battery_size=75):
+                self.battery_size = battery_size
+        def describe_battery(self):
+                print(f"This car has a {self.battery_size}-kWh battery.")
+        def get_range(self):
+                if self.battery_size == 75:
+                        range = 260
+                elif self.battery_size == 100:
+                        range = 315
+                print(f"This car can go about {range} miles on a full charge.")
+
+
+class ElectricCar(Car):
+        def __init__(self, make, model, year):
+                super().__init__(make, model, year)
+                self.battery = Battery()
+        def describe_battery(self):
+                print(f"This car has a {self.battery_size}-kWh battery.")
+```
+- 使用的代码，导入多个模块即可
+```
+#!/usr/bin/python3
+
+from car import Car
+from electric_car import ElectricCar
+my_beetle = Car('volkswagen', 'beetle', 2019)
+print(my_beetle.get_descriptive_name())
+my_tesla = ElectricCar('tesla', 'roadster', 2019)
+print(my_tesla.get_descriptive_name())
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+2019 Volkswagen Beetle
+2019 Tesla Roadster
+```
 # 文件
 open()的模式如下，如果省略，Python将以默认的只读模式打开文件。
 - 读取模式 （'r' ）
@@ -1686,7 +1886,51 @@ with open(filename) as f:
 print(numbers)
 ```
 # 类
-## 简单使用
+## 构造函数 __init__
+```
+class Dog:
+	def __init__(self, name, age):
+		self.name = name
+		self.age = age
+	def sit(self):
+ 		print(f"{self.name} is now sitting.")
+	def roll_over(self):
+		print(f"{self.name} rolled over!")
+
+my_dog = Dog('Willie', 6)
+your_dog = Dog('Lucy', 3)
+print(f"My dog's name is {my_dog.name}.")
+print(f"My dog is {my_dog.age} years old.")
+my_dog.sit()
+print(f"\nYour dog's name is {your_dog.name}.")
+print(f"Your dog is {your_dog.age} years old.")
+your_dog.sit()
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+My dog's name is Willie.
+My dog is 6 years old.
+Willie is now sitting.
+
+Your dog's name is Lucy.
+Your dog is 3 years old.
+Lucy is now sitting.
+```
+参数也可以有默认值
+```
+class FooBar: 
+	def __init__(self, v = 1): 
+		self.somevar = v
+
+f = FooBar("aaaaaaaaaaaaaaa")  调用可以传递参数
+print(f.somevar)
+```
+
+## 析构函数 __del__
+- 函数名__del__，通常无需手动调用
+## 修改成员变量值
+- 直接修改属性的值，即直接通过对象进行赋值，如 my_new_car.odometer_reading = 23
+- 封装成员方法更改属性值
+
 ## 私有方法
 ```
 class Secretive: 
@@ -1700,6 +1944,156 @@ s = Secretive()
 s.accessible()
 s.__inaccessible()	不能调用私有方法，会失败
 ```
+## 函数property
+## 静态方法和类方法
+- 静态方法貌似全局的static
+- 类方法貌似类的static
+- @名为装饰器
+```
+class MyClass: 
+	@staticmethod 
+	def smeth(): 
+ 		print('This is a static method') 
+	@classmethod 
+	def cmeth(cls): 
+		print('This is a class method of', cls) 
+  
+MyClass.smeth() 
+MyClass.cmeth()
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+This is a static method
+This is a class method of <class '__main__.MyClass'>
+```
+# 继承
+## 简单继承
+```
+class A: 
+	def hello(self): 
+		print("Hello, I'm A.") 
+class B(A): 
+	pass
+
+a = A() 
+b = B() 
+a.hello() 
+b.hello() 
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Hello, I'm A.
+Hello, I'm A.
+```
+调用父类构造函数，添加子类新属性与方法
+```
+
+```
+## 重写普通方法
+```
+class A: 
+	def hello(self): 
+		print("Hello, I'm A.") 
+class B(A): 
+	def hello(self): 
+ 		print("Hello, I'm B.") 
+
+a = A() 
+b = B() 
+a.hello() 
+b.hello() 
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Hello, I'm A.
+Hello, I'm B.
+```
+## 调用父类方法
+注意没有super()那句则会失败，因为子类重新实现了自己的构造，且未调用父类构造，所以没有对应的成员hungry
+```
+class Bird: 
+	def __init__(self): 
+		self.hungry = True 
+	def eat(self): 
+		if self.hungry: 
+ 			print('Aaaah ...') 
+ 			self.hungry = False 
+		else:
+ 			print('No, thanks!') 
+    
+class SongBird(Bird): 
+	def __init__(self): 
+		super().__init__()
+		self.sound = 'Squawk!' 
+	def sing(self): 
+		print(self.sound)
+
+sb = SongBird() 
+sb.sing() 
+sb.eat() 
+sb.eat() 
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+Squawk!
+Aaaah ...
+No, thanks!
+```
+
+## 组合
+案例演示了组合类的使用方式，汽车父类、电动车子类，并且电动车类组合了电池类
+```
+#!/usr/bin/python3
+
+class Car:
+	def __init__(self, make, model, year):
+		self.make = make
+		self.model = model
+		self.year = year
+		self.odometer_reading = 0
+
+	def get_descriptive_name(self):
+		long_name = f"{self.year} {self.make} {self.model}"
+		return long_name.title()
+	def read_odometer(self):
+		print(f"This car has {self.odometer_reading} miles on it.")
+	def update_odometer(self, mileage):
+		if mileage >= self.odometer_reading:
+			self.odometer_reading = mileage
+		else:
+			print("You can't roll back an odometer!")
+	def increment_odometer(self, miles):
+		self.odometer_reading += miles
+
+class Battery:
+	def __init__(self, battery_size=75):
+		self.battery_size = battery_size
+	def describe_battery(self):
+		print(f"This car has a {self.battery_size}-kWh battery.")
+	def get_range(self):
+		if self.battery_size == 75:
+			range = 260
+		elif self.battery_size == 100:
+			range = 315
+		print(f"This car can go about {range} miles on a full charge.")
+
+
+class ElectricCar(Car):
+	def __init__(self, make, model, year):
+		super().__init__(make, model, year)
+		self.battery = Battery()
+	def describe_battery(self):
+		print(f"This car has a {self.battery_size}-kWh battery.")
+
+
+my_tesla = ElectricCar('tesla', 'model s', 2019)
+print(my_tesla.get_descriptive_name())
+my_tesla.battery.describe_battery()
+my_tesla.battery.get_range()
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+2019 Tesla Model S
+This car has a 75-kWh battery.
+This car can go about 260 miles on a full charge.
+
+```
+
 # 异常处理
 
 ## 抛出异常
