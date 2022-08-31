@@ -1,6 +1,6 @@
 ---
 阅读进度
-Python编程：从入门到实践（第2版）		继续第10章
+Python编程：从入门到实践（第2版）		继续第11章
 python基础教程（第三版）				继续第10章
 
 ---
@@ -151,6 +151,27 @@ elif name == 'Enid':
 elif name == 'Bill Gates': 
 	print('Access Denied')
 
+```
+在异常处理中如果没找到文件也就什么都不做了
+```
+def count_words(filename):
+	try:
+		with open(filename, encoding='utf-8') as f:
+			contents = f.read()
+	except FileNotFoundError:
+		pass
+	else:
+		words = contents.split()
+		num_words = len(words)
+		print(f"The file {filename} has about {num_words} words.")
+
+
+filenames = ['alice.txt', 'siddhartha.txt', 'moby_dick.txt', 'little_women.txt']
+for filename in filenames:
+	count_words(filename)
+
+[huawei@n148 pytest]$ python3 pyth.py 
+The file alice.txt has about 29465 words.
 ```
 ## del
 不仅会删除到对象的引用，还会删除名称本身
@@ -315,6 +336,25 @@ print('*** SPAM * for * everyone!!! ***'.strip(' *!'))
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
 SPAM * for * everyone
 ```
+使用strip删除每行的两边空白
+```
+with open('pi_digits.txt') as file_object:
+    lines = file_object.readlines()
+pi_string = ''
+for line in lines:
+	pi_string += line.strip()
+print(pi_string)
+print(len(pi_string))
+
+[huawei@n148 pytest]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+3.141592653589793238462643383279
+32
+
+[huawei@n148 pytest]$ cat pi_digits.txt 
+3.1415926535 
+  8979323846 
+  2643383279
+```
 ## 比较
 依然使用==与!=
 ```
@@ -371,6 +411,42 @@ print('C:' + '\\'.join(dirs))  # C:\usr\bin\env
 
 print('1+2+3+4+5'.split('+'))	# ['1', '2', '3', '4', '5']
 ```
+## 统计出现的次数
+```
+line = "Row, row, row your boat"
+print(line.count('row'))
+print(line.lower().count('row'))
+
+[huawei@n148 pytest]$ python3 pyth.py 
+2
+3
+```
+## 统计单词数量
+使用了异常处理，并且可以统计多本书的词数
+```
+def count_words(filename):
+	try:
+		with open(filename, encoding='utf-8') as f:
+			contents = f.read()
+	except FileNotFoundError:
+		print(f"Sorry, the file {filename} does not exist.")
+	else:
+		words = contents.split()
+		num_words = len(words)
+		print(f"The file {filename} has about {num_words} words.")
+
+
+filenames = ['alice.txt', 'siddhartha.txt', 'moby_dick.txt', 'little_women.txt']
+for filename in filenames:
+	count_words(filename)
+
+[huawei@n148 pytest]$ python3 pyth.py 
+The file alice.txt has about 29465 words.
+Sorry, the file siddhartha.txt does not exist.
+Sorry, the file moby_dick.txt does not exist.
+Sorry, the file little_women.txt does not exist.
+```
+
 ## replace
 ```
 s1 = 'This is a test';
@@ -381,6 +457,23 @@ print(s2)
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
 This is a test
 Theez eez a test
+```
+## 取字符串的一部分
+其实就是切片操作...
+```
+with open('pi_digits.txt') as file_object:
+    lines = file_object.readlines()
+pi_string = ''
+for line in lines:
+	pi_string += line.strip()
+print(pi_string)
+print(f"{pi_string[:20]}...")
+print(len(pi_string))
+
+[huawei@n148 pytest]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+3.141592653589793238462643383279
+3.141592653589793238...
+32
 ```
 # 列表【】
 列表非常适合用于存储在程序运行期间可能变化的数据集。列表元素是可以修改的。使用中括号定义
@@ -1825,26 +1918,80 @@ print(my_tesla.get_descriptive_name())
 2019 Tesla Roadster
 ```
 # 文件
+## open模式
+
 open()的模式如下，如果省略，Python将以默认的只读模式打开文件。
 - 读取模式 （'r' ）
 - 写入模式 （'w' ）
 - 附加模式 （'a' ）
 - 读写模式 （'r+' ）
-## 读取
-一次读入所有
+- 'b' 二进制模式（与其他模式结合使用）
+- 't' 文本模式（默认值，与其他模式结合使用）
+
+## 一次读入所有
 ```
 #!/usr/bin/python3
 with open('pi_digits.txt') as file_object:
 	contents = file_object.read()
 print(contents.rstrip())
 ```
-循环读取每一行
+## 读取所有行
 ```
 #!/usr/bin/python3
 with open('pi_digits.txt') as file_object:
     lines = file_object.readlines()
 for line in lines:
 	print(line.rstrip())
+```
+## 读取指定字节
+```
+with open('pi_digits.txt') as file_object:
+	contents = file_object.read(5)
+print(contents.rstrip())
+
+[huawei@n148 pytest]$ cat alice.txt | python3 pyth.py
+3.141
+```
+## 每次读一个字符或字节
+读取二进制文件即为字节~
+```
+with open(filename) as f: 
+	while True: 
+		char = f.read(1) 
+		if not char: break 
+		print(char) 
+```
+也可以一次读取，遍历字符
+```
+with open(filename) as f: 
+	for char in f.read(): 
+ 		process(char) 
+```
+## 每次读一行
+```
+filename = 'username.json';
+with open(filename) as f: 
+	while True: 
+		line = f.readline() 
+		if not line: break 
+		print(line) 
+```
+也可以一次读取到字符串数组，然后迭代此数组
+```
+with open(filename) as f: 
+ 	for line in f.readlines(): 
+		process(line) 
+```
+
+## 连接文件所有行
+使用strip去除每行的两端空白，然后相连，办法感觉很繁琐
+```
+with open('pi_digits.txt') as file_object:
+    lines = file_object.readlines()
+pi_string = ''
+for line in lines:
+	pi_string += line.strip()
+print(pi_string)
 ```
 ## 写入与追加
 ```
@@ -1865,6 +2012,19 @@ I love creating new games.
 I also love finding meaning in large datasets.
 I love creating apps that can run in a browser.
 ```
+## 读取后改再写回
+```
+#!/usr/bin/python3
+fname = 'username.json';
+f = open(fname) 
+lines = f.readlines()
+f.close() 
+lines[0] = "new test" 
+f = open(fname, 'w') 
+f.writelines(lines) 
+f.close() 
+```
+
 ## json
 写json
 ```
@@ -1884,6 +2044,58 @@ numbers = []
 with open(filename) as f:
 	numbers = json.load(f)
 print(numbers)
+```
+读写案例  
+没有记录则写文件，有记录则读文件并展示
+```
+#!/usr/bin/python3
+
+import json
+def get_stored_username():
+	filename = 'username.json'
+	try:
+		with open(filename) as f:
+			username = json.load(f)
+	except FileNotFoundError:
+		return None
+	else:
+		return username
+
+def get_new_username():
+	username = input("What is your name? ")
+	filename = 'username.json'
+	with open(filename, 'w') as f:
+		json.dump(username, f)
+	return username
+
+def greet_user():
+	username = get_stored_username()
+	if username:
+		print(f"Welcome back, {username}!")
+	else:
+		username = get_new_username()
+		print(f"We'll remember you when you come back, {username}!")
+
+greet_user()
+```
+# 管道
+## 简单使用
+依然是使用管道符号进行操作，python从stdin中进行读取
+```
+import sys 
+text = sys.stdin.read() 
+words = text.split() 
+wordcount = len(words) 
+print('Wordcount:', wordcount) 
+
+[huawei@n148 pytest]$ cat alice.txt | python3 pyth.py
+Wordcount: 29465
+```
+也可以迭代stdin
+```
+import sys 
+for line in sys.stdin: 
+	process(line) 
 ```
 # 类
 ## 构造函数 __init__
