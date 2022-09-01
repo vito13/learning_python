@@ -1,7 +1,7 @@
 ---
 阅读进度
-Python编程：从入门到实践（第2版）		继续第11章
-python基础教程（第三版）				继续第10章
+Python编程：从入门到实践（第2版）		继续第12章，后面都是东拼西凑先不用看了
+python基础教程（第三版）				继续第12章，后面都是东拼西凑先不用看了
 
 ---
 # 基础知识
@@ -95,7 +95,7 @@ else:
  print("\nYou'll be able to ride when you're a little older.")
 
 ```
-## print
+## 打印输出
 ```
 print('Age:', 42) 
 name = 'Gumby' 
@@ -119,6 +119,24 @@ Hello,
 
 
 world!
+```
+如果要打印的数据结构太大，一行容纳不下，可使用模块pprint中的函数pprint（而不是普通print语句）。pprint是个卓越的打印函数，能够更妥善地打印输出。
+
+```
+#!/usr/bin/python3
+import sys, pprint 
+pprint.pprint(sys.path) 
+
+[huawei@n148 pytest]$ python3 pyth.py 
+['/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest',
+ '/usr/local/lib/python3.6/site-packages/setuptools-19.6-py3.6.egg',
+ '/usr/lib64/python36.zip',
+ '/usr/lib64/python3.6',
+ '/usr/lib64/python3.6/lib-dynload',
+ '/usr/local/lib64/python3.6/site-packages',
+ '/usr/local/lib/python3.6/site-packages',
+ '/usr/lib64/python3.6/site-packages',
+ '/usr/lib/python3.6/site-packages']
 ```
 
 ## 随机数
@@ -1685,7 +1703,26 @@ def make_pizza(size, *toppings):
         for topping in toppings:
                 print(f"- {topping}")
 ```
+## site-packages
+- 模块sys的变量path所包含的路径列表即模块的搜索路径
+- 模块位于类似于site-packages这样的地方，所有的程序就都能够导入它
 
+```
+#!/usr/bin/python3
+import sys, pprint 
+pprint.pprint(sys.path) 
+
+[huawei@n148 pytest]$ python3 pyth.py 
+['/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest',
+ '/usr/local/lib/python3.6/site-packages/setuptools-19.6-py3.6.egg',
+ '/usr/lib64/python36.zip',
+ '/usr/lib64/python3.6',
+ '/usr/lib64/python3.6/lib-dynload',
+ '/usr/local/lib64/python3.6/site-packages',
+ '/usr/local/lib/python3.6/site-packages',
+ '/usr/lib64/python3.6/site-packages',
+ '/usr/lib/python3.6/site-packages']
+```
 ## 导入类
 类模块的定义在上面
 ```
@@ -1917,6 +1954,149 @@ print(my_tesla.get_descriptive_name())
 2019 Volkswagen Beetle
 2019 Tesla Roadster
 ```
+## 模块的测试方法
+```
+模块文件提供了一个方法与测试函数，根据__name__变量的值来进行判断是否运行test方法
+[huawei@n148 pytest]$ cat hello.py 
+#!/usr/bin/python3
+def hello(): 
+        print("Hello, world!") 
+def test(): 
+        hello() 
+
+print(__name__)
+if __name__ == '__main__': test() 
+
+下面是main代码
+[huawei@n148 pytest]$ cat pyth.py 
+#!/usr/bin/python3
+import hello;
+hello.hello()
+
+执行模块自身则会调用test
+[huawei@n148 pytest]$ python3 hello.py
+__main__
+Hello, world!
+
+执行main代码则不触发test
+[huawei@n148 pytest]$ python3 pyth.py 
+hello
+```
+## 包
+- 包是一个目录，目录内必须包含文件__init__.py
+- 如果像普通模块一样导入包，文件__init__.py的内容就将是包的内容
+- 要将模块加入包中，只需将模块文件放在包目录中即可
+- 包中可以嵌套其他包，即目录可以多层，如下
+	- ~/python/ PYTHONPATH中的目录
+	- ~/python/drawing/ 包目录（包drawing）
+	- ~/python/drawing/__init__.py 包代码（模块drawing）
+	- ~/python/drawing/colors.py 模块colors
+	- ~/python/drawing/shapes.py 模块shapes
+```
+	完成这些准备工作后，下面的语句都是合法的：
+	import drawing # (1) 导入drawing包
+	import drawing.colors # (2) 导入drawing包中的模块colors 
+	from drawing import shapes # (3) 导入模块shapes
+```
+
+# unittest
+
+## 测试函数
+```
+定义一个方法
+[huawei@n148 pytest]$ cat name_function.py 
+#!/usr/bin/python3
+def get_formatted_name(first, last, middle=''):
+	if middle:
+		full_name = f"{first} {middle} {last}"
+	else:
+		full_name = f"{first} {last}"
+	return full_name.title()
+
+
+
+下面是测试代码
+[huawei@n148 pytest]$ cat test_name_function.py 
+import unittest
+from name_function import get_formatted_name
+
+class NamesTestCase(unittest.TestCase):
+	def test_first_last_name(self):
+		formatted_name = get_formatted_name('janis', 'joplin')
+		self.assertEqual(formatted_name, 'Janis Joplin')
+	def test_first_last_middle_name(self):
+		formatted_name = get_formatted_name('wolfgang', 'mozart', 'amadeus')
+		self.assertEqual(formatted_name, 'Wolfgang Amadeus Mozart')
+
+if __name__ == '__main__':
+	unittest.main()
+
+
+运行结果
+[huawei@n148 pytest]$ python3 test_name_function.py 
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+```
+## unittest的setUp和tearDown
+
+方法setUp和tearDown，它们将分别在每个测试方法之前和之后执行。可使用这些方法来执行适用于所有测试的初始化代码和清理代码
+
+## 测试类
+
+
+```
+[huawei@n148 pytest]$ cat survey.py 
+#!/usr/bin/python3
+class AnonymousSurvey:
+        def __init__(self, question):
+                self.question = question
+                self.responses = []
+        def show_question(self):
+                print(self.question)
+        def store_response(self, new_response):
+                self.responses.append(new_response)
+        def show_results(self):
+                print("Survey results:")
+                for response in self.responses:
+                        print(f"- {response}")
+
+
+[huawei@n148 pytest]$ cat test_survey.py 
+import unittest
+from survey import AnonymousSurvey
+class TestAnonymousSurvey(unittest.TestCase):
+        def setUp(self):
+                question = "What language did you first learn to speak?"
+                self.my_survey = AnonymousSurvey(question)
+                self.responses = ['English', 'Spanish', 'Mandarin']
+        def test_store_single_response(self):
+                self.my_survey.store_response(self.responses[0])
+                self.assertIn(self.responses[0], self.my_survey.responses)
+        def test_store_three_responses(self):
+                for response in self.responses:
+                        self.my_survey.store_response(response)
+                for response in self.responses:
+                        self.assertIn(response, self.my_survey.responses)
+
+if __name__ == '__main__':
+        unittest.main()
+
+
+[huawei@n148 pytest]$ python3 test_survey.py 
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+```
+## 测试的输出
+运行测试用例时，每完成一个单元测试，Python都打印一个字符
+- 测试通过时打印一个句点
+- 测试引发错误时打印一个E
+- 测试导致断言失败时则打印一个F
 # 文件
 ## open模式
 
