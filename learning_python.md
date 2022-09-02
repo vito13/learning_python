@@ -2,14 +2,19 @@
 阅读进度
 Python编程：从入门到实践（第2版）		继续第12章，后面都是东拼西凑先不用看了
 python基础教程（第三版）				继续第12章，后面都是东拼西凑先不用看了
-
+python语言及其应用						继续第4章
 ---
 # 基础知识
+> Python 最底层的基本数据类型：布尔型、整型、浮点型以及字符串型。如果把这些数据类型看作组成 Python 的原子，数据结构就像分子一样。我们把之前所学的基本 Python 类型以更为复杂的方式组织起来。这些数据结构以后会经常用到。在编程中，最常见的工作就是将数据进行拆分或合并，将其加工为特定的形式，而数据结构就是用以切分数据的钢锯以及合并数据的粘合枪。
+
 ## 数值
+- 整型（整数，例如 42、100000000）
+- 浮点型（小数，例如 3.14159，或用科学计数法表示的数字，例如 1.0e8，它表示1乘以10的8次方，也可写作100000000.0）
 - 无论是哪种运算，只要有操作数是浮点数，Python默认得到的总是浮点数，即便结果原本为整数也是如此。
 - 书写很大的数时，可使用下划线将其中的数字分组，如 universe_age = 14_000_000_000
 - 可以同时赋值多个变量 x, y, z = 0, 0, 0
 ## bool
+表示真假的类型，仅包含 True 和 False 两种取值
 - bool()
 - True
 - False
@@ -27,48 +32,7 @@ False
 True
 False
 ```
-## 序列解包
-将一个序列（或任何可迭代对象）解包，并将得到的值存储到一系列变量中。可用于  
-- 并行赋值
-- 交换变量值
-- 将序列赋值给元祖values
-- 解开元祖到多个变量
-- 使用*接收多个值到列表中
-- 函数参数传递（主要是上一种方式）
 
-```
-x, y, z = 1, 2, 3 # 并行赋值
-print(x, y, z) 
-x, y = y, x	# 交换变量值
-print(x, y) 
-values = 10, 20, 30 # 将序列赋值给元祖values
-print(values)
-x, y, z = values # 解开元祖到多个变量
-print(x, y, z) 
-
-scoundrel = {'name': 'Robin', 'girlfriend': 'Marion'} 
-key, value = scoundrel.popitem() # 返回元祖赋值给k和v
-print(key, value)
-a, b, *rest = [1, 2, 3, 4] 	# 可使用星号运算符（*）来收集多余的值，这样无需确保值和变量的个数相同，rest为列表
-print(rest)
-
-name = "Albus Percival Wulfric Brian Dumbledore" 
-first, *middle, last = name.split() # *变量也可在其他位置
-print(middle)
-
-a, *b, c = "abc" # 带星号的变量始终也是列表，即使元素仅1个
-print(a, b, c)
-
-[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
-1 2 3
-2 1
-(10, 20, 30)
-10 20 30
-girlfriend Marion
-[3, 4]
-['Percival', 'Wulfric', 'Brian']
-a ['b'] c
-```
 ## 乘方
 print(3 ** 2)
 ## 常量
@@ -84,7 +48,10 @@ print(sum(even_numbers))
 print(len(even_numbers))
 
 ```
-## input、int
+## input、int、float
+- int()可以取值
+- int(False)也可以转换bool得到1和0
+- float()可以将其他数字类型转换为浮点型
 ```
 #!/usr/bin/python3
 height = input("How tall are you, in inches? ")
@@ -244,10 +211,10 @@ print(x)
 
 
 # 字符串
-字符串是不可变的，因此所有的元素赋值和切片赋值都是非法的。
-
-## 类型
-多行的、原始的、还有图标的...
+- 字符组成的序列
+- 字符串是不可变的，因此所有的元素赋值和切片赋值都是非法的。
+- 多行的使用三个单引号，
+## 多行的、单行的、还有图标的
 ```
 #!/usr/bin/python3
 print('''This is a very long string. It continues here. 
@@ -281,6 +248,62 @@ print(name.lower())
 Ada Lovelace
 ADA LOVELACE
 ada lovelace
+```
+## str类型转换
+```
+print(str(123.321))
+print(str(True))
+```
+## 字符串长度len
+```
+letters = 'abcdefghijklmnopqrstuvwxyz'
+print(len(letters))
+```
+## 判断开头、结尾
+```
+letters = 'abcdefghijklmnopqrstuvwxyz'
+print(letters.startswith('abc'))
+print(letters.endswith('abc'))
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+True
+False
+```
+## 判断都是字母数字
+poem.isalnum()
+## 首字母变大写
+setup.capitalize()
+## 所有单词的开头字母变大写
+setup.title()
+
+## 所有字母都大写
+setup.upper()
+
+## 所有字母都小写
+setup.lower()
+
+## 所有字母大小写互换
+setup.swapcase()
+## 左对齐、右对齐、居中
+- setup.ljust(30)
+- setup.rjust(30)
+- setup.center(30)
+
+## 取字符
+当做数据进行索引即可
+```
+letters = 'abcdefghijklmnopqrstuvwxyz'
+print(letters[0])
+print(letters[1])
+print(letters[2])
+print(letters[-1])
+print(letters[-2])
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+a
+b
+c
+z
+y
 ```
 ## 格式化
 - c风格%方式
@@ -399,7 +422,8 @@ print('w' in permissions)	# True
 subject = '$$$ Get rich now!!! $$$' 
 print('$$$' in subject)		# True
 ```
-## 查找
+## 查找 find、rfind
+rfind是从后向前找，但返回的index还是从前向后的数的
 ```
 # 返回index，否则返回-1。起点和终点值（第二个和第三个参数）指定的搜索范围包含起点，但不包含终点。
 subject = "$$$ Get rich now!!! $$$"
@@ -415,6 +439,7 @@ print(subject.find('!!!', 0, 16)) # 同时指定了起点和终点
 -1
 ```
 ## join、split
+split返回列表
 ```
 #!/usr/bin/python3
 seq = ['1', '2', '3', '4', '5'] 
@@ -429,7 +454,7 @@ print('C:' + '\\'.join(dirs))  # C:\usr\bin\env
 
 print('1+2+3+4+5'.split('+'))	# ['1', '2', '3', '4', '5']
 ```
-## 统计出现的次数
+## 出现的次数 count
 ```
 line = "Row, row, row your boat"
 print(line.count('row'))
@@ -464,8 +489,27 @@ Sorry, the file siddhartha.txt does not exist.
 Sorry, the file moby_dick.txt does not exist.
 Sorry, the file little_women.txt does not exist.
 ```
+## 替换字符
+由于字符串是不可变的，因此无法直接插入字符或改变指定位置的字符。下面方式是非法的
+```
+name = 'Henny'
+name[0] = 'P'
+```
+可以使用replace或切片达到替换的效果
+```
+name = 'Henny'
+print(name.replace('H', 'P'))
+print('P' + name[1:])
 
-## replace
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+Penny
+Penny
+```
+## 替换 replace
+参数：
+- 需要被替换的子串
+- 用于替换的新子串
+- 以及需要替换多少处，省略此参数将替换所有
 ```
 s1 = 'This is a test';
 s2 = s1.replace('is', 'eez');	# 替换了两处
@@ -475,6 +519,46 @@ print(s2)
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
 This is a test
 Theez eez a test
+```
+## 使用【start:end:step】切片
+- 【:】 提取从开头到结尾的整个字符串
+- 【start:】 从 start 提取到结尾
+- 【:end】 从开头提取到 end - 1
+- 【start:end】 从 start 提取到 end - 1
+- 【start:end:step】 从 start 提取到 end - 1，每 step个字符提取一个
+- 偏移量从左至右从 0、1 开始，依次增加
+- 从右至左从-1、-2 开始，依次减小
+- 如果省略 start，分片会默认使用偏移量0（开头）
+- 如果省略 end，分片会默认使用偏移量 -1（结尾）
+```
+
+letters = 'abcdefghijklmnopqrstuvwxyz'
+print(letters[:])	# abcdefghijklmnopqrstuvwxyz	提取整个字符串
+print(letters[20:])	 # uvwxyz 	从偏移量 20 提取到字符串结尾
+print(letters[10:])	# klmnopqrstuvwxyz 从偏移量 10 提取到结尾
+print(letters[12:15]) # mno  从 12 到 14 的字符
+print(letters[-3:])	# xyz 提取最后三个字符
+print(letters[18:-3]) # stuvw	从偏移量为 18 的字符到倒数第 4 个字符, 注意与上一个
+例子的区别：当偏移量 -3 作为开始位置时，将获得字符x；而当它作为终止位置时，分片实际
+上会在偏移量 -4 处停止，也就是提取到字符 w
+
+print(letters[-6:-2]) # uvwx	从倒数第 6 个字符到倒数第 3 个字符
+print(letters[::7])	# ahov	从开头提取到结尾，步长设为 7
+print(letters[4:20:3]) # ehknqt	从偏移量 4 提取到偏移量 19，步长设为 3
+print(letters[19::4]) # tx	从偏移量 19 提取到结尾，步长设为 4
+print(letters[:21:5]) # afkpu	从开头提取到偏移量 20，步长设为 5,记住，分片
+中 end 的偏移量需要比实际提取的最后一个字符的偏移量多 1
+
+# 如果指定的步长为负数会从右到左反向进行提取操作。
+print(letters[-1::-1]) # zyxwvutsrqponmlkjihgfedcba   从右到左以步长为 1 进行提取，下面的
+效果一样也更简单
+print(letters[::-1]) # zyxwvutsrqponmlkjihgfedcba 效果同上
+
+# 在分片中，小于起始位置的偏移量会被当作 0，大于终止位置的偏移量会被当作 -1，
+print(letters[-50:]) # abcdefghijklmnopqrstuvwxyz 提取倒数 50 个字符
+print(letters[-50:-51]) # 得到空，提取从倒数第 51 到倒数第 50 个字符
+print(letters[:70])	# abcdefghijklmnopqrstuvwxyz  从开头提取到偏移量为 69 的字符
+print(letters[70:71])  # 得到空， 从偏移量为 70 的字符提取到偏移量为 71 的字符
 ```
 ## 取字符串的一部分
 其实就是切片操作...
@@ -493,9 +577,13 @@ print(len(pi_string))
 3.141592653589793238...
 32
 ```
-# 列表【】
-列表非常适合用于存储在程序运行期间可能变化的数据集。列表元素是可以修改的。使用中括号定义
-## 定义与访问
+# 列表【】 list
+- 列表非常适合利用顺序和位置定位某一元素
+- 列表元素是可变的
+- 使用中括号定义
+- 在列表中，具有相同值的元素允许出现多次
+
+## 创建与访问元素
 索引-1指向最后一个，-2则是倒数第二个，以此类推
 ```
 #!/usr/bin/python3
@@ -516,7 +604,7 @@ specialized
 redline
 My first bicycle was a Trek.
 ```
-## 使用range初始化
+### 使用range初始化
 ```
 #!/usr/bin/python3
 for value in range(1, 6):	# 产生列表[1,2,3,4,5]，注意没有6
@@ -543,24 +631,47 @@ print(squares)
 30
 [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
 ```
-## 使用*初始化
+### 使用*初始化
 生成包含n个指定初值元素的列表
 ```
 sequence = [None] * 10  # [None, None, None, None, None, None, None, None, None, None]
 ```
-## 使用list初始化
+### 使用list初始化
+使用list()将其他数据类型转换成列表
+- 字符串转字符列表
 ```
 arr = list('Hello')
 print(arr)	# ['H', 'e', 'l', 'l', 'o']
 
 可以使用 ''.join(somelist) 再连起来
 ```
-## 复制列表
-类似深拷贝效果
-- 不能使用等号进行复制，见下例
-- 可以使用切片方式[:]
-- 还可以使用copy方法
-- 使用list方法
+- 创建空的列表
+```
+another_empty_list = list()
+```
+- 元祖转列表
+```
+a_tuple = ('ready', 'fire', 'aim')
+print(list(a_tuple))
+```
+## 使用=赋值（类似引用），使用copy()复制
+- 如果将一个列表赋值给了多个变量，改变其中的任何一处会造成其他变量对应的值也被修改，即不能使用等号进行复制，见下例，这里的结果类似引用
+```
+#!/usr/bin/python3
+my_foods = ['pizza', 'falafel', 'carrot cake']
+friend_foods = my_foods
+my_foods.append('cannoli')
+print(my_foods)
+print(friend_foods)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+['pizza', 'falafel', 'carrot cake', 'cannoli']
+['pizza', 'falafel', 'carrot cake', 'cannoli']
+```
+- copy类似深拷贝效果
+  - 可以使用切片方式[:]
+  - 还可以使用copy方法
+  - 使用list方法
 ```
 #!/usr/bin/python3
 my_foods = ['pizza', 'falafel', 'carrot cake']
@@ -577,22 +688,9 @@ print(friend_foods)
 ['pizza', 'falafel', 'carrot cake', 'cannoli']
 ['pizza', 'falafel', 'carrot cake']
 ```
-这里的结果类似引用
-```
-#!/usr/bin/python3
-my_foods = ['pizza', 'falafel', 'carrot cake']
-friend_foods = my_foods
-my_foods.append('cannoli')
-print(my_foods)
-print(friend_foods)
-
-[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
-['pizza', 'falafel', 'carrot cake', 'cannoli']
-['pizza', 'falafel', 'carrot cake', 'cannoli']
-```
-## 列表拼接（相加）
+## 合并 extend
 - 使用加号连接，产生新的列表，原有列表不变
-- 使用extend会更新原有列表
+- 使用extend会更新原有列表，也可以使用 +=
 ```
 a = [1, 2, 3] 
 b = [4, 5, 6] 
@@ -606,6 +704,11 @@ print(c)	# [7, 8, 9]
 print(d)	# [4, 5, 6, 7, 8, 9]
 ```
 ## 增删改查
+- append	添加元素至尾部
+- insert	在指定位置插入元素
+- del	删除指定位置的元素
+- remove	删除具有指定值的元素
+- pop	获取并删除指定位置的元素
 ```
 #!/usr/bin/python3
 motorcycles = []	# 空列表
@@ -647,8 +750,9 @@ print(pets)
 ```
 numbers.clear() 
 ```
-## 排序与反序
-sort会保存，sorted是返回临时结果
+## 排序sort、sorted
+- 列表方法 sort() 会对原列表进行排序，改变原列表内容
+- 通用函数 sorted() 则会返回排好序的列表副本，原列表内容不变
 ```
 #!/usr/bin/python3
 cars = ['bmw', 'audi', 'toyota', 'subaru']
@@ -658,7 +762,9 @@ cars.sort(reverse=True)	# 倒序参数
 print(cars)
 print(sorted(cars))		# 返回排序后的结果，不改变内容
 ```
-reverse将所有元素反序（直接修改列表）
+## 跌倒 reversed
+- reverse将所有元素反序（直接修改列表）
+- reversed
 ```
 #!/usr/bin/python3
 cars = ['bmw', 'audi', 'toyota', 'subaru']
@@ -667,8 +773,6 @@ print(cars)
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
 ['subaru', 'toyota', 'audi', 'bmw']
 ```
-## sorted、reversed
-类似于列表方法reverse和sort（sorted接受的参数也与sort类似），但可用于任何序列或可迭代的对象，且不就地修改对象，而是返回反转和排序后的版本。
 
 ```
 s = [4, 3, 6, 8, 3]
@@ -704,12 +808,12 @@ if requested_toppings:
 else:
 	print("Are you sure you want a plain pizza?")
 ```
-## 长度
+## 长度 len
 ```
 cars = ['bmw', 'audi', 'toyota', 'subaru']
 print(len(cars))
 ```
-## 统计
+## 统计出现次数 count
 计算指定的元素在列表中出现了多少次
 ```
 print(['to', 'be', 'or', 'not', 'to', 'be'].count('to'))
@@ -722,7 +826,7 @@ print(x.count([1, 2]))
 2
 1
 ```
-## 检查v存在
+## 检查存在 in
 表达式v in l（其中l是一个列表）查找的是值而不是索引
 ```
 #!/usr/bin/python3
@@ -743,12 +847,20 @@ username = 'smith'
 pin = '7524'
 if [username, pin] in database: print('Access granted')
 ```
-## 查找
+## 查找 index
 在列表中查找指定值第一次出现的索引，但找不到则err了...需要try才行
 ```
 knights = ['We', 'are', 'the', 'knights', 'who', 'say', 'ni'] 
 print(knights.index('who')) 	# 4
 knights.index('herring')	# err
+```
+## 转字符串
+```
+marxes = ['Groucho', 'Chico', 'Harpo']
+print(', '.join(marxes))
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+Groucho, Chico, Harpo
 ```
 ## 遍历
 - foreach形式
@@ -816,6 +928,7 @@ for confirmed_user in confirmed_users:
 - 第一个索引指定的元素包含在切片内，但第二个索引指定的元素不包含在切片内。
 - 切片的步长默认为1，但也可以设置
 - 切片都是副本，与原列表是不同内存，互不干涉
+- 列表的切片仍然是一个列表
 
 ```
 #!/usr/bin/python3
@@ -898,11 +1011,17 @@ george is 32 years old
 damon is 102 years old
 [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
 ```
-# 元组（）
-- 不能修改元素值的列表被称为元组。使用圆括号定义
-- 空元组用两个不包含任何内容的圆括号表示。
+# 元组（） tuple
+- 与列表类似，元组也是由任意类型元素组成的序列。
+- 与列表不同的是，元组是不可变的，这意味着一旦元组被定义，将无法再进行增加、删除或修改元素等操作。因此，元组就像是一个常量列表。
+- 使用圆括号定义
+- 空元组用两个不包含任何内容的圆括号表示
 - 一个值的元组要有逗号
 - 元组的切片还是元组
+- 元组占用的空间较小
+- 可以将元组用作字典的键
+- 函数的参数是以元组形式传递的
+- 命名元组可以作为对象的替代
 ```
 #!/usr/bin/python3
 dimensions = (200, 50)	# 定义tuple
@@ -914,7 +1033,73 @@ print(dimensions)
 for dimension in dimensions:	# 遍历
 	print(dimension)
 ```
-## tuple函数
+
+## 使用()创建元组
+```
+empty_tuple = ()	# 可以用 () 创建一个空元组
+print(empty_tuple)
+one_marx = 'Groucho',	# 创建只包含一个元素的元祖要有逗号。定义元组真正靠的是每个元素的后缀逗号，而不是（）
+print(one_marx)
+marx_tuple = 'Groucho', 'Chico', 'Harpo'	# 创建的元组所包含的元素数量超过 1，最后一个元素后面的逗号可以省略
+print(marx_tuple)
+a, b, c = marx_tuple	# 将元组赋值给多个变量
+print(a)
+print(b)
+print(c)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+()
+('Groucho',)
+('Groucho', 'Chico', 'Harpo')
+Groucho
+Chico
+Harpo
+
+```
+
+## 序列解包
+将一个序列（或任何可迭代对象）解包，并将得到的值存储到一系列变量中。可用于  
+- 并行赋值
+- 交换变量值
+- 将序列赋值给元祖values
+- 解开元祖到多个变量
+- 使用*接收多个值到列表中
+- 函数参数传递（主要是上一种方式）
+
+```
+x, y, z = 1, 2, 3 # 并行赋值
+print(x, y, z) 
+x, y = y, x	# 交换变量值
+print(x, y) 
+values = 10, 20, 30 # 将序列赋值给元祖values
+print(values)
+x, y, z = values # 解开元祖到多个变量
+print(x, y, z) 
+
+scoundrel = {'name': 'Robin', 'girlfriend': 'Marion'} 
+key, value = scoundrel.popitem() # 返回元祖赋值给k和v
+print(key, value)
+a, b, *rest = [1, 2, 3, 4] 	# 可使用星号运算符（*）来收集多余的值，这样无需确保值和变量的个数相同，rest为列表
+print(rest)
+
+name = "Albus Percival Wulfric Brian Dumbledore" 
+first, *middle, last = name.split() # *变量也可在其他位置
+print(middle)
+
+a, *b, c = "abc" # 带星号的变量始终也是列表，即使元素仅1个
+print(a, b, c)
+
+[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
+1 2 3
+2 1
+(10, 20, 30)
+10 20 30
+girlfriend Marion
+[3, 4]
+['Percival', 'Wulfric', 'Brian']
+a ['b'] c
+```
+## 使用tuple()创建元组
 
 函数tuple的工作原理与list很像：它将一个序列作为参数，并将其转换为元组。如果参数
 已经是元组，就原封不动地返回它。
@@ -935,30 +1120,53 @@ print(x[0:2])
 (1, 2, 3)
 (1, 2)
 ```
-# 字典 { }
+# 字典 { } dict
 - 字典由键及其相应的值组成，这种键值对称为项（item）。
 - 每个键与其值之间都用冒号（:）分隔，项之间用逗号分隔，而整个字典放在花括号内。
 - 空字典（没有任何项）用两个花括号表示，类似于下面这样：{}。
 - 在字典（以及其他映射类型）中，键必须是独一无二的，而字典中的值无需如此。
+- 字典的键必须为不可变对象，因此列表、字典以及集合都不能作为字典的键，但元组可以作为字典的键
 ## 构建方法
-- 使用tuple列表
 - 使用dict方法
-- 使用键值对
+- 使用{}
 - 使用dict.fromkeys构建所有v都一样的字典
 ```
-items = [('name', 'Gumby'), ('age', 42)]  # 使用tuple列表来构建
+# dict（tuple列表形式）,tuple必须2个元素，否则失败
+items = [('name', 'Gumby'), ('age', 42)] 
 d = dict(items)  
 print(d)	# {'name': 'Gumby', 'age': 42}
 print(d['name'])	# Gumby
-d = dict(name='Gumby', age=42) 	# 使用dict方法构建
+
+# dict（嵌套列表形式）,内部列表只能2个元素，否则失败
+lol = [ ['a', 'b'], ['c', 'd'], ['e', 'f'] ] 
+m = dict(lol)
+print(m)	# {'a': 'b', 'c': 'd', 'e': 'f'}
+
+# 使用dict方法构建，kv形式，kv要齐全，否则失败
+d = dict(name='Gumby', age=42) 	
 print(d) # {'name': 'Gumby', 'age': 42}
-phonebook = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}	# 使用键值对方式构建
+
+empty_dict = {} # 空字典
+
+# 使用键值对方式构建，kv要齐全，否则出错
+phonebook = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
 print(phonebook)	# {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
 
+
+# 双字符的字符串组成的列表，只能2个字符，否则出错
+m = [ 'ab', 'cd', 'ef' ]
+print(dict(m))	# {'a': 'b', 'c': 'd', 'e': 'f'}
+
+# 双字符的字符串组成的元组，只能2个字符，否则出错
+m = ( 'ab', 'cd', 'ef' )
+print(dict(m))	# {'a': 'b', 'c': 'd', 'e': 'f'}
+
+
+# 使用dict.fromkeys
 print(dict.fromkeys(['name', 'age']))	# {'name': None, 'age': None}
 print(dict.fromkeys(['name', 'age'], '(unknown)'))	# {'name': '(unknown)', 'age': '(unknown)'}
 ```
-## 访问
+## 访问【】、get
 - [ ]
 	访问不存在的元素会error
 - get
@@ -978,6 +1186,8 @@ print(point_value)	# None
 print(alien_0)	# {'color': 'green', 'points': 5, 'not': None}
 ```
 ## 增删改查
+- del	删除具有指定键的元素
+
 ```
 #!/usr/bin/python3
 alien_0 = {'color': 'green', 'points': 5}		# 定义字典
@@ -1003,8 +1213,8 @@ print(alien_0)
 The alien is now yellow.
 {'color': 'yellow'}
 ```
-## update
-使用pari更新字典，字典有此k则更新v，没有k则添加此pair到字典里
+## 合并 update
+可以将一个字典的键值对复制到另一个字典中去。字典有此k则更新v，没有k则添加到字典里
 ```
 d = { 
 'title': 'Python Web Site', 
@@ -1035,7 +1245,7 @@ print(key, value)
 {'Alice': '2341'}
 Alice 2341
 ```
-## 检测K存在
+## 检测K存在 in
 表达式k in d（其中d是一个字典）查找的是键而不是值
 ```
 phonebook = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}	# 使用键值对方式构建
@@ -1095,12 +1305,14 @@ for key, value in d.items():
 	print(key, 'corresponds to', value) 
 
 ```
-## keys、values、sort、set
+## keys、values、items、sort、set
 - keys
-  	获取仅包含字典中的键的视图
+  	获取仅包含字典中的键的视图（dict_keys()，它是键的迭代形式）
 - values
 	返回一个由字典中的值组成的字典视图，如果字典中有重复的v则视图中也包含这些重复内容。
-
+- items
+  	函数可以获取字典中所有的键值对
+- keys、values、items的返回结果均可作为list()方法的参数，返回列表
 ```
 #!/usr/bin/python3
 favorite_languages = {
@@ -1151,12 +1363,12 @@ print("Cecil's phone number is {Cecil}.".format_map({'Beth': '9102', 'Alice': '2
 </body>
 Cecil's phone number is 3258.
 ```
-## 清除
+## 清除 clear
 ```
 x.clear() 
 ```
-## 复制
-- 依然不能使用等号，那不是复制......
+## 使用=赋值，使用copy()复制
+- 等号依然仅是引用，不是复制......
 - 浅拷贝
   
   2个字典中machines的v（值是列表）y修改后x的也跟着变了，说明指向同一个堆地址
@@ -1173,8 +1385,19 @@ print(y)
 {'username': 'mlh', 'machines': ['foo', 'baz']}
 ```
 - 深拷贝
-  
-  使用函数deepcopy进行拷贝
+	- 使用copy
+	- 使用函数deepcopy进行拷贝
+```
+signals = {'green': 'go', 'yellow': 'go faster', 'red': 'smilefor the camera'}
+original_signals = signals.copy()
+signals['blue'] = 'confuse everyone'
+print(signals)
+print(original_signals)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+{'green': 'go', 'yellow': 'go faster', 'red': 'smilefor the camera', 'blue': 'confuse everyone'}
+{'green': 'go', 'yellow': 'go faster', 'red': 'smilefor the camera'}
+```  
 ```
 #!/usr/bin/python3
 from copy import deepcopy
@@ -1199,7 +1422,132 @@ print(dc)
 {'names': ['Alfred', 'Bertrand', 'Clive']}
 {'names': ['Alfred', 'Bertrand']}
 ```
+# 集合 set
+尽管都由花括号包裹，集合仅仅是一系列值组成的序列，而字典是一个或多个键值对组成的序列。
+
+## 创建
+- 使用set()创建集合
+- 使用set()将其他类型转换为集合
+```
+empty_set = set()	# 空set
+print(empty_set)
+even_numbers = {0, 2, 4, 6, 8}	# 普通构建方式
+print(even_numbers)
+print(set('letters'))	# 基于字符串
+print(set(['Dasher', 'Dancer', 'Prancer', 'Mason-Dixon']))	# 基于列表
+print(set(('Ummagumma', 'Echoes', 'Atom Heart Mother')))	# 基于元组
+print(set({'apple': 'red', 'orange': 'orange', 'cherry': 'red'}))	# 基于字典，仅使用k
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+set()
+{0, 2, 4, 6, 8}
+{'s', 'l', 'e', 't', 'r'}
+{'Dancer', 'Dasher', 'Prancer', 'Mason-Dixon'}
+{'Atom Heart Mother', 'Echoes', 'Ummagumma'}
+{'orange', 'cherry', 'apple'}
+```
+## 增删查、clear、len、copy
+- add
+- update
+- remove
+- discard
+- pop
+- len
+- clear
+- copy
+- 
+```
+set1 = {'pear', 'banana', 'orange', 'apple'}
+set1.add('kkk')	# 添加一个元素
+print(set1)
+set1.update({'kkk', 'ppp'})	# 添加多个元素
+print(set1)
+
+# 方法remove()和方法discard()的区别在于，方法remove()在移除元素时，如果元素不存在，会报错，中止程序运行，而方法discard()不会。
+set1.remove('pear')	# 将指定元素从集合中移除
+print(set1)
+set1.pop()	# 随机删除集合中的一个元素
+print(set1)
+print(len(set1))	# 得到集合中元素的个数
+set1.clear()	# 清空集合
+print(set1)	
+set1 = {'pear', 'banana', 'orange', 'apple'}
+bool1 = 'apple' in set1	# 检测存在
+print(bool1)
+x = set1.copy()	# 深拷贝
+print(x)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+{'apple', 'kkk', 'banana', 'pear', 'orange'}
+{'ppp', 'apple', 'kkk', 'banana', 'pear', 'orange'}
+{'ppp', 'apple', 'kkk', 'banana', 'orange'}
+{'apple', 'kkk', 'banana', 'orange'}
+4
+set()
+True
+{'banana', 'pear', 'orange', 'apple'}
+```
+## 检测 in
+使用in测试k是否存在
+```
+drinks = {
+'martini': {'vodka', 'vermouth'},
+'black russian': {'vodka', 'kahlua'},
+'white russian': {'cream', 'kahlua', 'vodka'},
+'manhattan': {'rye', 'vermouth', 'bitters'},
+'screwdriver': {'orange juice', 'vodka'}
+}
+for name, contents in drinks.items():
+	if 'vodka' in contents and not ('vermouth' in contents or 'cream' in contents):
+		print(name)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+black russian
+screwdriver
+```
+## 交集、并集、差集
+https://blog.csdn.net/wenhao_ir/article/details/125424671
 # 复杂数据结构
+## 元祖里存列表
+```
+marxes = ['Groucho', 'Chico', 'Harpo']
+pythons = ['Chapman', 'Cleese', 'Gilliam', 'Jones', 'Palin']
+stooges = ['Moe', 'Curly', 'Larry']
+tuple_of_lists = marxes, pythons, stooges
+print(tuple_of_lists)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+(['Groucho', 'Chico', 'Harpo'], ['Chapman', 'Cleese', 'Gilliam', 'Jones', 'Palin'], ['Moe', 'Curly', 'Larry'])
+```
+## 字典的k是元祖
+```
+
+houses = {
+	(44.79, -93.14, 285): 'My House',
+	(38.89, -77.03, 13): 'The White House'
+}
+
+print(houses)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+{(44.79, -93.14, 285): 'My House', (38.89, -77.03, 13): 'The White House'}
+```
+## 列表里存列表
+```
+small_birds = ['hummingbird', 'finch']
+extinct_birds = ['dodo', 'passenger pigeon', 'Norwegian Blue']
+carol_birds = [3, 'French hens', 2, 'turtledoves']
+all_birds = [small_birds, extinct_birds, 'macaw', carol_birds]
+
+print(all_birds)
+print(all_birds[0])
+print(all_birds[1][0])
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[['hummingbird', 'finch'], ['dodo', 'passenger pigeon', 'Norwegian Blue'], 'macaw', [3, 'French hens', 2, 'turtledoves']]
+['hummingbird', 'finch']
+dodo
+```
 ## 列表里存字典
 ```
 #!/usr/bin/python3
