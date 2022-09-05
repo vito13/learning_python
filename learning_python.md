@@ -1,8 +1,11 @@
 ---
 阅读进度
 Python编程：从入门到实践（第2版）		继续第12章，后面都是东拼西凑先不用看了
+
 python基础教程（第三版）				继续第12章，后面都是东拼西凑先不用看了
-python语言及其应用						继续第4章
+
+python语言及其应用						继续第6章
+
 ---
 # 基础知识
 > Python 最底层的基本数据类型：布尔型、整型、浮点型以及字符串型。如果把这些数据类型看作组成 Python 的原子，数据结构就像分子一样。我们把之前所学的基本 Python 类型以更为复杂的方式组织起来。这些数据结构以后会经常用到。在编程中，最常见的工作就是将数据进行拆分或合并，将其加工为特定的形式，而数据结构就是用以切分数据的钢锯以及合并数据的粘合枪。
@@ -198,8 +201,83 @@ print(x)
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
 2
 ```
-## 闭包
 
+
+## range自然数序列
+- range() 函数的用法类似于使用切片
+- range(start，stop，step)
+- start 的默认值为 0。唯一要求的参数值是 stop，产生的最后一个数的值是 stop 的前一个
+- step 的默认值是1。当然，也可以反向创建自然数序列，这时 step 的值为 -1。
+```
+如：
+list( range(0, 11, 2) )
+for x in range(2, -1, -1):
+for x in range(0,3):
+list( range(0, 3) )
+```
+
+## 全局变量
+
+函数内部使用global声明一下即可
+```
+animal = 'fruitbat'
+def change_and_print_global():
+	global animal
+	animal = 'wombat'
+	print('inside change_and_print_global:', animal)
+
+print(animal)
+change_and_print_global()
+print(animal)
+
+[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
+fruitbat
+('inside change_and_print_global:', 'wombat')
+wombat
+```
+
+## 命名空间
+
+Python 提供了两个获取命名空间内容的函数：
+- locals() 返回一个局部命名空间内容的字典；
+- globals() 返回一个全局命名空间内容的字典。
+
+```
+animal = 'fruitbat'
+def change_local():
+	animal = 'wombat'
+	print('locals:',locals())
+
+
+print(animal)
+change_local()
+print('globals:', globals())
+print(animal)
+
+[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
+fruitbat
+('locals:', {'animal': 'wombat'})
+('globals:', {'__builtins__': <module '__builtin__' (built-in)>, '__file__': '/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py', '__package__': None, 'change_local': <function change_local at 0x7f9b8b392758>, 'animal': 'fruitbat', '__name__': '__main__', '__doc__': None})
+fruitbat
+```
+# 命令行
+
+## 参数sys.argv
+是个列表
+```
+import sys
+print('Program arguments:',sys.argv)
+
+[huawei@n148 pltest]$ python3 pyth.py 
+Program arguments: ['pyth.py']
+[huawei@n148 pltest]$ python3 pyth.py  tra la la
+Program arguments: ['pyth.py', 'tra', 'la', 'la']
+[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
+('Program arguments:', ['/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py'])
+[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py" tra la la
+('Program arguments:', ['/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py', 'tra', 'la', 'la'])
+[huawei@n148 postdb_doc]$ 
+```
 # 序列与映射
 - 序列是一种数据结构，其中的元素带编号（编号从0开始）。
 - 需要将一系列值组合成数据结构并通过编号来访问各个值时，列表很有用
@@ -235,6 +313,19 @@ Let\'s go!
 C:\nowhere
 C:\Program Files\foo\bar\
 This is a cat: 🐈
+```
+## 行连接符 \
+```
+
+alphabet = 'abcdefg' + \
+'hijklmnop' + \
+'qrstuv' + \
+'wxyz'
+
+print(alphabet)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+abcdefghijklmnopqrstuvwxyz
 ```
 ## 大写、小写、首字母大小
 ```
@@ -992,9 +1083,10 @@ numbers[1:4] = []  # 相当于删除连续的n个元素，这里还加入步长�
 print(numbers)	# [1, 5]
 ```
 ## zip
-- 便于同时迭代2个列表
+- 便于同时迭代n个列表
 - 返回由元组组成的可迭代序列
 - 可使用list将其转换为列表
+- 可使用dict将其转换为字典
 
 ```
 names = ['anne', 'beth', 'george', 'damon'] 
@@ -1010,6 +1102,16 @@ beth is 45 years old
 george is 32 years old
 damon is 102 years old
 [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
+```
+```
+english = 'Monday', 'Tuesday', 'Wednesday'
+french = 'Lundi', 'Mardi', 'Mercredi'
+print(list(zip(english, french)))
+print(dict(zip(english, french)))
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[('Monday', 'Lundi'), ('Tuesday', 'Mardi'), ('Wednesday', 'Mercredi')]
+{'Monday': 'Lundi', 'Tuesday': 'Mardi', 'Wednesday': 'Mercredi'}
 ```
 # 元组（） tuple
 - 与列表类似，元组也是由任意类型元素组成的序列。
@@ -2040,6 +2142,101 @@ Received redundant parameters: ('Hello, world',)
 Received redundant parameters: (5, 6)
 81
 ```
+
+## 传递函数
+
+其实传的是个对象
+```
+def sum_args(*args):
+	return sum(args)
+
+def run_with_positional_args(func, *args):
+	return func(*args)
+
+print(run_with_positional_args(sum_args, 1, 2, 3, 4))	# 10
+```
+## 内部函数
+```
+def outer(a, b):
+	def inner(c, d):
+		return c + d
+	return inner(a, b)
+
+print(outer(4, 7))	# 11
+```
+
+## 闭包
+
+闭包是一个可以由另一个函数动态生成的函数，并且可以改变和存储函数外创建的变量的值，其实内部函数可以看作为闭包，只不过没有体现出精髓而已。
+
+通过下案例介绍闭包特点：
+- inner2() 直接使用外部的 saying 参数，而不是通过另外一个参数获取。（与上面内部函数的案例中的参数传递方式对比查看即可）
+- knights2() 返回值为 inner2 函数，而不是调用它。（对比同上）
+- inner2() 函数可以得到 saying 参数的值并且记录下来。
+- return inner2 准确的说是返回已个没有被调用过的函数对象（是一个闭包：一个被动态创建的可以记录外部变量的函数）。
+
+
+```
+def knights2(saying):
+	def inner2():
+		return "We are the knights who say: '%s'" % saying
+	return inner2
+
+a = knights2('Duck')
+print(type(a))	# a的type是函数
+print(a)	# 这样打印出来的内容貌似是a的地址
+print(a())	# 调用函数对象
+
+
+b = knights2('Hasenpfeffer')
+print(type(b))
+print(b)
+print(b())
+
+
+[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
+<type 'function'>
+<function inner2 at 0x7f814caec7d0>
+We are the knights who say: 'Duck'
+<type 'function'>
+<function inner2 at 0x7f814caec848>
+We are the knights who say: 'Hasenpfeffer'
+```
+
+## lambda
+
+简单的额lambda使用演示
+```
+
+def edit_story(words, func):
+	for word in words:
+		print(func(word))
+
+def enliven(word):
+	return word.capitalize() + '!'
+
+
+stairs = ['thud', 'meow', 'thud', 'hiss']
+print("-----func:")
+edit_story(stairs, enliven)
+
+print("-----lambda:")
+edit_story(stairs, lambda word: word.capitalize() + '!')
+
+[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
+-----func:
+Thud!
+Meow!
+Thud!
+Hiss!
+-----lambda:
+Thud!
+Meow!
+Thud!
+Hiss!
+
+```
+
 # 模块
 ## 定义
 - 普通函数模块，另见类模块
@@ -2051,7 +2248,8 @@ def make_pizza(size, *toppings):
         for topping in toppings:
                 print(f"- {topping}")
 ```
-## site-packages
+## 模块搜索路径
+
 - 模块sys的变量path所包含的路径列表即模块的搜索路径
 - 模块位于类似于site-packages这样的地方，所有的程序就都能够导入它
 
@@ -2340,6 +2538,7 @@ hello
 	- ~/python/drawing/__init__.py 包代码（模块drawing）
 	- ~/python/drawing/colors.py 模块colors
 	- ~/python/drawing/shapes.py 模块shapes
+- 貌似也可以叫init.py。这个文件可以是空的，但是 Python 需要它，以便把该目录作为一个包。
 ```
 	完成这些准备工作后，下面的语句都是合法的：
 	import drawing # (1) 导入drawing包
