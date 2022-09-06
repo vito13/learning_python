@@ -4,7 +4,7 @@ Python编程：从入门到实践（第2版）		继续第12章，后面都是东
 
 python基础教程（第三版）				继续第12章，后面都是东拼西凑先不用看了
 
-python语言及其应用						继续第6章
+python语言及其应用						继续第7章
 
 ---
 # 基础知识
@@ -1222,6 +1222,49 @@ print(x[0:2])
 (1, 2, 3)
 (1, 2)
 ```
+# 命名元祖 namedtuple
+- 命名元组是元组的子类，既可以通过名称（使用 .name）来访问其中的值，也可以通过位置进行访问（使用[offset]）
+- 它无论看起来还是使用起来都和不可变对象非常相似
+- 与使用对象相比，使用命名元组在时间和空间上效率更高
+- 可以使用点号（.）对特性进行访问，而不需要使用字典风格的方括号
+- 可以把它作为字典的键
+
+```
+from collections import namedtuple
+Duck = namedtuple('Duck', 'bill tail')
+duck = Duck('wide orange', 'long')
+print(duck)
+print(duck.bill)
+print(duck.tail)
+
+parts = {'bill': 'wide orange', 'tail': 'long'} # 用字典来构造命名元组
+duck2 = Duck(**parts) # **作用是将 parts 字典中的键和值抽取出来作为参数提供给 Duck() 使用。等同于 duck2 = Duck(bill = 'wide orange', tail = 'long')
+print(duck2)
+duck3 = duck2._replace(tail='magnificent', bill='crushing')	# 命名元组是不可变的，但可以替换其中某些域的值并返回一个新的命名元组
+print(duck3)
+
+
+duck_dict = {'bill': 'wide orange', 'tail': 'long'}
+print(duck_dict)
+duck_dict['color'] = 'green'	# 可以向字典里添加新的键值对
+print(duck_dict)
+
+duck.color = 'green'	# err 但无法对命名元组这么做
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+Duck(bill='wide orange', tail='long')
+wide orange
+long
+Duck(bill='wide orange', tail='long')
+Duck(bill='crushing', tail='magnificent')
+{'bill': 'wide orange', 'tail': 'long'}
+{'bill': 'wide orange', 'tail': 'long', 'color': 'green'}
+Traceback (most recent call last):
+  File "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py", line 22, in <module>
+    duck.color = 'green'        # 但无法对命名元组这么做
+AttributeError: 'Duck' object has no attribute 'color'
+```
+
 # 字典 { } dict
 - 字典由键及其相应的值组成，这种键值对称为项（item）。
 - 每个键与其值之间都用冒号（:）分隔，项之间用逗号分隔，而整个字典放在花括号内。
@@ -2238,6 +2281,7 @@ Hiss!
 ```
 
 # 模块
+- 类支持继承，但模块不支持。Python 模块是单例
 ## 定义
 - 普通函数模块，另见类模块
 ```
@@ -2883,11 +2927,117 @@ s = Secretive()
 s.accessible()
 s.__inaccessible()	不能调用私有方法，会失败
 ```
-## 函数property
-## 静态方法和类方法
-- 静态方法貌似全局的static
-- 类方法貌似类的static
-- @名为装饰器
+## 属性 property
+作用类似setter、getter
+```
+class Duck():
+	def __init__(self, input_name):
+		self.hidden_name = input_name
+	def get_name(self):
+		print('inside the getter')
+		return self.hidden_name
+	def set_name(self, input_name):
+		print('inside the setter')
+		self.hidden_name = input_name
+	name = property(get_name, set_name)	# 此句是重点
+
+fowl = Duck('Howard')
+print(fowl.name)	# 会调用 get_name
+fowl.get_name()
+fowl.name = 'Daffy'	# 会调用 set_name
+print(fowl.name)
+fowl.set_name('Daffy')
+print(fowl.name)
+
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+inside the getter
+Howard
+inside the getter
+inside the setter
+inside the getter
+Daffy
+inside the setter
+inside the getter
+Daffy
+```
+
+## 装饰器 decorator
+```
+
+class Duck():
+	def __init__(self, input_name):
+		self.hidden_name = input_name
+	@property	# @property，用于指示 getter 方法；
+	def name(self):
+		print('inside the getter')
+		return self.hidden_name
+	@name.setter	# @name.setter，用于指示 setter 方法
+	def name(self, input_name):
+		print('inside the setter')
+		self.hidden_name = input_name
+
+fowl = Duck('Howard')
+print(fowl.name)
+fowl.name = 'Donald'
+print(fowl.name)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+inside the getter
+Howard
+inside the setter
+inside the getter
+Donald
+```
+
+## __私有变量
+Python对那些需要刻意隐藏在类内部的特性有命名规范：由连续的两个下划线开头
+```
+class Duck():
+	def __init__(self, input_name):
+		self.__name = input_name
+	@property
+	def name(self):
+		print('inside the getter')
+		return self.__name
+	@name.setter
+	def name(self, input_name):
+		print('inside the setter')
+		self.__name = input_name
+ 
+fowl = Duck('Howard')
+print(fowl.name)
+fowl.name = 'Donald'
+print(fowl.name)
+print(fowl.__name)	此句会err，外部无法访问，print(fowl._Duck__name)就行。。。
+```
+## 实例方法、静态方法、类方法
+
+- 以self作为第一个参数的方法都是实例方法。当被调用时Python把调用该方法的对象作为self参数传入
+- 类方法作用于整个类，对类作出的任何改变会对它的所有实例对象产生影响
+- 在类定义内部，用前缀修饰符 @classmethod 指定的方法都是类方法。类方法的第一个参数是类本身（这个参数常被写作cls，即class）
+- 静态方法用 @staticmethod 修饰，它既不需要 self 参数也不需要 class 参数
+```
+class A():
+	count = 0
+	def __init__(self):
+		A.count += 1
+	def exclaim(self):
+		print("I'm an A!")
+	@classmethod
+	def kids(cls):
+		print("A has", cls.count, "little objects.")
+
+easy_a = A()
+breezy_a = A()
+wheezy_a = A()
+A.kids()
+
+上面的代码中，使用的是 A.count（类特性），而不是self.count（可能是对象的特性）。
+在 kids() 方法中，使用的是 cls.count，它与 A.count 的作用一样。
+
+```
+
 ```
 class MyClass: 
 	@staticmethod 
@@ -2904,13 +3054,29 @@ MyClass.cmeth()
 This is a static method
 This is a class method of <class '__main__.MyClass'>
 ```
+
+## 操作符重载
+演示了重载等号，还有很多其它符号，详见python语言及其应用6.12
+```
+class Word():
+	def __init__(self, text):
+		self.text = text
+	def __eq__(self, word2):
+		return self.text.lower() == word2.text.lower()
+
+first = Word('ha')
+second = Word('HA')
+third = Word('eh')
+print(first == second)
+print(first == third)
+```
 # 继承
 ## 简单继承
 ```
 class A: 
 	def hello(self): 
 		print("Hello, I'm A.") 
-class B(A): 
+class B(A):
 	pass
 
 a = A() 
@@ -2922,17 +3088,32 @@ b.hello()
 Hello, I'm A.
 Hello, I'm A.
 ```
-调用父类构造函数，添加子类新属性与方法
+## 添加新方法
+```
+class Car():
+	def exclaim(self):
+		print("I'm a Car!")
+
+class Yugo(Car):
+	def exclaim(self):
+		print("I'm a Yugo! Much like a Car, but more Yugo￾ish.")
+	def need_a_push(self):
+		print("A little help here?")
+
+give_me_a_car = Car()
+give_me_a_yugo = Yugo()
+give_me_a_yugo.need_a_push()
+# give_me_a_car.need_a_push()	父类没有此方法，会报错
 ```
 
-```
-## 重写普通方法
+## 重写父类方法 override
+
 ```
 class A: 
 	def hello(self): 
 		print("Hello, I'm A.") 
 class B(A): 
-	def hello(self): 
+	def hello(self): 	在子类中，可以覆盖任何父类的方法，包括 __init__()，见下例
  		print("Hello, I'm B.") 
 
 a = A() 
@@ -2944,7 +3125,37 @@ b.hello()
 Hello, I'm A.
 Hello, I'm B.
 ```
-## 调用父类方法
+
+- 如果没有覆盖父类的 __init__() 方法，Python 会自动调用父类的初始化函数 __init__()
+- 如果子类重写了init，则不会自动调用父类的init，但可以手动调用，见super案例
+
+```
+#!/usr/bin/python3
+class Person():
+	def __init__(self, name):
+		self.name = name
+
+class MDPerson(Person):
+	def __init__(self, name):
+		self.name = "Doctor " + name
+
+class JDPerson(Person):
+	def __init__(self, name):
+		self.name = name + ", Esquire"
+
+person = Person('Fudd')
+doctor = MDPerson('Fudd')
+lawyer = JDPerson('Fudd')
+print(person.name)
+print(doctor.name)
+print(lawyer.name)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+Fudd
+Doctor Fudd
+Fudd, Esquire
+```
+## 调用父类方法 super
 注意没有super()那句则会失败，因为子类重新实现了自己的构造，且未调用父类构造，所以没有对应的成员hungry
 ```
 class Bird: 
@@ -2973,6 +3184,25 @@ sb.eat()
 Squawk!
 Aaaah ...
 No, thanks!
+```
+另一个在子类构造中调用父类构造的案例
+```
+class Person():
+	def __init__(self, name):
+		self.name = name
+
+class EmailPerson(Person):
+	def __init__(self, name, email):
+		super().__init__(name)
+		self.email = email
+
+bob = EmailPerson('Bob Frapples', 'bob@frapples.com')
+print(bob.name)
+print(bob.email)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+Bob Frapples
+bob@frapples.com
 ```
 
 ## 组合
@@ -3030,6 +3260,86 @@ my_tesla.battery.get_range()
 2019 Tesla Model S
 This car has a 75-kWh battery.
 This car can go about 260 miles on a full charge.
+
+```
+另一个案例
+```
+class Bill():
+	def __init__(self, description):
+		self.description = description
+class Tail():
+	def __init__(self, length):
+		self.length = length
+class Duck():
+	def __init__(self, bill, tail):
+		self.bill = bill
+		self.tail = tail
+	def about(self):
+		print('This duck has a', self.bill.description, 'bill and a', self.tail.length, 'tail')
+
+tail = Tail('long')
+bill = Bill('wide orange')
+duck = Duck(bill, tail)
+duck.about()
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+This duck has a wide orange bill and a long tail
+```
+# 多态
+## 垃圾实现
+这种方式有时被称作鸭子类型（duck typing），这个命名源自一句名言：如果它像鸭子一样走路，像鸭子一样叫，那么它就是一只鸭子。
+
+```
+#!/usr/bin/python3
+
+class Quote():
+	def __init__(self, person, words):
+		self.person = person
+		self.words = words
+	def who(self):
+		return self.person
+	def says(self):
+		return self.words + '.'
+class QuestionQuote(Quote):
+	def says(self):
+		return self.words + '?'
+class ExclamationQuote(Quote):
+	def says(self):
+		return self.words + '!'
+
+hunter = Quote('Elmer Fudd', "I'm hunting wabbits")
+print(hunter.who(), 'says:', hunter.says())
+hunted1 = QuestionQuote('Bugs Bunny', "What's up, doc")
+print(hunted1.who(), 'says:', hunted1.says())
+hunted2 = ExclamationQuote('Daffy Duck', "It's rabbit season")
+print(hunted2.who(), 'says:', hunted2.says())
+
+
+
+
+class BabblingBrook():
+	def who(self):
+		return 'Brook'
+	def says(self):
+		return 'Babble'
+
+def who_says(obj):
+		print(obj.who(), 'says', obj.says())
+
+brook = BabblingBrook()
+who_says(hunter)
+who_says(hunted1)
+who_says(hunted2)
+who_says(brook)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+Elmer Fudd says: I'm hunting wabbits.
+Bugs Bunny says: What's up, doc?
+Daffy Duck says: It's rabbit season!
+Elmer Fudd says I'm hunting wabbits.
+Bugs Bunny says What's up, doc?
+Daffy Duck says It's rabbit season!
+Brook says Babble
 
 ```
 
