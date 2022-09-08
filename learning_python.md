@@ -4,7 +4,7 @@ Python编程：从入门到实践（第2版）		继续第12章，后面都是东
 
 python基础教程（第三版）				继续第12章，后面都是东拼西凑先不用看了
 
-python语言及其应用						继续第7章
+python语言及其应用						继续第11章
 
 ---
 # 基础知识
@@ -287,11 +287,60 @@ Program arguments: ['pyth.py', 'tra', 'la', 'la']
 - 标准序列操作（索引、切片、乘法、成员资格检查、长度、最小值和最大值）
 - 字典是Python中唯一的内置映射类型，其中的值不按顺序排列，而是存储在键下。键可能是数、字符串或元组（即k得是不可变的类型）。
 
+# 二进制数据
+- Python 3 引入了两种二进制类型字节bytes与字节数组bytearray 
+- 使用 8 比特序列存储小整数的方式进行存储，每 8比特（即一字节）可以存储从 0~255 的值
+- 打印 bytes 或 bytearray 数据时，Python 会以 \xxx 的形式表示不可打印的字符
+- 以 ASCII 字符的形式表示可打印的字符（以及一些转义字符，例如 \n 而不是 \x0a）
+- 打印bytearray通常手动加入换行用于显示效果，如一行显示 16 个字节
+
+## 字节 bytes
+
+- 字节bytes是不可变的，像字节数据组成的元组
+- bytes 类型值的表示以 b 开头，接着是一个单引号，后面跟着由十六进制数（例如 \x02）或 ASCII 码组成的序列，最后以配对的单引号结束
+- Python 会将这些十六进制数或者 ASCII 码转换为整数，如果该字节的值为有效 ASCII编码则会显示 ASCII 字符。
+
+```
+blist = [1, 2, 3, 255]
+the_bytes = bytes(blist)	# 使用列表创建一个bytes 类型的变量
+print(the_bytes)
+# the_bytes[1] = 127	# err，不可改变
+print(b'\x61')	# 显示a，因为61对应ascii的a
+print(b'\x01abc\xff')	# 无对应，原样显示
+the_bytes = bytes(range(0, 256))	# 建一个包含 0到255 的所有数的bytes 
+print(the_bytes)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+b'\x01\x02\x03\xff'
+b'a'
+b'\x01abc\xff'
+b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff'
+```
+
+## bytearray 字节数组
+
+- 字节数组bytearray是可变的，像字节数据组成的列表。
+
+```
+blist = [1, 2, 3, 255]
+the_byte_array = bytearray(blist) # 使用列表创建一个bytearray类型的变量
+print(the_byte_array)
+the_byte_array[1] = 127	# bytearray 类型的变量是可变的
+print(the_byte_array)
+the_byte_array = bytearray(range(0, 256))	# 建一个包含 0到255 的所有数的bytearray
+print(the_byte_array)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+bytearray(b'\x01\x02\x03\xff')
+bytearray(b'\x01\x7f\x03\xff')
+bytearray(b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff')
+```
 
 # 字符串
 - 字符组成的序列
 - 字符串是不可变的，因此所有的元素赋值和切片赋值都是非法的。
-- 多行的使用三个单引号，
+- 多行的使用三个单引号
+- Python 3 中的字符串是 Unicode 字符串而不是字节数组
 ## 多行的、单行的、还有图标的
 ```
 #!/usr/bin/python3
@@ -345,11 +394,16 @@ ada lovelace
 print(str(123.321))
 print(str(True))
 ```
-## 字符串长度len
+## 字符数量 len
+字符串函数 len 可以计算字符串中 Unicode 字符的个数，而不是字节数
+
 ```
 letters = 'abcdefghijklmnopqrstuvwxyz'
 print(len(letters))
 ```
+
+## 字节数量
+取字节数见编码encode案例
 ## 判断开头、结尾
 ```
 letters = 'abcdefghijklmnopqrstuvwxyz'
@@ -402,6 +456,9 @@ y
 - format方法，关于更多format控制符号参见《python基础继承第二版 3.3》
 	- 要对字典执行字符串格式设置操作，不能使用format和命名参数，而必须使用format_map。见字典的format部分案例
 - f方式，是Python 3.6引入的，用于简化format
+
+详细居左保留数位等参加python语言及其应用7.1.2 格式化
+
 ```
 #!/usr/bin/python3
 from math import pi
@@ -668,6 +725,55 @@ print(len(pi_string))
 3.141592653589793238...
 32
 ```
+## 编码 encode
+- 编码是将字符串转化为一系列字节的过程
+- encode支持第二个参数用于指定当目标编码无此字符时是异常还是忽略的操作
+
+	如果你想要使用 ascii 方式进行编码，必须保证待编码的字符串仅包含 ASCII 字符集里的字符，不含有任何其他的 Unicode 字符，否则会出现错误
+- 尽可能统一使用 UTF-8 编码。出错率低，兼容性好，可以表达所有的 Unicode 字符，编码和解码的速度又快
+```
+snowman = '\u2603'	# 将Unicode 字符串 '\u2603' 赋值给 snowman。
+print(snowman)
+print(len(snowman))	# snowman 是一个仅包含一个字符的 Unicode 字符串，这与它存储所需的字节数没有任何关系
+ds = snowman.encode('utf-8')	# 将Unicode字符编码为字节序列。UTF-8 是一种变长编码方式，ds是一个bytes类型的变量
+print(len(ds))	# 占用了 3 字节的空间，注意不是所有单个 Unicode字符都是3
+print(ds)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+☃
+1
+3
+b'\xe2\x98\x83'
+```
+## 解码 decode
+
+- 解码是将字节序列转化为 Unicode 字符串的过程
+```
+place = 'caf\u00e9'	# unicode字符串
+print(place)
+print(len(place))
+print(type(place))
+place_bytes = place.encode('utf-8')	# 将它以 UTF-8 格式编码为 bytes 型变量
+print(place_bytes)
+print(len(place_bytes))
+print(type(place_bytes))
+place2 = place_bytes.decode('utf-8') # 再解回来
+print(place2)
+print(len(place2))
+print(type(place2))
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+café
+4
+<class 'str'>
+b'caf\xc3\xa9'
+5
+<class 'bytes'>
+café
+4
+<class 'str'>
+```
+
 # 列表【】 list
 - 列表非常适合利用顺序和位置定位某一元素
 - 列表元素是可变的
@@ -2688,7 +2794,8 @@ OK
 - 测试通过时打印一个句点
 - 测试引发错误时打印一个E
 - 测试导致断言失败时则打印一个F
-# 文件
+# 文件读写
+
 ## open模式
 
 open()的模式如下，如果省略，Python将以默认的只读模式打开文件。
@@ -2699,6 +2806,8 @@ open()的模式如下，如果省略，Python将以默认的只读模式打开�
 - 'b' 二进制模式（与其他模式结合使用）
 - 't' 文本模式（默认值，与其他模式结合使用）
 
+## 使用with自动关闭文件
+Python 的上下文管理器（context manager）会清理一些资源，例如打开的文件。使用方式见下面的案例
 ## 一次读入所有
 ```
 #!/usr/bin/python3
@@ -2765,6 +2874,8 @@ for line in lines:
 print(pi_string)
 ```
 ## 写入与追加
+- 函数 write() 返回写入文件的字节数
+- 其实也可以使用print()，见python语言及其应用8.1.1
 ```
 #!/usr/bin/python3
 filename = 'programming.txt'
@@ -2796,6 +2907,44 @@ f.writelines(lines)
 f.close() 
 ```
 
+## 写二进制文件
+如果文件模式字符串中包含 'b'，那么文件会以二进制模式打开。这种情况下，读写的是字节而不是字符串。
+
+
+```
+一次性写入
+
+bdata = bytes(range(0, 256))
+fout = open('bfile', 'wb')
+fout.write(bdata)
+fout.close()
+```
+
+```
+分块写入
+
+fout = open('bfile2', 'wb')
+size = len(bdata)
+offset = 0
+chunk = 100
+while True:
+	if offset > size:
+		break
+	fout.write(bdata[offset:offset+chunk])
+	offset += chunk
+fout.close()
+
+```
+
+## 读二进制文件
+```
+fin = open('bfile', 'rb')
+bdata = fin.read()
+print(len(bdata))
+fin.close()
+```
+## seek、tell
+待完善
 ## json
 写json
 ```
@@ -2848,6 +2997,114 @@ def greet_user():
 		print(f"We'll remember you when you come back, {username}!")
 
 greet_user()
+```
+## cvs
+
+# 文件与目录
+## 文件操作
+- exists
+- isfile
+- isdir
+- isabs
+- rename
+- copy
+- link
+- symlink
+- islink
+- realpath
+- chmod
+- chown
+- abspath
+- remove
+```
+import os
+os.path.exists('bfile')	# 文件或目录是否存在，支持相对或者绝对路径名
+os.path.isfile('bfile')	# 是否为文件
+os.path.isdir('bfile')	# 判断文件夹
+os.path.isabs('bfile')	# 判断绝对路径
+os.rename('bfile', 'ohwell.txt')	# 把文件重命名为ohno.txt
+
+import shutil
+shutil.copy('ohwell.txt', 'ohno.txt')	# 把文件复制到ohno.txt
+
+os.link('ohno.txt', 'yikes.txt')	# 把已有文件硬链接到一个新文件yikes.txt
+os.symlink('ohno.txt', 'jeepers.txt')	# symlink()创建一个符号链接
+os.path.islink('jeepers.txt')	# islink() 函数会检查参数是文件还是符号链接
+os.path.realpath('jeepers.txt')	# 获取符号文件指向的文件路径名
+
+
+print(os.path.abspath('pyth.py'))	# 相对转绝对路径
+os.remove('oops.txt')	# 删除
+
+```
+## 目录操作
+```
+os.mkdir('poems')
+os.chdir('poems')	
+os.listdir('.')	# 获取目录列表
+os.rmdir('poems')
+```
+## grob
+```
+import glob
+print(glob.glob('m*'))
+```
+# 日期与时间
+## 当前日期
+```
+from datetime import date
+halloween = date(2014, 10, 31)
+print(halloween)
+halloween = date(2014,10,31)
+print(halloween.day)
+print(halloween.month)
+print(halloween.year)
+print(halloween.isoformat())
+now = date.today()
+print(now)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+2014-10-31
+31
+10
+2014
+2014-10-31
+2022-09-08
+```
+## 日期加减
+- date 的范围 是 date.min（ 年 = 1， 月 = 1， 日 = 1） 到date.max（ 年 = 9999， 月 = 12， 日 = 31）。不能使用它来进行和历史或者天文相关的计算。
+
+
+```
+from datetime import date
+from datetime import timedelta
+one_day = timedelta(days=1)
+now = date.today()
+tomorrow = now + one_day
+print(tomorrow)
+print(now + 17*one_day)
+yesterday = now - one_day
+print(yesterday)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+2022-09-09
+2022-09-25
+2022-09-07
+```
+## 时间
+```
+import time
+now = time.time()
+print(now)
+print(time.ctime(now))
+print(time.localtime(now))
+print(time.gmtime(now))
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+1662626412.5671046
+Thu Sep  8 16:40:12 2022
+time.struct_time(tm_year=2022, tm_mon=9, tm_mday=8, tm_hour=16, tm_min=40, tm_sec=12, tm_wday=3, tm_yday=251, tm_isdst=0)
+time.struct_time(tm_year=2022, tm_mon=9, tm_mday=8, tm_hour=8, tm_min=40, tm_sec=12, tm_wday=3, tm_yday=251, tm_isdst=0)
 ```
 # 管道
 ## 简单使用
@@ -3434,4 +3691,104 @@ try:
 	print(x / y) 
 except: 
 	print('Something wrong happened ...') 
+```
+
+# 进程
+## 进程信息
+```
+import os
+os.getpid()		# 当前Python解释器的进程号
+os.getcwd()		# 当前工作目录
+os.getuid()		# 用户 ID 
+os.getgid()		# 用户组 ID
+```
+## 创建进程
+- getoutput
+	- 只是在shell中运行其他程序并返回输出（标准输出和标准错误输出）
+	- 参数是一个字符串，可以表示一个完整的shell命令
+	- 可以使用参数、管道、I/O 重定向等
+- check_output
+	- 接受一个命令和参数列表。
+	- 默认情况下，它返回的不是字符串，而是字节类型的标准输出。
+	- 并没有使用 shell
+- getstatusoutput
+	- 可以获取退出状态，返回一个包含状态码和输出的元组
+- call
+	- 程序的输出会打印到对应的std中，只返回退出状态
+	- 在 Unix 类操作系统中，退出状态 0 通常表示运行成功
+
+```
+import subprocess
+ret = subprocess.getoutput('date')
+print(ret)	# Thu Sep  8 15:43:03 CST 2022
+ret = subprocess.getoutput('date -u | wc')
+print(ret)	#       1       6      29
+ret = subprocess.check_output(['date', '-u'])	
+print(ret)	# b'Thu Sep  8 07:51:23 UTC 2022\n'
+
+ret = subprocess.getstatusoutput('date')
+print(ret)	# (0, 'Thu Sep  8 15:53:54 CST 2022')
+
+下面3种效果一样
+ret = subprocess.call('date')
+ret = subprocess.call('date -u', shell=True)
+ret = subprocess.call(['date', '-u'])
+print(ret)
+```
+
+## 简单多进程
+```
+import multiprocessing
+import os
+def do_this(what):
+	whoami(what)
+def whoami(what):
+	print("Process %s says: %s" % (os.getpid(), what))
+
+if __name__ == "__main__":
+	whoami("I'm the main program")
+	for n in range(4):
+		p = multiprocessing.Process(target=do_this, args=("I'm function %s" % n,))
+		p.start()
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+Process 54726 says: I'm the main program
+Process 54727 says: I'm function 0
+Process 54728 says: I'm function 1
+Process 54729 says: I'm function 2
+Process 54730 says: I'm function 3
+```
+
+## 终止进程
+使用terminate()终止进程
+```
+import multiprocessing
+import time
+import os
+def whoami(name):
+	print("I'm %s, in process %s" % (name, os.getpid()))
+def loopy(name):
+	whoami(name)
+	start = 1
+	stop = 1000000
+	for num in range(start, stop):
+ 		print("\tNumber %s of %s. Honk!" % (num, stop))
+ 		time.sleep(1)
+
+if __name__ == "__main__":
+	whoami("main")
+	p = multiprocessing.Process(target=loopy, args=("loopy",))
+	p.start()
+	time.sleep(5)
+	p.terminate()
+
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+I'm main, in process 54825
+I'm loopy, in process 54826
+        Number 1 of 1000000. Honk!
+        Number 2 of 1000000. Honk!
+        Number 3 of 1000000. Honk!
+        Number 4 of 1000000. Honk!
+        Number 5 of 1000000. Honk!
 ```
