@@ -6,7 +6,7 @@ python基础教程（第三版）				继续第12章，后面都是东拼西凑�
 
 python语言及其应用						继续第11章，后面都是东拼西凑先不用看了
 
-流畅的Python							继续第5章
+流畅的Python							继续第8章
 
 Python Cookbook（第3版）
 ---
@@ -180,6 +180,17 @@ print(x)
 2
 ```
 ## 全局变量
+- Python不要求声明变量，但是假定在函数定义体中赋值的变量是局部变量，下个案例会err
+```
+b = 6
+def f3(a):
+	# global b		没有这行会认为b是下面的b，是未定义的局部变量
+	print(a)
+	print(b)
+	b = 9
+
+f3(3)
+```
 - 可使用函数globals来访问全局变量，返回一个包含全局变量的字典
 ```
 def combine(parameter): # 与全局变量同名的参数
@@ -1899,9 +1910,24 @@ for name, contents in drinks.items():
 black russian
 screwdriver
 ```
-## 交集、并集、差集
+## 交集、并集
 给定两个集合 a 和 b，a | b 返回的是它们的合集，a & b 得到的是交集，而 a - b 得到的是差集
 https://blog.csdn.net/wenhao_ir/article/details/125424671
+## 差集
+a-b得到的是差集
+
+```
+计算差集，然后排序，得到类的实例没有而函数有的属性列表
+
+class C: pass
+obj = C()
+def func(): pass
+print(sorted(set(dir(func)) - set(dir(obj))))
+
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+['__annotations__', '__call__', '__closure__', '__code__', '__defaults__', '__get__', '__globals__', '__kwdefaults__', '__name__', '__qualname__']
+```
 # 复杂数据结构
 ## 元祖里存列表
 ```
@@ -2463,16 +2489,17 @@ print(alien_0)
 
 ```
 
-## 传递任意个参数（收集参数）
+## 传递任意个参数
 - 参数前面的星号将提供的所有值都放在一个元组中，也就是将这些值收集起来。
 - 效果类似perl的ARGV与@_
-- 一个*实际对应的是元祖
-- **user_info则对应字典
+- 一个*展开为可迭代对象（元祖）
+- **则展开为映射（字典）
 
-下例* toppings实则会变为元祖，内容为('mushrooms', 'green peppers', 'extra cheese')。
+
 ```
-#!/usr/bin/python3
+下例* toppings实则会变为元祖，内容为('mushrooms', 'green peppers', 'extra cheese')。
 
+#!/usr/bin/python3
 def make_pizza(size, *toppings):
 	print(f"\nMaking a {size}-inch pizza with the following toppings:")
 	for topping in toppings:
@@ -2527,7 +2554,7 @@ def call_foo(*args, **kwds):
 	print("Calling foo!") 
 	foo(*args, **kwds) 
 ```
-综合演示
+综合的简单案例
 ```
 def story(**kwds): 
 	return 'Once upon a time, there was a {job} called {name}.'.format_map(kwds)
@@ -2580,7 +2607,43 @@ Received redundant parameters: ('Hello, world',)
 Received redundant parameters: (5, 6)
 81
 ```
+复杂的案例
+```
+def tag(name, *content, cls=None, **attrs):
+	if cls is not None:
+		attrs['class'] = cls
+	if attrs:
+		attr_str = ''.join(' %s="%s"' % (attr, value) for attr, value in sorted(attrs.items()))
+	else:
+		attr_str = ''
+	if content:
+		return '\n'.join('<%s%s>%s</%s>' % (name, attr_str, c, name) for c in content)
+	else:
+		return '<%s%s />' % (name, attr_str)
 
+print(tag('br'))	传入单个定位参数，生成一个指定名称的空标签。
+print(tag('p', 'hello'))	第一个参数后面的任意个参数会被 *content 捕获，存入一个元组
+print(tag('p', 'hello', 'world'))
+print(tag('p', 'hello', id=33))	tag 函数签名中没有明确指定名称的关键字参数会被 **attrs 捕获，存入一个字典。
+print(tag('p', 'hello', 'world', cls='sidebar'))	cls 参数只能作为关键字参数传入
+print(tag(content='testing', name="img"))	调用 tag 函数时，即便第一个定位参数也能作为关键字参数传入。
+
+my_tag = {'name': 'img', 'title': 'Sunset Boulevard','src': 'sunset.jpg', 'cls': 'framed'}
+print(tag(**my_tag))	在 my_tag 前面加上 **，字典中的所有元素作为单个参数传入，同名键会绑定到对应的
+具名参数上，余下的则被 **attrs 捕获。
+
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+<br />
+<p>hello</p>
+<p>hello</p>
+<p>world</p>
+<p id="33">hello</p>
+<p class="sidebar">hello</p>
+<p class="sidebar">world</p>
+<img content="testing" />
+<img class="framed" src="sunset.jpg" title="Sunset Boulevard" />
+```
 ## 传递函数
 
 其实传的是个对象
@@ -2603,15 +2666,97 @@ def outer(a, b):
 print(outer(4, 7))	# 11
 ```
 
+
+## 匿名函数 lambda
+- lambda 关键字在 Python 表达式内创建匿名函数。
+- lambda 函数的定义体中不能赋值，也不能使用 while 和 try 等语句
+- lambda 句法只是语法糖：与 def 语句一样，lambda 表达式会创建函数对象。
+
+```
+简单的额lambda使用演示
+def edit_story(words, func):
+	for word in words:
+		print(func(word))
+
+def enliven(word):
+	return word.capitalize() + '!'
+
+
+stairs = ['thud', 'meow', 'thud', 'hiss']
+print("-----func:")
+edit_story(stairs, enliven)
+
+print("-----lambda:")
+edit_story(stairs, lambda word: word.capitalize() + '!')
+
+[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
+-----func:
+Thud!
+Meow!
+Thud!
+Hiss!
+-----lambda:
+Thud!
+Meow!
+Thud!
+Hiss!
+
+```
+
+## 装饰器
+- 装饰器是可调用的对象，其参数是另一个函数（被装饰的函数）。
+- 函数装饰器在导入模块时立即执行，而被装饰的函数只在明确调用时运行。这突出了所谓的导入时和运行时之间的区别。
+- 装饰器和被装饰的函数可以在2个不同模块里
+- 装饰器内返回的结果可以是值也可以是函数对象（不是传入的函数，而是会定义一个内部函数，然后将其返回，替换被装饰的函数）
+- Python 内置了三个用于装饰方法的函数：property、classmethod 和 staticmethod。
+
+简单的演示案例
+```
+registry = []
+def register(func):	# register 的参数是一个函数
+	print('running register(%s)' % func)
+	registry.append(func)
+	return func	# 返回 func：必须返回函数；这里返回的函数与通过参数传入的一样。
+
+@register		# f1 和 f2 被 @register 装饰
+def f1():
+	print('running f1()')
+@register
+def f2():
+	print('running f2()')
+def f3():		# f3 没有装饰
+	print('running f3()')
+def main():
+	print('running main()')
+	print('registry ->', registry)	# 打印列表，执行f1f2f3
+	f1()
+	f2()
+	f3()
+if __name__=='__main__':
+	main()
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+running register(<function f1 at 0x7fe2d585b1e0>)	# register 在模块中其他函数之前运行了两次
+running register(<function f2 at 0x7fe2d585b268>)	# 如果仅仅是导入此py则只会打印出这两句，因不会执行main函数
+running main()
+registry -> [<function f1 at 0x7fe2d585b1e0>, <function f2 at 0x7fe2d585b268>]
+running f1()
+running f2()
+running f3()
+```
+## 参数化的装饰器
+
 ## 闭包
 
 闭包是一个可以由另一个函数动态生成的函数，并且可以改变和存储函数外创建的变量的值，其实内部函数可以看作为闭包，只不过没有体现出精髓而已。
+- 闭包指延伸了作用域的函数，其中包含函数定义体中引用的但又没在定义体中定义的非全局变量
+- 函数是不是匿名的没有关系，关键是它能访问定义体之外定义的非全局变量
 
 通过下案例介绍闭包特点：
 - inner2() 直接使用外部的 saying 参数，而不是通过另外一个参数获取。（与上面内部函数的案例中的参数传递方式对比查看即可）
 - knights2() 返回值为 inner2 函数，而不是调用它。（对比同上）
 - inner2() 函数可以得到 saying 参数的值并且记录下来。
-- return inner2 准确的说是返回已个没有被调用过的函数对象（是一个闭包：一个被动态创建的可以记录外部变量的函数）。
+- return inner2 准确的说是返回1个没有被调用过的函数对象（是一个闭包：一个被动态创建的可以记录外部变量的函数）。
 
 
 ```
@@ -2640,39 +2785,30 @@ We are the knights who say: 'Duck'
 <function inner2 at 0x7f814caec848>
 We are the knights who say: 'Hasenpfeffer'
 ```
-
-## lambda
-
-简单的额lambda使用演示
+## nonlocal
+如果为 nonlocal 声明的变量赋予新值，闭包中保存的绑定会更新。  
 ```
+下例中count、total可以在闭包里更新
 
-def edit_story(words, func):
-	for word in words:
-		print(func(word))
+def make_averager():
+	count = 0
+	total = 0
+	def averager(new_value):
+		nonlocal count, total
+		count += 1
+		total += new_value
+		return total / count
+	return averager
 
-def enliven(word):
-	return word.capitalize() + '!'
+avg = make_averager()
+print(avg(10))
+print(avg(20))
+print(avg(30))
 
-
-stairs = ['thud', 'meow', 'thud', 'hiss']
-print("-----func:")
-edit_story(stairs, enliven)
-
-print("-----lambda:")
-edit_story(stairs, lambda word: word.capitalize() + '!')
-
-[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
------func:
-Thud!
-Meow!
-Thud!
-Hiss!
------lambda:
-Thud!
-Meow!
-Thud!
-Hiss!
-
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+10.0
+15.0
+20.0
 ```
 
 # 模块
@@ -3508,7 +3644,7 @@ inside the getter
 Daffy
 ```
 
-## 装饰器 decorator
+## 成员函数装饰器
 ```
 
 class Duck():
@@ -3616,6 +3752,32 @@ third = Word('eh')
 print(first == second)
 print(first == third)
 ```
+## 用户定义的可调用类型
+- 不仅 Python 函数是真正的对象，任何 Python 对象都可以表现得像函数。为此，只需实现实例方法 __call__。
+- 其实就是对象名称后接（）进行函数调用，可以理解为类似重载操作符（）
+```
+import random
+class BingoCage:
+	def __init__(self, items):
+		self._items = list(items)	# 接受任何可迭代对象；在本地构建一个副本
+		random.shuffle(self._items)
+	def pick(self):
+		try:
+			return self._items.pop()
+		except IndexError:	# 如果 self._items 为空，抛出异常，并设定错误消息。
+			raise LookupError('pick from empty BingoCage')
+	def __call__(self):
+		return self.pick()	# bingo.pick() 的快捷方式是 bingo()。
+
+bingo = BingoCage(range(3))
+print(bingo.pick())
+print(bingo())
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+0
+2
+```
+
 # 继承
 ## 简单继承
 ```
