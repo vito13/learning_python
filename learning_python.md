@@ -4,8 +4,11 @@ Python编程：从入门到实践（第2版）		继续第12章，后面都是东
 
 python基础教程（第三版）				继续第12章，后面都是东拼西凑先不用看了
 
-python语言及其应用						继续第11章
+python语言及其应用						继续第11章，后面都是东拼西凑先不用看了
 
+流畅的Python							继续第5章
+
+Python Cookbook（第3版）
 ---
 # 基础知识
 > Python 最底层的基本数据类型：布尔型、整型、浮点型以及字符串型。如果把这些数据类型看作组成 Python 的原子，数据结构就像分子一样。我们把之前所学的基本 Python 类型以更为复杂的方式组织起来。这些数据结构以后会经常用到。在编程中，最常见的工作就是将数据进行拆分或合并，将其加工为特定的形式，而数据结构就是用以切分数据的钢锯以及合并数据的粘合枪。
@@ -278,65 +281,80 @@ Program arguments: ['pyth.py', 'tra', 'la', 'la']
 ('Program arguments:', ['/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py', 'tra', 'la', 'la'])
 [huawei@n148 postdb_doc]$ 
 ```
-# 序列与映射
-- 序列是一种数据结构，其中的元素带编号（编号从0开始）。
-- 需要将一系列值组合成数据结构并通过编号来访问各个值时，列表很有用
-- 列表、字符串和元组都属于序列，其中列表是可变的（你可修改其内容），而元组和字符串是不可变的（一旦创建，内容就是固定的）。
-- 要访问序列的一部分，可使用切片操作：提供两个指定切片起始和结束位置的索引。
-- 要修改列表，可给其元素赋值，也可使用赋值语句给切片赋值。
-- 标准序列操作（索引、切片、乘法、成员资格检查、长度、最小值和最大值）
-- 字典是Python中唯一的内置映射类型，其中的值不按顺序排列，而是存储在键下。键可能是数、字符串或元组（即k得是不可变的类型）。
+# 序列的分类
 
-# 二进制数据
-- Python 3 引入了两种二进制类型字节bytes与字节数组bytearray 
-- 使用 8 比特序列存储小整数的方式进行存储，每 8比特（即一字节）可以存储从 0~255 的值
-- 打印 bytes 或 bytearray 数据时，Python 会以 \xxx 的形式表示不可打印的字符
-- 以 ASCII 字符的形式表示可打印的字符（以及一些转义字符，例如 \n 而不是 \x0a）
-- 打印bytearray通常手动加入换行用于显示效果，如一行显示 16 个字节
+## 扁平序列
+是一段连续的内存空间。存放如字符、字节和数值这种基础类型，存储的是值而不是引用。体积更小、速度更快而且用起来更简单，但是它只能保存一些原子性的数据，比如数字、字符和字节。扁平序列因为只能包含原子数据类型，比如整数、浮点数或字符，所以不能嵌套使用。
 
-## 字节 bytes
+- str
+- bytes
+- bytearray
+- memoryview
+- array.array
 
-- 字节bytes是不可变的，像字节数据组成的元组
-- bytes 类型值的表示以 b 开头，接着是一个单引号，后面跟着由十六进制数（例如 \x02）或 ASCII 码组成的序列，最后以配对的单引号结束
-- Python 会将这些十六进制数或者 ASCII 码转换为整数，如果该字节的值为有效 ASCII编码则会显示 ASCII 字符。
+## 容器序列
+可以存放任意类型的对象的引用。容器序列则比较灵活，但是当容器序列遇到可变对象时，用户就需要格外小心了，因为这种组合时常会搞出一些“意外”，特别是带嵌套的数据结构出现时，用户要多费一些心思来保证代码的正确。
 
+
+- list
+- tuple
+- collections.deque
+
+## 非容器序列
+- 映射关系的容器dict
+- 只有key的容器set
+## 可变序列
+
+list、bytearray、array.array、collections.deque 和 memoryview。
+
+## 不可变序列
+
+tuple、str 和 bytes。
+
+
+# 推导和生成器表达式
+列表推导和生成器表达式则提供了灵活构建和初始化序列的方式，这两个工具都异常强大。
+## 字典推导
+将元祖的列表推导为字典
 ```
-blist = [1, 2, 3, 255]
-the_bytes = bytes(blist)	# 使用列表创建一个bytes 类型的变量
-print(the_bytes)
-# the_bytes[1] = 127	# err，不可改变
-print(b'\x61')	# 显示a，因为61对应ascii的a
-print(b'\x01abc\xff')	# 无对应，原样显示
-the_bytes = bytes(range(0, 256))	# 建一个包含 0到255 的所有数的bytes 
-print(the_bytes)
+DIAL_CODES = [
+	(86, 'China'),
+	(91, 'India'),
+	(1, 'United States'),
+	(62, 'Indonesia'),
+	(55, 'Brazil'),
+	(92, 'Pakistan'),
+	(880, 'Bangladesh'),
+	(234, 'Nigeria'),
+	(7, 'Russia'),
+	(81, 'Japan'),
+]
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
-b'\x01\x02\x03\xff'
-b'a'
-b'\x01abc\xff'
-b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff'
+# 迭代列表，将item拆包为code与country，并使用此2构建字典
+country_code = {country: code for code, country in DIAL_CODES}
+print(country_code)
+country_code = {code: country.upper() for country, code in country_code.items() if code < 66}
+print(country_code)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+{'China': 86, 'India': 91, 'United States': 1, 'Indonesia': 62, 'Brazil': 55, 'Pakistan': 92, 'Bangladesh': 880, 'Nigeria': 234, 'Russia': 7, 'Japan': 81}
+{1: 'UNITED STATES', 62: 'INDONESIA', 55: 'BRAZIL', 7: 'RUSSIA'}
 ```
 
-## bytearray 字节数组
-
-- 字节数组bytearray是可变的，像字节数据组成的列表。
-
+## 集合推导
 ```
-blist = [1, 2, 3, 255]
-the_byte_array = bytearray(blist) # 使用列表创建一个bytearray类型的变量
-print(the_byte_array)
-the_byte_array[1] = 127	# bytearray 类型的变量是可变的
-print(the_byte_array)
-the_byte_array = bytearray(range(0, 256))	# 建一个包含 0到255 的所有数的bytearray
-print(the_byte_array)
+一个Latin-1 字符集合，该集合里的每个字符的 Unicode 名字里都有“SIGN”这个单词
+# 从 unicodedata 模块里导入 name 函数，用以获取字符的名字。
+from unicodedata import name
+# 把编码在 32~255 之间的字符的名字里有“SIGN”单词的挑出来，放到一个集合里
+s = {chr(i) for i in range(32, 256) if 'SIGN' in name(chr(i),'')}
+print(s)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
-bytearray(b'\x01\x02\x03\xff')
-bytearray(b'\x01\x7f\x03\xff')
-bytearray(b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff')
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+{'®', '§', '±', '<', '%', '°', '©', '¥', '¶', '+', '¤', '#', '¬', '÷', '$', '=', '£', '>', '¢', 'µ', '×'}
 ```
 
-# 字符串
+# 字符串 str
 - 字符组成的序列
 - 字符串是不可变的，因此所有的元素赋值和切片赋值都是非法的。
 - 多行的使用三个单引号
@@ -412,6 +430,14 @@ print(letters.endswith('abc'))
 [huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
 True
 False
+```
+获取指定扩展名文件列表
+```
+filenames = [ 'Makefile', 'foo.c', 'bar.py', 'spam.c', 'spam.h' ] 
+print([name for name in filenames if name.endswith(('.c', '.h')) ])
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+['foo.c', 'spam.c', 'spam.h']
 ```
 ## 判断都是字母数字
 poem.isalnum()
@@ -725,12 +751,18 @@ print(len(pi_string))
 3.141592653589793238...
 32
 ```
+
+
 ## 编码 encode
-- 编码是将字符串转化为一系列字节的过程
+- 字符的标识，即码位，是 0~1 114 111 的数字（十进制），在 Unicode 标准中以 4~6 个十六进制数字表示，而且加前缀“U+”。约 10% 的有效码位有对应的字符。
+- 字符的具体表述取决于所用的编码（如utf8）。编码是在码位和字节序列之间转换时使用的算法。
+- 编码是将码位转换成字节序列的过程
 - encode支持第二个参数用于指定当目标编码无此字符时是异常还是忽略的操作
 
 	如果你想要使用 ascii 方式进行编码，必须保证待编码的字符串仅包含 ASCII 字符集里的字符，不含有任何其他的 Unicode 字符，否则会出现错误
 - 尽可能统一使用 UTF-8 编码。出错率低，兼容性好，可以表达所有的 Unicode 字符，编码和解码的速度又快
+- 可以把字节序列想成晦涩难懂的机器磁芯转储，把 Unicode 字符串想成“人类可读”的文本。那么，把字节序列变成人类可读的文本字符串就是解码，而把字符串变成用于存储或传输的字节序列就是编码。
+
 ```
 snowman = '\u2603'	# 将Unicode 字符串 '\u2603' 赋值给 snowman。
 print(snowman)
@@ -747,7 +779,7 @@ b'\xe2\x98\x83'
 ```
 ## 解码 decode
 
-- 解码是将字节序列转化为 Unicode 字符串的过程
+- 解码是将字节序列转换成码位的过程
 ```
 place = 'caf\u00e9'	# unicode字符串
 print(place)
@@ -773,12 +805,16 @@ café
 4
 <class 'str'>
 ```
+## 统一字符编码侦测包 Chardet
+能识别所支持的 30 种编码 https://pypi.python.org/pypi/chardet
 
 # 列表【】 list
 - 列表非常适合利用顺序和位置定位某一元素
 - 列表元素是可变的
 - 使用中括号定义
 - 在列表中，具有相同值的元素允许出现多次
+- 可以同时容纳不同类型的元素，但是实际上这样做并没有什么特别的好处，比如不能对列表进行排序。元组则恰恰相反，它经常用来存放不同类型的的元素。这也符合它的本质，元组就是用作存放彼此之间没有关系的数据的记录。
+
 
 ## 创建与访问元素
 索引-1指向最后一个，-2则是倒数第二个，以此类推
@@ -950,16 +986,30 @@ numbers.clear()
 ## 排序sort、sorted
 - 列表方法 sort() 会对原列表进行排序，改变原列表内容
 - 通用函数 sorted() 则会返回排好序的列表副本，原列表内容不变
+- 参数reverse为t是降序，默认f
+- 还支持一个key回调用于自定义比较方法
 ```
-#!/usr/bin/python3
-cars = ['bmw', 'audi', 'toyota', 'subaru']
-cars.sort()	# 永久排序，改变元素
-print(cars)
-cars.sort(reverse=True)	# 倒序参数
-print(cars)
-print(sorted(cars))		# 返回排序后的结果，不改变内容
+
+fruits = ['grape', 'raspberry', 'apple', 'banana']
+print(sorted(fruits))
+print(fruits)
+print(sorted(fruits, reverse=True))
+print(sorted(fruits, key=len))	此处使用长度进行排序
+print(sorted(fruits, key=len, reverse=True))
+print(fruits)
+fruits.sort()
+print(fruits)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+['apple', 'banana', 'grape', 'raspberry']
+['grape', 'raspberry', 'apple', 'banana']
+['raspberry', 'grape', 'banana', 'apple']
+['grape', 'apple', 'banana', 'raspberry']
+['raspberry', 'banana', 'grape', 'apple']
+['grape', 'raspberry', 'apple', 'banana']
+['apple', 'banana', 'grape', 'raspberry']
 ```
-## 跌倒 reversed
+## 颠倒 reversed
 - reverse将所有元素反序（直接修改列表）
 - reversed
 ```
@@ -1175,6 +1225,8 @@ print(numbers[:5:-2])
 [10, 8]
 ```
 ## 切片的插入、删除、替换
+- 如果赋值的对象是一个切片，那么赋值语句的右侧必须是个可迭代对象。
+- 即便只有单独一个值，也要把它转换成可迭代的序列。
 ```
 #!/usr/bin/python3
 name = list('Perl')
@@ -1219,9 +1271,11 @@ print(dict(zip(english, french)))
 [('Monday', 'Lundi'), ('Tuesday', 'Mardi'), ('Wednesday', 'Mercredi')]
 {'Monday': 'Lundi', 'Tuesday': 'Mardi', 'Wednesday': 'Mercredi'}
 ```
-# 元组（） tuple
+# 元组 ( ) tuple
+- 元组经常用来存放不同类型的的元素。这也符合它的本质，元组就是用作存放彼此之间没有关系的数据的记录。
 - 与列表类似，元组也是由任意类型元素组成的序列。
 - 与列表不同的是，元组是不可变的，这意味着一旦元组被定义，将无法再进行增加、删除或修改元素等操作。因此，元组就像是一个常量列表。
+- 不要把可变对象放在元组里面。
 - 使用圆括号定义
 - 空元组用两个不包含任何内容的圆括号表示
 - 一个值的元组要有逗号
@@ -1230,6 +1284,7 @@ print(dict(zip(english, french)))
 - 可以将元组用作字典的键
 - 函数的参数是以元组形式传递的
 - 命名元组可以作为对象的替代
+
 ```
 #!/usr/bin/python3
 dimensions = (200, 50)	# 定义tuple
@@ -1264,15 +1319,34 @@ Chico
 Harpo
 
 ```
+## 打印元素
+```
+lax_coordinates = (33.9425, -118.408056)
+city, year, pop, chg, area = ('Tokyo', 2003, 32450, 0.66, 8014)
+traveler_ids = [('USA', '31195855'), ('BRA', 'CE342567'), ('ESP', 'XDA205856')]
+for passport in sorted(traveler_ids):
+	print('%s/%s' % passport)		# passport代表每个元组, %能匹配到对应的元组元素上
+for country, _ in traveler_ids:		# 元祖拆包后的第二个元素没有，用占位符代替
+	print(country)
 
-## 序列解包
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+BRA/CE342567
+ESP/XDA205856
+USA/31195855
+USA
+BRA
+ESP
+```
+
+## 拆包
 将一个序列（或任何可迭代对象）解包，并将得到的值存储到一系列变量中。可用于  
 - 并行赋值
 - 交换变量值
 - 将序列赋值给元祖values
 - 解开元祖到多个变量
-- 使用*接收多个值到列表中
+- 使用*接收多个值到列表中，*句法让元组拆包的便利性更上一层楼，让用户可以选择性忽略不需要的字段
 - 函数参数传递（主要是上一种方式）
+- 函数可以用元组的形式返回多个值
 
 ```
 x, y, z = 1, 2, 3 # 并行赋值
@@ -1307,6 +1381,30 @@ girlfriend Marion
 ['Percival', 'Wulfric', 'Brian']
 a ['b'] c
 ```
+
+## 拆包嵌套元组
+
+```
+metro_areas = [
+	('Tokyo','JP',36.933,(35.689722,139.691667)),
+	('Delhi NCR', 'IN', 21.935, (28.613889, 77.208889)),
+	('Mexico City', 'MX', 20.142, (19.433333, -99.133333)),
+	('New York-Newark', 'US', 20.104, (40.808611, -74.020386)),
+	('Sao Paulo', 'BR', 19.649, (-23.547778, -46.635833)),
+]
+print('{:15} | {:^9} | {:^9}'.format('', 'lat.', 'long.'))
+fmt = '{:15} | {:9.4f} | {:9.4f}'
+for name, cc, pop, (latitude, longitude) in metro_areas:
+	if longitude <= 0:
+		print(fmt.format(name, latitude, longitude))
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+                |   lat.    |   long.  
+Mexico City     |   19.4333 |  -99.1333
+New York-Newark |   40.8086 |  -74.0204
+Sao Paulo       |  -23.5478 |  -46.6358
+
+```
 ## 使用tuple()创建元组
 
 函数tuple的工作原理与list很像：它将一个序列作为参数，并将其转换为元组。如果参数
@@ -1328,13 +1426,15 @@ print(x[0:2])
 (1, 2, 3)
 (1, 2)
 ```
-# 命名元祖 namedtuple
+## 具名元祖 namedtuple
 - 命名元组是元组的子类，既可以通过名称（使用 .name）来访问其中的值，也可以通过位置进行访问（使用[offset]）
 - 它无论看起来还是使用起来都和不可变对象非常相似
-- 与使用对象相比，使用命名元组在时间和空间上效率更高
+- 具名元组的实例也很节省空间，与使用对象相比，使用命名元组在时间和空间上效率更高。
 - 可以使用点号（.）对特性进行访问，而不需要使用字典风格的方括号
 - 可以把它作为字典的键
+- 用以构建只有少数属性但是没有方法的对象
 
+简单使用
 ```
 from collections import namedtuple
 Duck = namedtuple('Duck', 'bill tail')
@@ -1371,12 +1471,54 @@ Traceback (most recent call last):
 AttributeError: 'Duck' object has no attribute 'color'
 ```
 
+
+高级使用，类似struct，可以快速定义结构并创建变量，但仅有属性不能有方法
+- _fields
+- _make()
+- _asdict()
+
+```
+from collections import namedtuple
+City = namedtuple('City', 'name country population coordinates')	# 参数是类名，另一个是类的各个字段的名字
+tokyo = City('Tokyo', 'JP', 36.933, (35.689722, 139.691667))	# 创建对象
+print(tokyo)	# 访问
+print(tokyo.population)
+print(tokyo.coordinates)
+print(tokyo[1])
+print(City._fields)	# _fields 属性是一个包含这个类所有字段名称的元组。
+
+
+LatLong = namedtuple('LatLong', 'lat long')
+delhi_data = ('Delhi NCR', 'IN', 21.935, LatLong(28.613889, 77.208889))
+delhi = City._make(delhi_data)	# 用_make()通过接受一个可迭代对象来生成这个类的一个实例，它的作用跟City(*delhi_data)是一样的
+
+print(delhi._asdict())	#_asdict()把具名元组以collections.OrderedDict的形式返回，下面是迭代每一项
+for key, value in delhi._asdict().items():
+	print(key + ':', value)
+
+
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+City(name='Tokyo', country='JP', population=36.933, coordinates=(35.689722, 139.691667))
+36.933
+(35.689722, 139.691667)
+JP
+('name', 'country', 'population', 'coordinates')
+OrderedDict([('name', 'Delhi NCR'), ('country', 'IN'), ('population', 21.935), ('coordinates', LatLong(lat=28.613889, long=77.208889))])
+name: Delhi NCR
+country: IN
+population: 21.935
+coordinates: LatLong(lat=28.613889, long=77.208889)
+```
+
 # 字典 { } dict
 - 字典由键及其相应的值组成，这种键值对称为项（item）。
 - 每个键与其值之间都用冒号（:）分隔，项之间用逗号分隔，而整个字典放在花括号内。
 - 空字典（没有任何项）用两个花括号表示，类似于下面这样：{}。
 - 在字典（以及其他映射类型）中，键必须是独一无二的，而字典中的值无需如此。
 - 字典的键必须为不可变对象，因此列表、字典以及集合都不能作为字典的键，但元组可以作为字典的键
+- 字典是Python中唯一的内置映射类型，其中的值不按顺序排列，而是存储在键下。键可能是数、字符串或元组（即k得是不可变的类型）。
+- 所有的字典方法见流程的python3.3
 ## 构建方法
 - 使用dict方法
 - 使用{}
@@ -1674,8 +1816,9 @@ print(dc)
 {'names': ['Alfred', 'Bertrand']}
 ```
 # 集合 set
-尽管都由花括号包裹，集合仅仅是一系列值组成的序列，而字典是一个或多个键值对组成的序列。
-
+- 尽管都由花括号包裹，集合仅仅是一系列值组成的序列，而字典是一个或多个键值对组成的序列。
+- 所有方法见流程的python3.8.3
+  
 ## 创建
 - 使用set()创建集合
 - 使用set()将其他类型转换为集合
@@ -1757,6 +1900,7 @@ black russian
 screwdriver
 ```
 ## 交集、并集、差集
+给定两个集合 a 和 b，a | b 返回的是它们的合集，a & b 得到的是交集，而 a - b 得到的是差集
 https://blog.csdn.net/wenhao_ir/article/details/125424671
 # 复杂数据结构
 ## 元祖里存列表
@@ -1784,6 +1928,7 @@ print(houses)
 {(44.79, -93.14, 285): 'My House', (38.89, -77.03, 13): 'The White House'}
 ```
 ## 列表里存列表
+- 简单的使用
 ```
 small_birds = ['hummingbird', 'finch']
 extinct_birds = ['dodo', 'passenger pigeon', 'Norwegian Blue']
@@ -1798,6 +1943,45 @@ print(all_birds[1][0])
 [['hummingbird', 'finch'], ['dodo', 'passenger pigeon', 'Norwegian Blue'], 'macaw', [3, 'French hens', 2, 'turtledoves']]
 ['hummingbird', 'finch']
 dodo
+```
+- 相对复杂一点的
+
+两种方式结果相同
+```
+方式1
+board = [['_'] * 3 for i in range(3)]
+print(board)
+board[1][2] = 'X'
+print(board)
+
+方式2
+board = []
+for i in range(3):
+	row=['_'] * 3
+	board.append(row)
+print(board)
+board[2][0] = 'X'
+print(board)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[['_', '_', '_'], ['_', '_', '_'], ['_', '_', '_']]
+[['_', '_', '_'], ['_', '_', 'X'], ['_', '_', '_']]
+
+
+[['_', '_', '_'], ['_', '_', '_'], ['_', '_', '_']]
+[['_', '_', '_'], ['_', '_', '_'], ['X', '_', '_']]
+
+```
+错误的赋值演示
+```
+weird_board = [['_'] * 3] * 3	# weird_board包含 3 个指向同一个列表的引用
+print(weird_board)
+weird_board[1][2] = 'O'
+print(weird_board)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[['_', '_', '_'], ['_', '_', '_'], ['_', '_', '_']]
+[['_', '_', 'O'], ['_', '_', 'O'], ['_', '_', 'O']]
 ```
 ## 列表里存字典
 ```
@@ -1937,6 +2121,111 @@ Name: Cecil
 Phone number (p) or address (a)? p
 Cecil's phone number is 3158.
 ```
+
+# 其它类型与容器
+
+## 数组 array
+- 数组支持所有跟可变序列有关的操作包括 .pop、.insert 和 .extend。
+- 数组还提供从文件读取和存入文件的更快的方法，如 .frombytes 和 .tofile。
+- 创建数组需要一个类型码，这个类型码用来表示在底层的 C 语言应该存放怎样的数据类型。
+- 具体数组支持的方法参加“流畅的python 2.9.1”
+- 下面的‘d’代表字节类型，即byte，-128~127
+```
+from array import array
+from random import random
+floats = array('d', (random() for i in range(10**7)))	# 双精度浮点数组生成器
+print(floats[-1])	# 最末元素
+fp = open('floats.bin', 'wb')
+floats.tofile(fp)	# 写入二进制文件
+fp.close()
+floats2 = array('d')	# 新建数组
+fp = open('floats.bin', 'rb')
+floats2.fromfile(fp, 10**7)	# 将文件内容写到数组里
+fp.close()
+print(floats2[-1])	# 最末元素
+print(floats2 == floats)	# 判断数组相同
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+0.4028576664776865
+0.4028576664776865
+True
+```
+
+## 字节 bytes
+- 字节bytes是不可变的，像字节数据组成的元组
+- bytes 类型值的表示以 b 开头，接着是一个单引号，后面跟着由十六进制数（例如 \x02）或 ASCII 码组成的序列，最后以配对的单引号结束
+- Python 会将这些十六进制数或者 ASCII 码转换为整数，如果该字节的值为有效 ASCII编码则会显示 ASCII 字符。
+- 使用 8 比特序列存储小整数的方式进行存储，每 8比特（即一字节）可以存储从 0~255 的值
+- 打印 bytes 或 bytearray 数据时，Python 会以 \xxx 的形式表示不可打印的字符
+- 以 ASCII 字符的形式表示可打印的字符（以及一些转义字符，例如 \n 而不是 \x0a）
+
+```
+blist = [1, 2, 3, 255]
+the_bytes = bytes(blist)	# 使用列表创建一个bytes 类型的变量
+print(the_bytes)
+# the_bytes[1] = 127	# err，不可改变
+print(b'\x61')	# 显示a，因为61对应ascii的a
+print(b'\x01abc\xff')	# 无对应，原样显示
+the_bytes = bytes(range(0, 256))	# 建一个包含 0到255 的所有数的bytes 
+print(the_bytes)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+b'\x01\x02\x03\xff'
+b'a'
+b'\x01abc\xff'
+b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff'
+```
+
+## 字节数组 bytearray
+
+- 字节数组bytearray是可变的，像字节数据组成的列表。
+- 打印bytearray通常手动加入换行用于显示效果，如一行显示 16 个字节
+
+```
+blist = [1, 2, 3, 255]
+the_byte_array = bytearray(blist) # 使用列表创建一个bytearray类型的变量
+print(the_byte_array)
+the_byte_array[1] = 127	# bytearray 类型的变量是可变的
+print(the_byte_array)
+the_byte_array = bytearray(range(0, 256))	# 建一个包含 0到255 的所有数的bytearray
+print(the_byte_array)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+bytearray(b'\x01\x02\x03\xff')
+bytearray(b'\x01\x7f\x03\xff')
+bytearray(b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff')
+```
+## 内存视图 memoryview
+## NumPy
+## SciPy
+
+## 双向队列 deque
+- 是一个线程安全、可以快速从两端添加或者删除元素的数据类型。
+- 主要的方法参见“流畅的python 2.9.4”
+```
+from collections import deque
+dq = deque(range(10), maxlen=10)	# maxlen 是一个可选参数，代表这个队列可以容纳的元素的数量，而且一旦设定，这个属性就不能修改了。
+print(dq)
+dq.rotate(3)	# 队列的旋转操作接受一个参数 n，当 n > 0 时，队列的最右边的 n 个元素会被移动到队列的左边。当 n < 0 时，最左边的 n 个元素会被移动到右边。
+print(dq)
+dq.rotate(-4) 
+print(dq)
+dq.appendleft(-1)	# 当试图对一个已满（len(d) == d.maxlen）的队列做头部添加操作的时候，它尾部的元素会被删除掉。注意在下一行里，元素 0 被删除了。
+print(dq)
+dq.extend([11, 22, 33])	# 在尾部添加 3 个元素的操作会挤掉 -1、1 和 2。
+print(dq)
+dq.extendleft([10, 20, 30, 40])	# extendleft(iter) 方法会把迭代器里的元素逐个添加到双向队列的左边，因此迭代器里的元素会逆序出现在队列里。
+print(dq)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+deque([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], maxlen=10)
+deque([7, 8, 9, 0, 1, 2, 3, 4, 5, 6], maxlen=10)
+deque([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], maxlen=10)
+deque([-1, 1, 2, 3, 4, 5, 6, 7, 8, 9], maxlen=10)
+deque([3, 4, 5, 6, 7, 8, 9, 11, 22, 33], maxlen=10)
+deque([40, 30, 20, 10, 3, 4, 5, 6, 7, 8], maxlen=10)
+``` 
+
 # 判断
 ## 比较数值与字符串
 ```
@@ -3693,7 +3982,7 @@ except:
 	print('Something wrong happened ...') 
 ```
 
-# 进程
+# 进程与线程
 ## 进程信息
 ```
 import os
@@ -3760,7 +4049,8 @@ Process 54730 says: I'm function 3
 ```
 
 ## 终止进程
-使用terminate()终止进程
+- 使用terminate()终止进程
+- 注意没有用于线程的终止方法！
 ```
 import multiprocessing
 import time
@@ -3791,4 +4081,61 @@ I'm loopy, in process 54826
         Number 3 of 1000000. Honk!
         Number 4 of 1000000. Honk!
         Number 5 of 1000000. Honk!
+```
+
+## 简单多进程并发
+使用multiprocessing的JoinableQueue队列实现
+```
+import multiprocessing as mp
+def washer(dishes, output):
+	for dish in dishes:
+		print('Washing', dish, 'dish')
+		output.put(dish)
+
+def dryer(input):
+	while True:
+		dish = input.get()
+		print('Drying', dish, 'dish')
+		input.task_done()
+
+dish_queue = mp.JoinableQueue()
+dryer_proc = mp.Process(target=dryer, args=(dish_queue,))
+dryer_proc.daemon = True
+dryer_proc.start()
+dishes = ['salad', 'bread', 'entree', 'dessert']
+washer(dishes, dish_queue)
+dish_queue.join()
+
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+Washing salad dish
+Washing bread dish
+Washing entree dish
+Washing dessert dish
+Drying salad dish
+Drying bread dish
+Drying entree dish
+Drying dessert dish
+```
+
+## 简单多线程
+```
+import threading
+def do_this(what):
+	whoami(what)
+def whoami(what):
+	print("Thread %s says: %s" % (threading.current_thread(), what))
+
+if __name__ == "__main__":
+	whoami("I'm the main program")
+	for n in range(4):
+ 		p = threading.Thread(target=do_this, args=("I'm function %s" % n,))
+ 		p.start()
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+Thread <_MainThread(MainThread, started 140689071798080)> says: I'm the main program
+Thread <Thread(Thread-1, started 140688941364992)> says: I'm function 0
+Thread <Thread(Thread-2, started 140688932972288)> says: I'm function 1
+Thread <Thread(Thread-3, started 140688924579584)> says: I'm function 2
+Thread <Thread(Thread-4, started 140688916186880)> says: I'm function 3
 ```
