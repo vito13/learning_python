@@ -6,12 +6,17 @@ python基础教程（第三版）				继续第12章，后面都是东拼西凑�
 
 python语言及其应用						继续第11章，后面都是东拼西凑先不用看了
 
-流畅的Python							继续第8章
+流畅的Python							继续第9章
 
 Python Cookbook（第3版）
 ---
 # 基础知识
 > Python 最底层的基本数据类型：布尔型、整型、浮点型以及字符串型。如果把这些数据类型看作组成 Python 的原子，数据结构就像分子一样。我们把之前所学的基本 Python 类型以更为复杂的方式组织起来。这些数据结构以后会经常用到。在编程中，最常见的工作就是将数据进行拆分或合并，将其加工为特定的形式，而数据结构就是用以切分数据的钢锯以及合并数据的粘合枪。
+
+## 变量
+- 为了理解 Python 中的赋值语句，应该始终先读右边。对象在右边创建或获取，在此之后左边的变量才会绑定到对象上，这就像为对象贴上标注。因为变量只不过是标注，所以无法阻止为对象贴上多个标注。贴的多个标注，就是别名。
+- 每个变量都有标识、类型和值。对象一旦创建，它的标识绝不会变；你可以把标识理解为对象在内存中的地址。is 运算符比较两个对象的标识；id() 函数返回对象标识的整数表示。
+
 
 ## 数值
 - 整型（整数，例如 42、100000000）
@@ -912,17 +917,15 @@ print(friend_foods)
 ['pizza', 'falafel', 'carrot cake', 'cannoli']
 ['pizza', 'falafel', 'carrot cake', 'cannoli']
 ```
-- copy类似深拷贝效果
-  - 可以使用切片方式[:]
-  - 还可以使用copy方法
-  - 使用list方法
+- 使用切片方式[:]与list方法得到的也哟可能还是浅拷贝，取决于列表是否嵌套
+- 使用copy、deepcopy进行深拷贝解决问题
 ```
 #!/usr/bin/python3
 my_foods = ['pizza', 'falafel', 'carrot cake']
 
-方法1：	friend_foods = my_foods[:]
+方法1有可能还是浅拷贝：	friend_foods = my_foods[:]
 方法2：	friend_foods = my_foods.copy()
-方法3：	friend_foods = list(my_foods)
+方法3有可能还是浅拷贝：	friend_foods = list(my_foods)
 
 my_foods.append('cannoli')
 print(my_foods)
@@ -1295,6 +1298,7 @@ print(dict(zip(english, french)))
 - 可以将元组用作字典的键
 - 函数的参数是以元组形式传递的
 - 命名元组可以作为对象的替代
+- 元组与多数 Python 集合（列表、字典、集，等等）一样，保存的是对象的引用。
 
 ```
 #!/usr/bin/python3
@@ -1521,6 +1525,27 @@ country: IN
 population: 21.935
 coordinates: LatLong(lat=28.613889, long=77.208889)
 ```
+## 元组的相对不可变性
+- 下面的描述貌似眼熟，详见代码说明，感觉就像是改变常量指针指向的内容。。。
+- 元组与多数 Python 集合（列表、字典、集，等等）一样，保存的是对象的引用。1 如果引用的元素是可变的，即便元组本身不可变，元素依然可变。
+```
+t1 = (1, 2, [30, 40])
+t2 = (1, 2, [30, 40])
+print(t1 == t2)		# 虽然 t1 和 t2 是不同的对象，但是二者相等，因为==比值
+print(id(t1[-1]))
+t1[-1].append(99)	# 重点在此，t1 不可变，但是 t1[-1] 可变。即t1[-1] 的标识没变，只是值变了。（可以理解为栈上的指针没指向别处，但是堆上的数据变了）
+print(t1)
+print(id(t1[-1]))
+print(t1 == t2)
+
+[huawei@n161 aaa]$ python3 test.py 
+True
+140324783818056
+(1, 2, [30, 40, 99])
+140324783818056
+False
+```
+
 
 # 字典 { } dict
 - 字典由键及其相应的值组成，这种键值对称为项（item）。
@@ -2274,11 +2299,10 @@ That is not the correct answer. Please try again!
 ## 比较运算符
 - 0 < age < 100  
   Python支持链式比较，可同时使用多个比较运算符
-- == 用来检查两个对象是否相等
+- == 用来检查两个对象是否相等，比值（对象中保存的数据）
 - x != y  
   x不等于y
-- x is y  
-  is用来检查两个对象是否相同（是同一个对象）
+
 ```
 names = ['Mrs. Entity', 'Mrs. Thing'] 
 n = names[:] 
@@ -2289,13 +2313,44 @@ print(n == names)
 False
 True
 ```
+## is、is not、id()
+is 运算符比较两个对象的标识（标识的描述见“变量”）；id() 函数返回对象标识的整数表示。对象 ID 的真正意义在不同的实现中有所不同。在 CPython 中，id() 返回对象的内存地址，但是在其他 Python 解释器中可能是别的值。关键是，ID 一定是唯一的数值标注，而且在对象的生命周期中绝不会变。
+
+
+- x is y  
+  is用来检查两个对象是否相同（是同一个对象）
 - x is not y  
   x和y是不同的对象
+
+```
+charles = {'name': 'Charles L. Dodgson', 'born': 1832}
+print(charles)
+lewis = charles	# lewis与charles指向同一地址
+print(lewis is charles)	 # is比地址，所以相同
+print(id(charles))
+print(id(lewis))
+lewis['balance'] = 950
+print(charles)
+
+alex = {'name': 'Charles L. Dodgson', 'born': 1832, 'balance': 950}
+print(alex == charles)	# 字典的==（即__eq__）是比值，所以相同
+print(alex is not charles)	# 但is是比地址
+
+[huawei@n161 aaa]$ python3 test.py 
+{'name': 'Charles L. Dodgson', 'born': 1832}
+True
+140107530622368
+140107530622368
+{'name': 'Charles L. Dodgson', 'born': 1832, 'balance': 950}
+True
+True
+```
+
+## in、not in
 - x in y  
   x是容器（如序列）y的成员
 - x not in y  
   x不是容器（如序列）y的成员
-
 ## if else
 ```
 #!/usr/bin/python3
@@ -2412,6 +2467,16 @@ def describe_pet(pet_name, animal_type='dog'):
 describe_pet('hamster', 'harry')
 describe_pet(pet_name='harry', animal_type='hamster')
 describe_pet(pet_name='willie')
+```
+- 下面是一个传递引用且有默认值的使用方式，总结如下：
+- 除非这个方法确实想修改通过参数传入的对象，否则在类中直接把参数赋值给实例变量之前一定要三思，因为这样会为参数对象创建别名。如果不确定，那就创建副本。
+- 此案例具有代表意义，详见流畅的Python8.4.2
+```
+def __init__(self, passengers=None):
+	if passengers is None:
+		self.passengers = []
+	else:
+		self.passengers = list(passengers)
 ```
 ## 返回值
 ```
