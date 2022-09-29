@@ -6,7 +6,7 @@ python基础教程（第三版）				继续第12章，后面都是东拼西凑�
 
 python语言及其应用						继续第11章，后面都是东拼西凑先不用看了
 
-流畅的Python							继续第9章
+流畅的Python							继续第15章（暂未看10-13）
 
 Python Cookbook（第3版）
 ---
@@ -330,6 +330,7 @@ tuple、str 和 bytes。
 
 # 推导和生成器表达式
 列表推导和生成器表达式则提供了灵活构建和初始化序列的方式，这两个工具都异常强大。
+## 列表推导
 ## 字典推导
 将元祖的列表推导为字典
 ```
@@ -2454,7 +2455,441 @@ for n in range(99, 0, -1):
 
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
 81		
-```		
+```
+
+# 迭代
+
+## 迭代器
+- 迭代器是这样的对象：实现了无参数的 __next__ 方法，返回序列中的下一个元素；
+- 如果没有元素了，那么抛出 StopIteration 异常。
+- Python 中的迭代器还实现了 __iter__ 方法，因此迭代器也可以迭代。
+
+## 生成器函数 yield
+- 只要 Python 函数的定义体中有 yield 关键字，该函数就是生成器函数。
+- 调用生成器函数时，会返回一个生成器对象。也就是说，生成器函数是生成器工厂。
+- 普通的函数与生成器函数在句法上唯一的区别是，在后者的定义体中有yield 关键字。
+- 调用生成器函数返回生成器对象；生成器产出或生成值。
+- 把生成器传给next函数时，生成器函数会向前，执行到函数定义中的下一个yield语句，返回产出的值
+
+
+```
+def gen_AB():
+	print('start')
+	yield 'A'
+	print('continue')
+	yield 'B'
+	print('end.')
+
+for c in gen_AB():	# for 机制会捕获StopIteration 异常，因此循环终止时没有报错。
+	print('-->', c)
+
+a = gen_AB()	# 创建生成器对象
+print(next(a))	# 打印start、A
+print(next(a))	# 打印continue、B
+print(next(a))	# 打印end.后由于没有后续元素，生成器对象会抛出 StopIteration 异常
+
+
+[huawei@n161 ccc]$ python3 1.py
+start
+--> A
+continue
+--> B
+end.
+start
+A
+continue
+B
+end.
+Traceback (most recent call last):
+  File "1.py", line 16, in <module>
+    print(next(a))
+StopIteration
+```
+## 标准库提供的生成器
+
+详见流畅的python14.9、14.11
+### 用于过滤的生成器函数
+```
+import itertools
+ 
+# itertools.compress(it,selector_it)
+# 并行处理两个可迭代对象，如果selector_it中的元素是真值，产出it中对应的元素
+print([i for i in itertools.compress(range(10), [0, 0, 1, 1])])
+ 
+# itertools.takewhile(predicate,it)
+# 使用传入的生成器生成另一个生成器，predicate指定终止条件
+print([i for i in itertools.takewhile(lambda n: n < 5, range(10))])
+ 
+# itertools.dropwhile(prdicate,it)
+# 与itertools.takewhile的作用相反
+print([i for i in itertools.dropwhile(lambda n: n < 5, range(10))])
+ 
+# filter(predicate,it)
+# 将it中的各个元素传给predicate，如果为真，则产出it中对应的元素
+print([i for i in filter(lambda a: a % 2, range(10))])  # 保留奇数
+ 
+# itertools.filterfalse(predicate,it)
+# 与filter的作用相反
+print([i for i in itertools.filterfalse(lambda a: a % 2, range(10))])  # 保留偶数
+ 
+# itertools.islice(it,stop)或者itertools.islice(it,start,stop,step=1)
+# 产出it的切片 实现的是惰性操作
+print([i for i in itertools.islice(range(10), 2)])
+print([i for i in itertools.islice(range(10), 2, 9, 3)])
+
+[huawei@n161 ccc]$ python3 1.py
+[2, 3]
+[0, 1, 2, 3, 4]
+[5, 6, 7, 8, 9]
+[1, 3, 5, 7, 9]
+[0, 2, 4, 6, 8]
+[0, 1]
+[2, 5, 8]
+```
+
+### 用于映射的生成器函数
+```
+import itertools
+import fractions
+import operator
+ 
+# itertools.accumulate(it,func)
+# 产出累积的总和，如果提供了func，那么把前两个元素传给它，然后把计算的结果和下一个元素传给它，以此类推
+print([i for i in itertools.accumulate(range(10), lambda a, b: a + b)])  # 计算前n项的和
+ 
+# enunerate(it,start=0)
+# 产出由两个元素构成的元组 结构是(index,item) index从start开始，每次加一 item的值中it中取
+print([i for i in enumerate(range(10), start=10)])
+ 
+# map(func,iter,[it2,...itn])
+# 把it中的各个元素传给func，产出结果，如果传入n个it，func的参数必须有n个
+print([i for i in map(lambda a, b, c: a + b + c, range(-10, 0, 1), range(10), range(10, 20))])  # 对it1，it2，it3对应位置的元素进行求和
+# itertools.startmap(func,it)
+# 把it中的各个元素传给func，产出结果
+print([i for i in itertools.starmap(operator.mul, enumerate('hello world', 1))])  # 从1开始，根据字母所在位置，把字母重复相应的次数
+
+[huawei@n161 ccc]$ python3 1.py
+[0, 1, 3, 6, 10, 15, 21, 28, 36, 45]
+[(10, 0), (11, 1), (12, 2), (13, 3), (14, 4), (15, 5), (16, 6), (17, 7), (18, 8), (19, 9)]
+[0, 3, 6, 9, 12, 15, 18, 21, 24, 27]
+['h', 'ee', 'lll', 'llll', 'ooooo', '      ', 'wwwwwww', 'oooooooo', 'rrrrrrrrr', 'llllllllll', 'ddddddddddd']
+```
+
+### 合并多个可迭代对象的生成器函数
+```
+import itertools
+ 
+# itertools.chain(it1,[it2...it2])
+# 先产出it1中的元素，然后产出it2中的元素，以此类推，无缝连接在一起
+print([i for i in itertools.chain(range(10), range(11, 20), 'hello world')])
+ 
+# itertools.chain.from_iterable(it)
+# 功能同itertools.chain 不过传入的参数的结构有所变化   it的结构：it=[iter1,[iter2...itern]]
+print([i for i in itertools.chain.from_iterable([range(10), 'hello'])])
+ 
+# itertools.product(it1,...itn,repeat=1)
+# 计算笛卡尔积，从输入的各个可迭代对象中获取元素，合并成由N个元素组成的元组，与嵌套的for循环效果一样，repeat指明重复处理多少次输入的可迭代对象
+print([i for i in itertools.product(range(3), 'hello', 'world', repeat=1)])
+ 
+# zip(it1,...itn)
+# 并行从输入的各个可迭代对象中获取元素，产出由N个元素组成的元组，只要有一个可迭代对象到了头，迭代就终止
+print([i for i in zip(range(5), 'hello')])
+ 
+# zip_longest(it1,..itn,fillvalue=None)
+# 与zip作用一样，但是终止条件是最长的可迭代对象到头了才终止，其他可迭代对象空缺的值用fillvalue进行补充
+print([i for i in itertools.zip_longest(range(10), 'hello', fillvalue='world')])
+
+[huawei@n161 ccc]$ python3 1.py
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd']
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'h', 'e', 'l', 'l', 'o']
+[(0, 'h', 'w'), (0, 'h', 'o'), (0, 'h', 'r'), (0, 'h', 'l'), (0, 'h', 'd'), (0, 'e', 'w'), (0, 'e', 'o'), (0, 'e', 'r'), (0, 'e', 'l'), (0, 'e', 'd'), (0, 'l', 'w'), (0, 'l', 'o'), (0, 'l', 'r'), (0, 'l', 'l'), (0, 'l', 'd'), (0, 'l', 'w'), (0, 'l', 'o'), (0, 'l', 'r'), (0, 'l', 'l'), (0, 'l', 'd'), (0, 'o', 'w'), (0, 'o', 'o'), (0, 'o', 'r'), (0, 'o', 'l'), (0, 'o', 'd'), (1, 'h', 'w'), (1, 'h', 'o'), (1, 'h', 'r'), (1, 'h', 'l'), (1, 'h', 'd'), (1, 'e', 'w'), (1, 'e', 'o'), (1, 'e', 'r'), (1, 'e', 'l'), (1, 'e', 'd'), (1, 'l', 'w'), (1, 'l', 'o'), (1, 'l', 'r'), (1, 'l', 'l'), (1, 'l', 'd'), (1, 'l', 'w'), (1, 'l', 'o'), (1, 'l', 'r'), (1, 'l', 'l'), (1, 'l', 'd'), (1, 'o', 'w'), (1, 'o', 'o'), (1, 'o', 'r'), (1, 'o', 'l'), (1, 'o', 'd'), (2, 'h', 'w'), (2, 'h', 'o'), (2, 'h', 'r'), (2, 'h', 'l'), (2, 'h', 'd'), (2, 'e', 'w'), (2, 'e', 'o'), (2, 'e', 'r'), (2, 'e', 'l'), (2, 'e', 'd'), (2, 'l', 'w'), (2, 'l', 'o'), (2, 'l', 'r'), (2, 'l', 'l'), (2, 'l', 'd'), (2, 'l', 'w'), (2, 'l', 'o'), (2, 'l', 'r'), (2, 'l', 'l'), (2, 'l', 'd'), (2, 'o', 'w'), (2, 'o', 'o'), (2, 'o', 'r'), (2, 'o', 'l'), (2, 'o', 'd')]
+[(0, 'h'), (1, 'e'), (2, 'l'), (3, 'l'), (4, 'o')]
+[(0, 'h'), (1, 'e'), (2, 'l'), (3, 'l'), (4, 'o'), (5, 'world'), (6, 'world'), (7, 'world'), (8, 'world'), (9, 'world')]
+```
+
+### 把输入的各个元素扩展成多个输出元素的生成器函数
+```
+
+import itertools
+ 
+# itertools.combinations(it,out_len)  组合 和顺序无关
+# 把it产出的out_len个元素组合在一起，然后产出
+print([i for i in itertools.combinations('ABC', 2)])  # 产出两两组合的元素
+ 
+# itertools.combinations_with_replacement 组合
+# 功能同itertools.combinations，但是也包含自己和自己的组合
+print([i for i in itertools.combinations_with_replacement('ABC', 2)])
+ 
+# itertools.count(start=0,step=1)
+# 从start开始，以step为步长，不断产出数字
+for i in itertools.count(1, 2):
+    print(i, end=' ')
+    if i > 10: break
+print()
+ 
+# itertools.permutations(it,out_len=len(list(it)))
+# 把it产出的out_len个元素排列在一起  排列  和顺序有关
+print([i for i in itertools.permutations('ABC', 2)])
+ 
+# repeat(item,[times])
+# 重复不断的产出指定的元素，除非提供times指定次数
+print([i for i in itertools.repeat('hello', 10)])
+ 
+# itertools.cycle(it)
+# 从it中产出各个元素，存储各个元素的副本，然后按顺序重复不断地产出各个元素
+cy = itertools.cycle('ABC')  # 将it首位相连
+while True:
+    print(next(cy))
+    break
+
+[huawei@n161 ccc]$ python3 1.py
+[('A', 'B'), ('A', 'C'), ('B', 'C')]
+[('A', 'A'), ('A', 'B'), ('A', 'C'), ('B', 'B'), ('B', 'C'), ('C', 'C')]
+1 3 5 7 9 11 
+[('A', 'B'), ('A', 'C'), ('B', 'A'), ('B', 'C'), ('C', 'A'), ('C', 'B')]
+['hello', 'hello', 'hello', 'hello', 'hello', 'hello', 'hello', 'hello', 'hello', 'hello']
+A
+```
+
+### 用于重新排列元素的生成器函数
+```
+import itertools
+ 
+# itertools.groupby(it,key=None)
+# 产出由练个元素组成的元素，形式为(key,group)，其中key是分组标准，group是生成器，用于产出分组里的元素
+strs_list = ['hello', 'world', 'we', 'price', 'the', 'things', 'when', 'we', 'have', 'lost', 'them', '.']
+strs_list.sort(key=len)  # 先排序
+for key, group in itertools.groupby(strs_list, key=len):  # 根据元素的长度进行分组
+    print(key, list(group))
+ 
+# reversed(seq)
+# 从后向前，倒序产出seq seq必须是序列，或者是实现了__reversed__的对象
+print(list(reversed(strs_list)))
+ 
+# itertools.tee(it,n=2)
+# 产出一个由n个生成器组成的元组，每个生成器用于单独产出输入的可迭代对象中的元素
+g1, g2 = itertools.tee('ABC')
+print(list(g1))
+print(list(g2))
+
+[huawei@n161 ccc]$ python3 1.py
+1 ['.']
+2 ['we', 'we']
+3 ['the']
+4 ['when', 'have', 'lost', 'them']
+5 ['hello', 'world', 'price']
+6 ['things']
+['things', 'price', 'world', 'hello', 'them', 'lost', 'have', 'when', 'the', 'we', 'we', '.']
+['A', 'B', 'C']
+['A', 'B', 'C']
+```
+### 可迭代的归约函数
+```
+import functools
+import itertools
+ 
+# 归约函数:接受一个可迭代对象，然后返回单个结果的函数。
+ 
+# all(it)
+# it中的所有元素都为真时返回True，否者返回False
+print(all(range(10)))  # 因为出现了0，所以返回False
+ 
+# any(it)
+# 只有有一个元素是True就返回True，否者返回False
+print(any(range(10)))
+ 
+# max(it,[key=],[default=])
+# 返回it中的最大值，key指定排序规则，如果it为空，返回default的值
+print(max(['apple', 'banana', 'orange', 'peach'], key=len, default='apple'))  # 按照长度进行比较
+ 
+# min(it,[key=],[default=])
+# 返回it中的最小值，key指定排序规则，如果it为空，返回default的值
+print(min([1, 2, -4, -9, 6], key=abs, default=0))  # 按照绝对值进行比较
+ 
+# itertools.reduce(func,it,[initial])
+# 把前两个元素传给func，然后把计算结果和第三个元素传给func，以此类推，返回最后的结果，如果提供了initial
+# 就会把它当做第一个元素传入
+print(functools.reduce(lambda a, b: a * b, range(1, 11)))  # 计算10！
+print(list(itertools.accumulate(range(1, 11), lambda a, b: a * b)))  # 依次计算1! 2! 3!...10!
+ 
+# sum(it,start=0)
+# it中所有元素的总和，如果提供可选的start，会把它加上
+# 0+1+2+10=13
+print(sum(range(3), 10))
+
+[huawei@n161 ccc]$ python3 1.py
+False
+True
+banana
+1
+3628800
+[1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800]
+13
+```
+
+## yield from
+https://blog.csdn.net/max_LLL/article/details/124242358
+
+## 生成器表达式
+- 生成器表达式可以理解为列表推导的惰性版本：不会迫切地构建列表，而是返回一个生成器，按需惰性生成元素。
+- 如果列表推导是制造列表的工厂，那么生成器表达式就是制造生成器的工厂。
+- 如果生成器表达式要分成多行写，则推荐使用生成器函数，以便提高可读性。此外，生成器函数有名称，因此可以重用。
+- 生成器表达式是创建生成器的简洁句法，这样无需先定义函数再调用。不过，生成器函数灵活得多，可以使用多个语句实现复杂的逻辑，也可以作为协程使用
+  
+```
+def gen_AB():
+	print('start')
+	yield 'A'
+	print('continue')
+	yield 'B'
+	print('end.')
+
+res1 = [x*3 for x in gen_AB()]	# 打印start、continue、end.此处是列表推导，全创建出来了，非lazy
+for i in res1:
+    print('-->', i)	# 打印AAA、BBB
+print("------------")
+res2 = (x*3 for x in gen_AB())	# lazy，生成器表达式会产出生成器对象，未执行生成器内的代码
+for i in res2:	# 循环时刻才执行生成器内的代码
+    print('-->', i)
+
+[huawei@n161 ccc]$ python3 1.py
+start
+continue
+end.
+--> AAA
+--> BBB
+------------
+start
+--> AAA
+continue
+--> BBB
+end.
+```
+
+
+## 可迭代对象
+
+- 使用 iter 内置函数可以获取迭代器的对象。
+- 如果对象实现了能返回迭代器的 __iter__ 方法，那么对象就是可迭代的。
+- 序列都可以迭代；
+- 实现了 __getitem__ 方法，而且其参数是从零开始的索引，这种对象也可以迭代。
+
+
+### 迭代函数 __getitem__
+如果没有实现 __iter__ 方法，但是实现了 __getitem__ 方法，Python 会创建一个迭代器，尝试按顺序（从索引 0 开始）获取元素。此对象则是可迭代的
+```
+#!/usr/bin/python3
+import re
+import reprlib
+RE_WORD = re.compile('\w+')
+class Sentence:
+	def __init__(self, text):
+		self.text = text
+		self.words = RE_WORD.findall(text)
+	def __getitem__(self, index):
+		return self.words[index]
+	def __len__(self):
+		return len(self.words)
+	def __repr__(self):
+		return 'Sentence(%s)' % reprlib.repr(self.text)
+
+s = Sentence('"The time has come," the Walrus said,')
+
+for word in s:
+    print(word)
+print(s)
+print(s[0])
+print(s[-1])
+
+
+
+[huawei@n161 ccc]$ python3 1.py
+The
+time
+has
+come
+the
+Walrus
+said
+Sentence('"The time ha... Walrus said,')
+The
+said
+```
+### 迭代函数 iter、next
+- iter()函数的功能是：接受一个可迭代对象，将其转换成一个迭代器
+- 还可以有2个参数，第一个参数中的对象不断产出值，如果产出的值和第二个参数是一样的，就停止产出
+
+一般用法
+```
+a=[1,2,3]
+a_iter=iter(a)
+print(a_iter)
+print(next(a_iter))
+print(next(a_iter))
+
+
+[huawei@n161 ccc]$ python3 1.py
+<list_iterator object at 0x7fea017d3240>
+1
+2
+```
+一般用法
+```
+#!/usr/bin/python3
+import re
+import reprlib
+RE_WORD = re.compile('\w+')
+class Sentence:
+	def __init__(self, text):
+		self.text = text
+		self.words = RE_WORD.findall(text)
+	def __getitem__(self, index):
+		return self.words[index]
+	def __len__(self):
+		return len(self.words)
+	def __repr__(self):
+		return 'Sentence(%s)' % reprlib.repr(self.text)
+
+s3 = Sentence('Pig and Pepper')
+print(list(iter(s3)))	# ['Pig', 'and', 'Pepper']，使用it构建了list，此时it已经用完了。如果想再次迭代，要重新构建迭代器
+it = iter(s3)	# 又重新构建了it
+print(it)	# <iterator object at 0x7f27cb075dd8> 打印了地址
+print(next(it))	# Pig
+print(next(it))	# and
+print(list(it))	# ['Pepper']，使用it构建了list，此时it用完了
+print(list(it))	# []，it已经用完了，所以构建出空list
+print(next(it))	# err，it没有数据了。。。
+
+[huawei@n161 ccc]$ python3 1.py
+['Pig', 'and', 'Pepper']
+<iterator object at 0x7f329c5eddd8>
+Pig
+and
+['Pepper']
+[]
+Traceback (most recent call last):
+  File "1.py", line 24, in <module>
+    print(next(it))
+StopIteration
+[huawei@n161 ccc]$ 
+```
+
+
+高级用法：随机产生1到10的数字，如果产出数字是5就停止。
+```
+from random import randint
+ 
+def d10():
+    return randint(1, 10)
+ 
+# 随机产生1~10之间的数，遇到5就停止
+for i in iter(d10, 5):
+    print(i)
+```
+
+
+
+
 # 函数
 ## 定义、传值、默认值
 ```
@@ -3758,21 +4193,24 @@ fowl.name = 'Donald'
 print(fowl.name)
 print(fowl.__name)	此句会err，外部无法访问，print(fowl._Duck__name)就行。。。
 ```
-## 实例方法、静态方法、类方法
-
+## 实例方法
 - 以self作为第一个参数的方法都是实例方法。当被调用时Python把调用该方法的对象作为self参数传入
-- 类方法作用于整个类，对类作出的任何改变会对它的所有实例对象产生影响
-- 在类定义内部，用前缀修饰符 @classmethod 指定的方法都是类方法。类方法的第一个参数是类本身（这个参数常被写作cls，即class）
-- 静态方法用 @staticmethod 修饰，它既不需要 self 参数也不需要 class 参数
+
+
+
+## 类方法 classmethod
+- 在类定义内部，用前缀修饰符 @classmethod 指定的方法都是类方法。
+- 第一个参数是类本身（这个参数常被写作cls，即class）。
+- 作用于整个类，对类作出的任何改变会对它的所有实例对象产生影响
 ```
 class A():
-	count = 0
+	count = 0	此变量不属于self
 	def __init__(self):
-		A.count += 1
+		A.count += 1	注意这里的调用方式不是self
 	def exclaim(self):
 		print("I'm an A!")
 	@classmethod
-	def kids(cls):
+	def kids(cls):	类方法使用classmethod装饰
 		print("A has", cls.count, "little objects.")
 
 easy_a = A()
@@ -3780,10 +4218,37 @@ breezy_a = A()
 wheezy_a = A()
 A.kids()
 
-上面的代码中，使用的是 A.count（类特性），而不是self.count（可能是对象的特性）。
-在 kids() 方法中，使用的是 cls.count，它与 A.count 的作用一样。
+[huawei@n161 aaa]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/v2.py"
+('A has', 3, 'little objects.')
+```
+
+## 静态方法 staticmethod
+- 静态方法使用@staticmethod装饰器，它既不需要 self 参数也不需要 class 参数
+- 其实静态方法就是普通的函数，只是定义在了类体中，而不是在模块里
 
 ```
+class Demo:
+	@classmethod
+	def klassmeth(*args):
+		return args
+	@staticmethod
+	def statmeth(*args):
+		return args
+
+print(Demo.klassmeth())		第一个参数始终是 Demo 类
+print(Demo.klassmeth('spam'))
+print(Demo.statmeth())		行为与普通的函数相似
+print(Demo.statmeth('spam'))
+
+
+
+[huawei@n161 aaa]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/v2.py"
+(<class __main__.Demo at 0x7fbaf2b19530>,)
+(<class __main__.Demo at 0x7fbaf2b19530>, 'spam')
+()
+('spam',)
+```
+
 
 ```
 class MyClass: 
@@ -3801,8 +4266,160 @@ MyClass.cmeth()
 This is a static method
 This is a class method of <class '__main__.MyClass'>
 ```
+## 综合大案例
+使用特殊方法和约定的结构，定义行为良好且符合 Python 风格的类。
 
-## 操作符重载
+```
+from array import array
+import math
+
+class Vector2d:
+	typecode = 'd'
+	def __init__(self, x, y):
+    # 把x和y转换成浮点数，把属性标记为私有的（即__开头）
+		self.__x = float(x)
+		self.__y = float(y)
+	@property
+	# property装饰器把读值方法标记为特性，读值方法与公开属性同名，都是x，直接返回self.__x
+	def x(self):
+		return self.__x
+	@property
+	def y(self):
+		return self.__y
+	def __iter__(self):
+    # 把实例变成可迭代的对象，这样才能拆包,如x,y=my_vector
+    # 通过 self.x 和 self.y 读取公开特性，而不必读取私有属性
+    # 调用生成器表达式一个接一个产出分量
+    # 也可以写成 yield self.x; yield.self.y
+		return (i for i in (self.x, self.y))	
+	def __repr__(self):
+    # 使用 {!r} 获取各个分量的表示形式，然后插值，构成一个字符串；因为
+    # Vector2d 实例是可迭代的对象，所以 *self 会把 x 和 y 分量提供给 format 函数。
+		class_name = type(self).__name__
+		return '{}({!r}, {!r})'.format(class_name, *self)
+	def __str__(self):
+    # 从可迭代的 Vector2d 实例中可以轻松地得到一个元组，显示为一个有序对
+		return str(tuple(self))
+	def __bytes__(self):
+    # 把typecode转换成字节序列，并迭代Vector2d实例，得到一个数组，再把数组转换成字节序列
+		return (bytes([ord(self.typecode)]) + bytes(array(self.typecode, self)))
+	def __eq__(self, other):
+    # 此实现比较元组，但副作用是Vector(3, 4)==[3, 4]也会返回正确
+		return tuple(self) == tuple(other)
+	# 为了把 Vector2d 实例变成可散列的，要有__hash__、__eq__，还要让向量不可变
+	# 使用位运算符异或（^）混合各分量的散列值
+	def __hash__(self):
+ 		return hash(self.x) ^ hash(self.y)
+	def __abs__(self):
+    # 模是 x 和 y 分量构成的直角三角形的斜边长
+		return math.hypot(self.x, self.y)
+	def __bool__(self):
+    # 计算模然后把结果转换成布尔值
+		return bool(abs(self))
+	def __format__(self, fmt_spec=''):
+    # 如果格式代码以 'p' 结尾，使用极坐标
+		if fmt_spec.endswith('p'):
+    # 从 fmt_spec 中删除 'p' 后缀。
+			fmt_spec = fmt_spec[:-1]
+	# 构建一个元组，表示极坐标：(magnitude, angle)。
+			coords = (abs(self), self.angle())
+			outer_fmt = '<{}, {}>'
+		else:
+    # 如果不以 'p' 结尾，使用 self 的 x 和 y 分量构建直角坐标。
+			coords = self
+			outer_fmt = '({}, {})'
+	# 使用format函数把fmt_spec应用到各个分量上，构建一个可迭代的格式化字符串
+		components = (format(c, fmt_spec) for c in coords)
+		return outer_fmt.format(*components)
+	@classmethod
+	# 类方法装饰器，从字节序列转换成 Vector2d实例
+	def frombytes(cls, octets):
+    # 读取第一个字节赋值给typecode
+		typecode = chr(octets[0])
+	# 使用传入的 octets 字节序列创建一个 memoryview，然后使用 typecode 转换
+		memv = memoryview(octets[1:]).cast(typecode)
+	# 拆包转换后的 memoryview，得到构造方法所需的一对参数
+		return cls(*memv)
+
+	# 计算角度
+	def angle(self):
+		return math.atan2(self.y, self.x)
+
+
+v1 = Vector2d(3, 4)
+print(v1.x, v1.y)
+x, y = v1	# 拆包
+print(x, y)
+v1_clone = eval(repr(v1))
+print(v1 == v1_clone)	# 调用比较__eq__
+print(v1)	# 会调用__str__
+octets = bytes(v1)	# 调用 __bytes__
+print(octets)
+print(abs(v1))	# 调用 __abs__
+print(bool(v1), bool(Vector2d(0, 0))) # 调用 __bool__
+
+v1_clone = Vector2d.frombytes(bytes(v1))
+print(v1_clone)
+print(v1 == v1_clone)
+
+print(format(v1))
+print(format(v1, '.2f'))	# 调用__format__
+print(format(v1, '.3e'))
+
+print(Vector2d(0, 0).angle())
+print(Vector2d(1, 0).angle())
+epsilon = 10**-8
+print(abs(Vector2d(0, 1).angle() - math.pi/2) < epsilon)
+print(abs(Vector2d(1, 1).angle() - math.pi/4) < epsilon)
+
+print(format(Vector2d(1, 1), 'p'))
+print(format(Vector2d(1, 1), '.3ep'))
+print(format(Vector2d(1, 1), '0.5fp'))
+
+
+print(v1.x, v1.y)
+# v1.x = 123	不能修改属性
+
+v1 = Vector2d(3, 4)
+v2 = Vector2d(3.1, 4.2)
+print(hash(v1), hash(v2))
+print(len(set([v1, v2])))
+
+print(v1.__dict__)
+print(v1._Vector2d__x)
+
+[huawei@n161 aaa]$ python3 v2.py
+3.0 4.0
+3.0 4.0
+True
+(3.0, 4.0)
+b'd\x00\x00\x00\x00\x00\x00\x08@\x00\x00\x00\x00\x00\x00\x10@'
+5.0
+True False
+(3.0, 4.0)
+True
+(3.0, 4.0)
+(3.00, 4.00)
+(3.000e+00, 4.000e+00)
+0.0
+0.0
+True
+True
+<1.4142135623730951, 0.7853981633974483>
+<1.414e+00, 7.854e-01>
+<1.41421, 0.78540>
+3.0 4.0
+7 384307168202284039
+2
+{'_Vector2d__x': 3.0, '_Vector2d__y': 4.0}
+3.0
+
+```
+## __slots__属性
+- 默认情况下，Python 在各个实例中名为 __dict__ 的字典里存储实例属性。
+- 通过 __slots__ 类属性，能节省大量内存，方法是让解释器在元组中存储实例属性，而不用字典
+- 具体见流畅的Python9.8
+## 操作符重载 __eq__
 演示了重载等号，还有很多其它符号，详见python语言及其应用6.12
 ```
 class Word():
@@ -3817,7 +4434,7 @@ third = Word('eh')
 print(first == second)
 print(first == third)
 ```
-## 用户定义的可调用类型
+## 用户定义的可调用类型 __call__
 - 不仅 Python 函数是真正的对象，任何 Python 对象都可以表现得像函数。为此，只需实现实例方法 __call__。
 - 其实就是对象名称后接（）进行函数调用，可以理解为类似重载操作符（）
 ```
