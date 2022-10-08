@@ -10,7 +10,7 @@ python语言及其应用						继续第11章，后面都是东拼西凑先不用
 
 Python Cookbook（第3版）
 
-看漫画学Python							继续第7章
+看漫画学Python							继续第11.3.3章
 ---
 # 基础知识
 
@@ -183,6 +183,9 @@ The file alice.txt has about 29465 words.
 不仅会删除到对象的引用，还会删除名称本身
 ## exec、eval
 ## 命名空间、作用域
+- 变量可以在模块中创建，作用域（变量的有效范围）是整个模块，被称为全局变量。
+- 变量也可以在函数中创建，在默认情况下作用域是整个函数，被称为局部变量。
+
 vars函数返回当前作用域的字典，但不要修改它这样不安全...
 ```
 x = 1 
@@ -390,16 +393,24 @@ print(s)
 ## 三种表示方式
 字符串有三种表示方式：
 - 普通字符串  
-普通字符串指用单引号（'）或双引号（＂）括起来的字符串。
+普通字符串指用单引号（'）或双引号（＂）括起来的字符串。转义字符起作用。
 
  
-- 原始字符串
+- 原始字符串 raw string  
+用r前缀的字符串内容不会转义
+```
+s2=r"hello\nworld"
+print(s2)
+
+[huawei@n161 ccc]$ python3 1.py
+hello\nworld
+```
+
+- 长字符串  
+使用3个引号（单双都可以）包围的字符串，会包含换行、排版、缩进等
 
 
-- 长字符串。
-
-
-## 多行的、单行的、还有图标的
+还有图标的，见下例最后。
 ```
 #!/usr/bin/python3
 print('''This is a very long string. It continues here. 
@@ -447,10 +458,31 @@ Ada Lovelace
 ADA LOVELACE
 ada lovelace
 ```
-## str类型转换
+## str转int、float
 ```
+print(int('80'))
+print(float('80.0'))
+print(int('AB', 16))	# 指定16进制可以转换
+# print(int('AB'))	# 默认将参数进行十进制转换，会失败
+# print(int('80.0'))	# 参数非十进制，浮点也失败
+
+[huawei@n161 ccc]$ python3 1.py
+80
+80.0
+171
+```
+
+## int、float、bool转str
+
+```
+print(str(321))
 print(str(123.321))
 print(str(True))
+
+[huawei@n161 ccc]$ python3 1.py
+321
+123.321
+True
 ```
 ## 字符数量 len
 字符串函数 len 可以计算字符串中 Unicode 字符的个数，而不是字节数
@@ -2929,7 +2961,7 @@ for i in iter(d10, 5):
 
 
 # 函数
-## 定义、传值、默认值
+## 定义、传值、默认值、类型
 ```
 #!/usr/bin/python3
 def describe_pet(pet_name, animal_type='dog'):
@@ -2941,6 +2973,7 @@ describe_pet('hamster', 'harry')
 describe_pet(pet_name='harry', animal_type='hamster')
 describe_pet(pet_name='willie')
 ```
+- Python中的任意一个函数都有数据类型，这种数据类型是function，被称为函数类型。
 - 下面是一个传递引用且有默认值的使用方式，总结如下：
 - 除非这个方法确实想修改通过参数传入的对象，否则在类中直接把参数赋值给实例变量之前一定要三思，因为这样会为参数对象创建别名。如果不确定，那就创建副本。
 - 此案例具有代表意义，详见流畅的Python8.4.2
@@ -3027,12 +3060,9 @@ print(alien_0)
 
 ```
 
-## 传递任意个参数
-- 参数前面的星号将提供的所有值都放在一个元组中，也就是将这些值收集起来。
+## 可变参数（*与**）
+- 分为基于元组的可变参数（*可变参数）与基于字典的可变参数（**可变参数）
 - 效果类似perl的ARGV与@_
-- 一个*展开为可迭代对象（元祖）
-- **则展开为映射（字典）
-
 
 ```
 下例* toppings实则会变为元祖，内容为('mushrooms', 'green peppers', 'extra cheese')。
@@ -3182,6 +3212,70 @@ print(tag(**my_tag))	在 my_tag 前面加上 **，字典中的所有元素作为
 <img content="testing" />
 <img class="framed" src="sunset.jpg" title="Sunset Boulevard" />
 ```
+
+## 函数指针
+可以将变量指向函数，此变量类型是function，虽都是function但不同函数签名的底层并不同
+```
+def add(a,b):
+    return a+b
+
+def sub(a,b):
+    return a-b
+
+def square(a):
+    return a*b
+
+def calc(opr):
+    if opr=='+':
+        return add
+    else:
+        return sub
+
+f1 = calc('+')
+f2 = calc('-')
+print("10+5={0}".format(f1(10,5)))
+print("10-5={0}".format(f2(10,5)))
+print(type(f1))
+print(type(f2))
+print(type(square))
+
+[huawei@n161 ccc]$ python3 1.py
+10+5=15
+10-5=5
+<class 'function'>
+<class 'function'>
+<class 'function'>
+```
+## 过滤函数 filter
+filter（）函数用于对容器中的元素进行过滤处理。下面是粗糙的案例，还可以参考[用于过滤的生成器函数](#用于过滤的生成器函数)
+```
+def f1(x):
+    return x>50
+
+data1 = [10, 30, 60, 100]
+data2 = filter(f1, data1)
+data3 = list(data2)
+print(data3)
+
+[huawei@n161 ccc]$ python3 1.py
+[60, 100]
+
+```
+## 映射函数 map
+map（）函数用于对容器中的元素进行映射（或变换）。下面是粗糙的案例，还可以参考[用于映射的生成器函数](#用于映射的生成器函数)
+```
+def f1(x):
+    return x*2
+
+data1 = [10, 30, 60, 100]
+data2 = map(f1, data1)
+data3 = list(data2)
+print(data3)
+
+[huawei@n161 ccc]$ python3 1.py
+[20, 60, 120, 200]
+```
+
 ## 传递函数
 
 其实传的是个对象
@@ -3205,13 +3299,31 @@ print(outer(4, 7))	# 11
 ```
 
 
-## 匿名函数 lambda
+## lambda
 - lambda 关键字在 Python 表达式内创建匿名函数。
-- lambda 函数的定义体中不能赋值，也不能使用 while 和 try 等语句
-- lambda 句法只是语法糖：与 def 语句一样，lambda 表达式会创建函数对象。
+- lambda 函数的定义体中不能赋值，也不能使用 while 和 try 等语句，仅可一条语句，不用写return
+- lambda 句法只是语法糖：与 def 语句一样，lambda 表达式会创建函数对象。  
+
+语法：“lambda 参数列表：labmda体”，无需小括号与return
 
 ```
 简单的额lambda使用演示
+def calc(opr):
+    if opr == '+':
+        return lambda a, b: (a+b)
+    else:
+        return lambda a, b: (a-b)
+
+f1 = calc('+')
+f2 = calc('-')
+print("10+5={0}".format(f1(10,5)))
+print("10-5={0}".format(f2(10,5)))
+
+[huawei@n161 ccc]$ python3 1.py
+10+5=15
+10-5=5
+
+演示2
 def edit_story(words, func):
 	for word in words:
 		print(func(word))
@@ -3240,7 +3352,20 @@ Thud!
 Hiss!
 
 ```
+将前面的filter与map换为lambda形式
+```
+data1 = [10, 30, 60, 100]
+data2 = filter(lambda x: (x > 50), data1)
+data3 = list(data2)
+print(data3)
+data2 = map(lambda x: (x * 2), data1)
+data3 = list(data2)
+print(data3)
 
+[huawei@n161 ccc]$ python3 1.py
+[60, 100]
+[20, 60, 120, 200]
+```
 ## 装饰器
 - 装饰器是可调用的对象，其参数是另一个函数（被装饰的函数）。
 - 函数装饰器在导入模块时立即执行，而被装饰的函数只在明确调用时运行。这突出了所谓的导入时和运行时之间的区别。
@@ -4015,24 +4140,31 @@ print(glob.glob('m*'))
 # 日期与时间
 ## 当前日期
 ```
-from datetime import date
-halloween = date(2014, 10, 31)
+import datetime
+halloween = datetime.date(2014, 10, 31)
 print(halloween)
-halloween = date(2014,10,31)
+halloween = datetime.date(2014,10,31)
 print(halloween.day)
 print(halloween.month)
 print(halloween.year)
 print(halloween.isoformat())
-now = date.today()
+now = datetime.datetime.today()
 print(now)
+print(now.strftime("%Y:%m:%d %H:%M:%S"))
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+strdate = "2022:10:08 17:15:39";
+data = datetime.datetime.strptime(strdate, "%Y:%m:%d %H:%M:%S");
+print(data)
+
+[huawei@n161 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/ccc/1.py"
 2014-10-31
 31
 10
 2014
 2014-10-31
-2022-09-08
+2022-10-08 17:17:43.038717
+2022:10:08 17:17:43
+2022-10-08 17:15:39
 ```
 ## 日期加减
 - date 的范围 是 date.min（ 年 = 1， 月 = 1， 日 = 1） 到date.max（ 年 = 9999， 月 = 12， 日 = 31）。不能使用它来进行和历史或者天文相关的计算。
@@ -4088,6 +4220,116 @@ import sys
 for line in sys.stdin: 
 	process(line) 
 ```
+
+
+# 正则 re
+建议字符串都使用原始字符串即r""  
+
+## 匹配 match
+使用match（pattern ,string ,flags ）函数进行字符串匹配，re.match()方法要求必须从字符串的开头进行匹配，如果字符串的开头不匹配，整个匹配就失败了
+
+- pattern : 是匹配的规则内容
+- string : 要匹配的字符串
+- flag : 可选，表示匹配模式，比如忽略大小写，多行模式等，具体参数为：
+	- re.I 忽略大小写
+	- re.L 表示特殊字符集 \w, \W, \b, \B, \s, \S 依赖于当前环境
+	- re.M 多行模式
+	- re.S 即为 . 并且包括换行符在内的任意字符（. 不包括换行符）
+	- re.U 表示特殊字符集 \w, \W, \b, \B, \d, \D, \s, \S 依赖于 Unicode 字符属性数据库
+	- re.X 为了增加可读性，忽略空格和 # 后面的注释
+- 如果匹配成功，则返回一个Match对象（匹配对象），否则返回None。
+
+```
+import re
+str_content = "Python is a good language"  # 要匹配的内容, 对应match 里面的string
+str_pattern = "Python"  # pattern 匹配的规则
+re_content = re.match("Python", str_content)
+print(re_content)
+
+re_content = re.match("Python", str_content).span()
+print(re_content)
+
+re_content = re.match("PYTHON", str_content, re.I)
+if re_content:
+    print(re_content.group())
+else:
+    print("没有匹配到内容")
+
+[huawei@n161 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/ccc/1.py"
+<_sre.SRE_Match object; span=(0, 6), match='Python'>
+(0, 6)
+Python
+```
+## 查找 search
+使用re.search(pattern, string, flags=0)方法扫描整个字符串，并返回第一个成功的匹配。如果匹配失败，则返回None。
+- pattern : 正则中的模式字符串。
+- string : 要被查找替换的原始字符串。
+- flags : 标志位，用于控制正则表达式的匹配方式，如：是否区分大小写，多行匹配等等。
+```
+import re
+content = 'Hello 123456789 Word_This is just a test 666 Test'
+result = re.search('(\d+).*?(\d+).*', content)  
+ 
+print(result)
+print(result.group())    # print(result.group(0)) 同样效果字符串
+print(result.groups())
+print(result.group(1))
+print(result.group(2))
+
+[huawei@n161 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/ccc/1.py"
+<_sre.SRE_Match object; span=(6, 49), match='123456789 Word_This is just a test 666 Test'>
+123456789 Word_This is just a test 666 Test
+('123456789', '666')
+123456789
+666
+
+```
+
+## 查找 findall
+findall（p，text）：在text字符串中查找所有匹配的内容，如果找到，则返回所有匹配的字符串列表；如果一个都没有匹配，则返回None。p是正则表达式。
+
+- findall()返回的是括号所匹配到的结果，多个括号就会返回多个括号分别匹配到的结果，
+- 如果没有括号就返回就返回整条语句所匹配到的结果。
+- 这个特性是正则表达式特有的，而不仅仅只是python语言。
+```
+import re
+kk = re.compile(r'\d+')
+print(kk.findall('one1two2three3four4'))
+#[1,2,3,4]
+ 
+#注意此处findall()的用法，可传两个参数;
+kk = re.compile(r'\d+')
+print(re.findall(kk,"one123"))
+#[1,2,3]
+
+
+
+string="abcdefg  acbdgef  abcdgfe  cadbgfe"
+#带括号与不带括号的区别
+#不带括号,regex 中带有2个括号，我们可以看到其输出是一个list中包含2个tuple。
+regex=re.compile("((\w+)\s+\w+)")
+print(regex.findall(string))
+#输出：[('abcdefg  acbdgef', 'abcdefg'), ('abcdgfe  cadbgfe', 'abcdgfe')]
+
+# regex 中带有1个括号，其输出的内容就是括号匹配到的内容，而不是整个表达式所匹配到的结果。
+regex1=re.compile("(\w+)\s+\w+")
+print(regex1.findall(string))
+#输出：['abcdefg', 'abcdgfe']
+
+# regex 中不带有括号，其输出的内容就是整个表达式所匹配到的内容。
+regex2=re.compile("\w+\s+\w+")
+print(regex2.findall(string))
+#输出：['abcdefg  acbdgef', 'abcdgfe  cadbgfe']
+
+
+[huawei@n161 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/ccc/1.py"
+['1', '2', '3', '4']
+['123']
+[('abcdefg  acbdgef', 'abcdefg'), ('abcdgfe  cadbgfe', 'abcdgfe')]
+['abcdefg', 'abcdgfe']
+['abcdefg  acbdgef', 'abcdgfe  cadbgfe']
+```
+
 # 类
 ## 构造函数 __init__
 ```
@@ -4147,7 +4389,7 @@ s = Secretive()
 s.accessible()
 s.__inaccessible()	不能调用私有方法，会失败
 ```
-## 属性 property
+## 使用property()操作属性
 作用类似setter、getter
 ```
 class Duck():
@@ -4182,7 +4424,7 @@ inside the getter
 Daffy
 ```
 
-## 成员函数装饰器
+## 使用setter()、@property操作属性
 ```
 
 class Duck():
@@ -4236,19 +4478,19 @@ print(fowl.__name)	此句会err，外部无法访问，print(fowl._Duck__name)�
 
 
 
-## 类方法 classmethod
+## 类方法classmethod与类变量
 - 在类定义内部，用前缀修饰符 @classmethod 指定的方法都是类方法。
 - 第一个参数是类本身（这个参数常被写作cls，即class）。
 - 作用于整个类，对类作出的任何改变会对它的所有实例对象产生影响
 ```
 class A():
-	count = 0	此变量不属于self
+	count = 0	类变量，此变量不属于self
 	def __init__(self):
 		A.count += 1	注意这里的调用方式不是self
 	def exclaim(self):
 		print("I'm an A!")
 	@classmethod
-	def kids(cls):	类方法使用classmethod装饰
+	def kids(cls):	类方法使用classmethod装饰，参数1代表当前类，还可以使用更多参数
 		print("A has", cls.count, "little objects.")
 
 easy_a = A()
@@ -4516,6 +4758,11 @@ b.hello()
 Hello, I'm A.
 Hello, I'm A.
 ```
+## 多继承
+当子类继承多个父类时，如果在多个父类中有相同的成员方法或成员变量，则子类优先继承左边父类中的成员方法或成员变量，从左到右继承级别从高到低。
+
+案例见看漫画学python9.6.2
+
 ## 添加新方法
 ```
 class Car():
