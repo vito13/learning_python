@@ -10,7 +10,7 @@ python语言及其应用						继续第11章，后面都是东拼西凑先不用
 
 Python Cookbook（第3版）
 
-看漫画学Python							继续第11.3.3章
+看漫画学Python							继续第16.3章
 ---
 # 基础知识
 
@@ -298,17 +298,15 @@ fruitbat
 是个列表
 ```
 import sys
-print('Program arguments:',sys.argv)
 
-[huawei@n148 pltest]$ python3 pyth.py 
-Program arguments: ['pyth.py']
-[huawei@n148 pltest]$ python3 pyth.py  tra la la
-Program arguments: ['pyth.py', 'tra', 'la', 'la']
-[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
-('Program arguments:', ['/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py'])
-[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py" tra la la
-('Program arguments:', ['/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py', 'tra', 'la', 'la'])
-[huawei@n148 postdb_doc]$ 
+print ('参数个数为:', len(sys.argv), '个参数。')
+print ('参数列表:', str(sys.argv))
+print ('脚本名:', str(sys.argv[0]))
+
+[huawei@n161 pl]$ python3 61-buildpdf2bbb.py arg1 arg2 arg3
+参数个数为: 4 个参数。
+参数列表: ['61-buildpdf2bbb.py', 'arg1', 'arg2', 'arg3']
+脚本名: 61-buildpdf2bbb.py
 ```
 # 序列的分类
 
@@ -3884,18 +3882,20 @@ OK
 - 测试导致断言失败时则打印一个F
 # 文件读写
 
-## open模式
+## open模式与编码
 
-open()的模式如下，如果省略，Python将以默认的只读模式打开文件。
+open()的模式如下，如果省略，Python将以默认的只读模式打开文件。默认是UTF-8编码打开
 - 读取模式 （'r' ）
 - 写入模式 （'w' ）
 - 附加模式 （'a' ）
 - 读写模式 （'r+' ）
 - 'b' 二进制模式（与其他模式结合使用）
 - 't' 文本模式（默认值，与其他模式结合使用）
+- 还有很多，见看漫画学python12.1
 
 ## 使用with自动关闭文件
 Python 的上下文管理器（context manager）会清理一些资源，例如打开的文件。使用方式见下面的案例
+
 ## 一次读入所有
 ```
 #!/usr/bin/python3
@@ -4033,6 +4033,10 @@ fin.close()
 ```
 ## seek、tell
 待完善
+
+## flush
+刷新写缓冲区，在文件没有关闭的情况下将数据写入文件中。
+
 ## json
 写json
 ```
@@ -4330,6 +4334,296 @@ print(regex2.findall(string))
 ['abcdefg  acbdgef', 'abcdgfe  cadbgfe']
 ```
 
+## 替换 sub
+- re.sub(pattern,repl,string,count) 替换匹配的子字符串，返回值是替换之后的字符串。
+- 参数pattern是正则表达式；
+- 参数repl是用于替换的新字符串；
+- 参数string是即将被替换的旧字符串；
+- 参数count是要替换的最大数量，默认值为零，表示不限制替换数量。
+
+```
+import re  # 导入库
+str = "umji is the best umji in the world although GFRIEND is so lovely"
+pattern = r"umji"
+newstr = re.sub(pattern,"sowon",str,2)
+print(newstr)
+
+[huawei@n161 ccc]$ python3 1.py
+sowon is the best sowon in the world although GFRIEND is so lovely
+```
+
+## 分割 split
+
+- re.split(pattern, string, maxsplit=0, flags=0)
+- 按照匹配的子字符串进行字符串分割，返回字符串列表对象，
+- 参数pattern是正则表达式；
+- 参数string是要分割的字符串；
+- 参数maxsplit是最大分割次数；maxsplit的默认值为零，表示分割次数没有限制。
+
+```
+import re
+mystr='www.csdn.com'
+print(mystr)
+print(re.split('\.',mystr))
+
+[huawei@n161 ccc]$ python3 1.py
+www.csdn.com
+['www', 'csdn', 'com']
+```
+
+
+## 综合大案例
+```
+#!/usr/bin/python3
+
+import re  # 导入库
+
+# re.match()
+#     从字符串的起始位置匹配。即目标字符串的第一个字符必须符合规则。
+#     如果不是起始位置匹配成功的话，match()就返回none。
+#     得到一个结果即返回。
+
+# 匹配单个字符
+#    ?  左边第一个字符可选
+#    .  任意一个字符（除了\n）
+#    [] 此列表中某1个字符
+#    \d 0-9某1个数字
+#    \D 不是数字的某个字符
+#    \s 空格或tab制表符
+#    \S 非空格、非制表符的某个字符
+#    \w 常规字符：a-z、A-Z、0-9、_ 共计26+26+10+1个字符中的某一个，及汉字(python3)
+#    \W 除了a-z、A-Z、0-9、_ 之外的非常规字符
+hasPython = re.match(r"hello?", "hello") # 匹配“hello”这个字符串，最后的字符‘o’可有可无
+print(hasPython.group() if hasPython else None)  # hello
+hasPython = re.match(r"hello?", "hell")  # 'o'可选
+print(hasPython.group() if hasPython else None)  # hell
+
+hasPython = re.match(r"h.llo", "hello")  # 匹配一个字符串，首字符是‘h’，第2个字符随便是什么，后面是‘llo’
+print(hasPython.group() if hasPython else None)  # hello
+
+hasPython = re.match(r"h[a-f]llo", "hello")  # 第2个字符是 字母a到字母f中的某一个
+print(hasPython.group() if hasPython else None)  # hello
+hasPython = re.match(r"h[a-f1-9ABCDE]llo", "hEllo") # 第2个字符是 字母a到字母f中的某一个，或 数字1到9中的某一个，或 ‘A’‘B’‘C’‘D’‘E’中的某一个
+print(hasPython.group() if hasPython else None)  # hEllo
+
+hasPython = re.match(r"hello\d", "hello98")  # 匹配一个字符串，‘hello’后紧跟1个数字.
+print(hasPython.group() if hasPython else None)  # hello9
+hasPython = re.match(r"hello\D", "hello九")  # 匹配一个字符串，‘hello’后紧跟1个非数字.
+print(hasPython.group() if hasPython else None)  # hello九
+
+hasPython = re.match(r"he\sllo", "he llo")  # 匹配一个字符串 ‘he’和‘llo’中间有个空格
+print(hasPython.group() if hasPython else None)  # he llo
+
+hasPython = re.match(r"hello\w", "hello_9") # 匹配一个字符串，‘hello’后紧跟1个下划线
+print(hasPython.group() if hasPython else None)  # hello_ 
+
+
+# 匹配多个字符
+#    {3}    限制左侧第一个字符的数量须是3个
+#    {1, 3} 限制左侧第一个字符的数量在1到3个
+#    *      表示左侧第一个字符可以有任意个数
+#    +      限制左侧第一个字符至少出现一次
+hasPython = re.match(r"报警电话\d{3}\D", "报警电话110正确，报警电话110987错误") # 限制数字必须是3个
+print(hasPython.group() if hasPython else None)  # 报警电话110正
+
+hasPython = re.match(r"数字\d{1,5}", "数字，还有1234567890") # 匹配字符串，‘数字’后面有1到5个数字
+print(hasPython.group() if hasPython else None)  # None。最少1个数字才算匹配
+hasPython = re.match(r"数字\d{1,5}", "数字123，还有4567890") 
+print(hasPython.group() if hasPython else None)  # 数字123
+hasPython = re.match(r"数字\d{1,5}", "数字123456，还有7890")
+print(hasPython.group() if hasPython else None) # 数字12345。数字数量大于5但最多取5个
+
+hasPython = re.match(r"[A-Z]\d{1,2}-\d{3}", "D3-526是门牌号")  # 第一个字符是A-Z中某个，然后是一个个位或十位的数字，然后是减号，最后是3位的数字
+print(hasPython.group() if hasPython else None)  # D3-526
+hasPython = re.match(r"\w*-\d{3}", "门牌号是D3-526") # 减号前面任意个字符，后面3个数字
+print(hasPython.group() if hasPython else None)  # 门牌号是D3-526
+hasPython = re.match(r"\w+-\d{3}", "门牌号是D3-526") # 减号前面至少1个字符
+print(hasPython.group() if hasPython else None)  # 门牌号是D3-526
+
+
+# 匹配开头结尾
+#    ^  表示从目标字符串开头开始匹配。re.match方法默认从头开始判断
+#    $  表示条件匹配到目标字符串结尾
+hasPython = re.match(r"[a-z]*$", "hello python !") # 从头到尾都是a-z中的字符，个数任意
+print(hasPython.group() if hasPython else None)  # None
+hasPython = re.match(r"[a-zA-Z]*$", "HelloPython") # 
+print(hasPython.group() if hasPython else None)  # HelloPython
+hasPython = re.match(r"^[a-zA-Z]*$", "HelloPython") # ^ 可以省略
+print(hasPython.group() if hasPython else None)  # HelloPython
+
+
+# 转义
+#    \ 使用斜线转义占位符为普通字符
+hasPython = re.match(r"[a-zA-Z0-9]{4,20}@[a-zA-Z0-9]{2,20}\.com$", "vigiles@163.com") # 转义‘点’
+print(hasPython.group() if hasPython else None)  # vigiles@163.com
+
+
+# 匹配分组 
+#    (|)  多个匹配项，在小括号-元组-内使用竖杠分隔
+#    ()   小括号也可以为匹配规则分组
+hasPython = re.match(r"我喜欢(java|python|js)", "我喜欢python") #  小括号-元组-内竖杠分隔。本例只有一组小括号
+print(hasPython.group() if hasPython else None)   # 我喜欢python
+print(hasPython.group(1) if hasPython else None)  # python。 group(1)方法传参1返回匹配到的元组内的项
+hasPython = re.match(r"([a-zA-Z0-9]{4,20})@([a-zA-Z0-9]{2,20})\.com$", "vigiles@163.com") # @符号前放在一组小括号内，@符号至点中间的放在第2个小括号内
+print(hasPython.group(1) if hasPython else None)  # vigiles。 取第一个括号内匹配到的数据
+
+
+html = """<h1>python正则大法好</h1>
+<h1>python正则大法好</h2> 【a】
+<h3>python正则大法好</h3>
+<p>
+<b>啊，python3，正则难</b>
+<b>啊，Java，正则难</b>
+--.--
+数字 age = 90
+;--
+</p>"""
+
+# 匹配分组-分组命名
+#    (?P<名称>匹配规则)  为匹配规则命名
+#    (?P=名称)          调用匹配规则
+p = r"<h[1-6]>.+</h[1-6]>"    # [a]这里会出现 <h1>python正则大法好</h2> 的错误结果
+p = r"<(h[1-6])>.+</\1>"      # 将规则中重复内容封装在一个组内(h[1-6])，后面的根据组顺序调用\1
+p = r"<(?P<title>h[1-6])>.+</(?P=title)>"  # 为规则组设置一个名称title，后面使用名称调用，完成封闭匹配
+hasPython = re.match(p, html, re.S)  # re.S支持换行。见下文
+print(hasPython.group() if hasPython else None)  # <h1>python正则大法好</h1>
+
+
+# re高级用法
+#    re.I	使匹配对大小写不敏感
+#    re.L	做本地化识别（locale-aware）匹配
+#    re.M	多行匹配，影响 ^ 和 $
+#    re.S	使 . 点 匹配包括换行在内的所有字符
+#    re.U	根据Unicode字符集解析字符。这个标志影响 \w, \W, \b, \B.
+#    re.X	该标志通过给予你更灵活的格式以便你将正则表达式写得更易于理解。
+
+hasPython = re.match(r".*", html, re.S)
+print(hasPython.group() if hasPython else None)  # html全文
+hasPython = re.match(r".*", "")
+print(hasPython.group() if hasPython else None)  # 返回空白。*表示任意数量，0即没有也匹配
+
+# re.search()
+#     从字符串任意位置匹配。得到第1个即返回。
+hasPython = re.search(r"啊，(.+)，正则难", html)
+print(hasPython.group(1) if hasPython else None) # python3
+
+# re.findall()
+#     从字符串任意位置匹配。获取全部匹配项。
+hasPython = re.findall(r"啊，(.+)，正则难", html)
+print(hasPython if hasPython else None) # ['python3', 'Java']
+
+# re.sub()
+#     python特有
+#     如果匹配到了，就将匹配到的字符串替换掉。
+#     替换全部的匹配项
+newHtml = re.sub(r"啊，(.+)，正则难", "C++", html) # 规则，替换用的字符串，原字符串
+print(newHtml)  # 返回原html字符串，但
+                #   将 <b>啊，python3，正则难</b>
+                #      <b>啊，Java，正则难</b>
+                #   两句替换为了 <b>C++</b>
+                #              <b>C++</b>
+
+def getReplace(language):
+    return language + " NB"
+
+newHtml = re.sub(r"啊，(.+)，正则难", getReplace("C++"), html) # 规则，替换用的字符串，原字符串
+print(newHtml)  # ... 原文 ...
+                #     <b>C++ NB</b>
+                #     <b>C++ NB</b>
+                # ... 原文 ...
+
+def changeNumber(tmp):
+    age = tmp.group(1) # 这里取到的仅仅是规则组内容，即目标数字
+    age = int(age) + 1
+    return "age = " + str(age)
+
+newHtml = re.sub(r"age = (\d+)", changeNumber, html) # 90是两位数字，用+
+print(newHtml)  # ... 原文 ...
+                #     数字 age = 91
+                # ... 原文 ...
+
+# re.split()
+#     按规则找到匹配后，用匹配项切分目标字符串
+lst = re.split(r"\.", "威格灵博客 http://www.gaohaiyan.com")  # 仅使用‘点’切分
+print(lst) # ['威格灵博客 http://www', 'gaohaiyan', 'com']
+lst = re.split(r":|\.| ", "威格灵博客 http://www.gaohaiyan.com") # 冒号、点、空格，都切分
+print(lst) # ['威格灵博客', 'http', '//www', 'gaohaiyan', 'com']
+lst = re.split(r"\W{3}", "威格灵博客 http://www.gaohaiyan.com") # 三个连续非常规字符
+print(lst) # ['威格灵博客 http', 'www.gaohaiyan.com']  
+
+
+[huawei@n161 ccc]$ python3 1.py
+hello
+hell
+hello
+hello
+hEllo
+hello9
+hello九
+he llo
+hello_
+报警电话110正
+None
+数字123
+数字12345
+D3-526
+门牌号是D3-526
+门牌号是D3-526
+None
+HelloPython
+HelloPython
+vigiles@163.com
+我喜欢python
+python
+vigiles
+<h1>python正则大法好</h1>
+<h1>python正则大法好</h1>
+<h1>python正则大法好</h2> 【a】
+<h3>python正则大法好</h3>
+<p>
+<b>啊，python3，正则难</b>
+<b>啊，Java，正则难</b>
+--.--
+数字 age = 90
+;--
+</p>
+
+python3
+['python3', 'Java']
+<h1>python正则大法好</h1>
+<h1>python正则大法好</h2> 【a】
+<h3>python正则大法好</h3>
+<p>
+<b>C++</b>
+<b>C++</b>
+--.--
+数字 age = 90
+;--
+</p>
+<h1>python正则大法好</h1>
+<h1>python正则大法好</h2> 【a】
+<h3>python正则大法好</h3>
+<p>
+<b>C++ NB</b>
+<b>C++ NB</b>
+--.--
+数字 age = 90
+;--
+</p>
+<h1>python正则大法好</h1>
+<h1>python正则大法好</h2> 【a】
+<h3>python正则大法好</h3>
+<p>
+<b>啊，python3，正则难</b>
+<b>啊，Java，正则难</b>
+--.--
+数字 age = 91
+;--
+</p>
+['威格灵博客 http://www', 'gaohaiyan', 'com']
+['威格灵博客', 'http', '//www', 'gaohaiyan', 'com']
+['威格灵博客 http', 'www.gaohaiyan.com']
+```
 # 类
 ## 构造函数 __init__
 ```
@@ -4479,8 +4773,8 @@ print(fowl.__name)	此句会err，外部无法访问，print(fowl._Duck__name)�
 
 
 ## 类方法classmethod与类变量
-- 在类定义内部，用前缀修饰符 @classmethod 指定的方法都是类方法。
-- 第一个参数是类本身（这个参数常被写作cls，即class）。
+- 在类定义内部，用前缀修饰符 @classmethod 指定的方法都是类方法
+- 可以用类名直接调用，默认参数是cls（即class），指类自身，由系统自动传入
 - 作用于整个类，对类作出的任何改变会对它的所有实例对象产生影响
 ```
 class A():
@@ -4501,6 +4795,62 @@ A.kids()
 [huawei@n161 aaa]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/v2.py"
 ('A has', 3, 'little objects.')
 ```
+另一个案例
+```
+class Factory:
+     
+    def __init__(self):
+        print("工厂init==")
+ 
+    @classmethod
+    def createMachine(cls, clazz):
+        if issubclass(clazz, TV):
+            print("创建电视机")
+            return TV("熊猫")
+ 
+        if issubclass(clazz, Radio):
+            print("创建收音机")
+            return cls().__getRadio() # cls()创建类的实例对象
+ 
+    def __getRadio(self):
+        return Radio()
+ 
+ 
+class TV:
+    def __init__(self, brand):
+        self.brand = brand
+        print("电视机初始化，品牌 %s" % self.brand)
+ 
+    def playMovie(self):
+        print("播放电影---")
+ 
+ 
+class Radio:
+    def __init__(self):
+        print("收音机初始化")
+ 
+    def playSong(self):
+        print("开始广播---")
+ 
+ 
+tv = Factory.createMachine(TV)
+tv.playMovie()
+ 
+radio = Factory.createMachine(Radio)
+radio.playSong()
+
+
+[huawei@n161 ccc]$ python3 1.py
+创建电视机
+电视机初始化，品牌 熊猫
+播放电影---
+创建收音机
+工厂init==
+收音机初始化
+开始广播---
+
+```
+
 
 ## 静态方法 staticmethod
 - 静态方法使用@staticmethod装饰器，它既不需要 self 参数也不需要 class 参数
@@ -4528,7 +4878,7 @@ print(Demo.statmeth('spam'))
 ()
 ('spam',)
 ```
-
+其它案例
 
 ```
 class MyClass: 
@@ -4545,6 +4895,41 @@ MyClass.cmeth()
 [huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
 This is a static method
 This is a class method of <class '__main__.MyClass'>
+```
+垃圾工厂案例
+```
+class Person(object):
+     
+    @staticmethod
+    #静态⽅法
+    def getPerson(clazz):
+        if issubclass(clazz, Student):
+            print("创建学生")
+            return Student()
+ 
+        if issubclass(clazz, Worker):
+            print("创建工人")
+            return Worker()
+ 
+class Student:
+    def study(self):
+        print("学习")
+ 
+class Worker:
+    def work(self):
+        print("工作")
+ 
+student=Person.getPerson(Student)
+student.study()
+ 
+worker=Person.getPerson(Worker)
+worker.work()
+
+[huawei@n161 ccc]$ python3 1.py
+创建学生
+学习
+创建工人
+工作
 ```
 ## 综合大案例
 使用特殊方法和约定的结构，定义行为良好且符合 Python 风格的类。
@@ -4960,6 +5345,48 @@ duck.about()
 [huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
 This duck has a wide orange bill and a long tail
 ```
+## 检测子类
+- issubclass(class, classinfo) 函数的主要作用是判断类是否为另一个类的的子类，无论是直接、间接、虚拟的子类都会Ture。类也是自己的子类。一个类可以同时与多个类进行比较，只要其中一个属于其父类，都会返回True。
+- class - 子类名
+- classinfo - 对比类（一般为父类及更深层的类名），对比多个类可以使用元组填写。
+- 如果class是classinfo的子类（直接、间接或虚拟），则返回True，否则返回False。
+```
+#!/usr/bin/python3
+
+#类本身是自己的子类
+class A:
+    pass
+print(issubclass(A, A))
+
+#直接 - B是A的子类。
+class B(A):
+    pass
+print(issubclass(B, A))
+
+#间接 - C是B的子类，而B是A的子类。故C也同时继承了A。
+class C(B):
+    pass
+print(issubclass(C, A))
+
+#虚拟 - 抽象类的虚拟子类
+import abc
+class A(abc.ABC):
+    @abc.abstractmethod
+    def run(self):
+        pass
+@A.register
+class B:
+    pass
+print(issubclass(B, A))
+
+
+[huawei@n161 ccc]$ python3 1.py
+True
+True
+True
+True
+```
+
 # 多态
 ## 垃圾实现
 这种方式有时被称作鸭子类型（duck typing），这个命名源自一句名言：如果它像鸭子一样走路，像鸭子一样叫，那么它就是一只鸭子。
@@ -5277,3 +5704,218 @@ Thread <Thread(Thread-2, started 140688932972288)> says: I'm function 1
 Thread <Thread(Thread-3, started 140688924579584)> says: I'm function 2
 Thread <Thread(Thread-4, started 140688916186880)> says: I'm function 3
 ```
+
+## 进程间通信
+python进程间共享数据的方式有：socket、文件/数据库、内存。内存方式即python中封装的特定功能的类。python的进程也有同线程一样的Lock，避免操作同一对象时发生脏读。
+
+### Manager共享
+文件myprocess.py
+```
+import multiprocessing
+import time
+ 
+ 
+class MyProcess(multiprocessing.Process):
+    def __init__(self, name, listor, mngList):
+        super().__init__()
+        self.name = name
+        self.listor = listor
+        self.mngList = mngList
+ 
+    def run(self):
+        self.show()
+ 
+    def show(self):
+        while True:
+            print("进程1 -%s, 默认列表：%s，\tMng列表：%s，%s" % (self.pid, len(self.listor), len(self.mngList), self.name))
+            time.sleep(2)  
+```
+主文件
+```
+#!/usr/bin/python3
+
+import multiprocessing
+import os
+import time
+from myprocess import MyProcess
+ 
+# 进程间默认不共享全局变量
+globalList = []
+# 使用Manager定义 可在进程间共享的全局变量
+managerList = multiprocessing.Manager().list()
+ 
+ 
+# 写操作进程
+def process2():
+    while True:
+        print("进程2 -%s，默认列表：%s，\tMng列表：%s" % (os.getpid(), len(globalList), len(managerList))) # globalList递增1
+        globalList.append(1)  # 操作全局变量
+        managerList.append(1) # 操作全局变量
+        time.sleep(0.5)
+ 
+ 
+# 读操作进程
+def process3():
+    while True:
+        print("进程3 -%s，默认列表：%s，\tMng列表：%s" % (os.getpid(), len(globalList), len(managerList)))  # globalList不变，一直是0
+        time.sleep(0.5)
+ 
+ 
+# 主进程
+def main():
+    MyProcess("MyProcess", globalList, managerList).start()
+    p1 = multiprocessing.Process(target=process2) # 定义一个进程
+    p2 = multiprocessing.Process(target=process3)
+    p1.start() # 启动进程
+    p2.start()
+ 
+ 
+if "__main__" == __name__:
+    # 默认主进程
+    print("主进程启动")
+ 
+    main() # 创建子进程
+ 
+    while True:
+        print("主程0 -%s，默认列表：%s，\tMng列表：%s" % (os.getpid(), len(globalList), len(managerList)))
+        time.sleep(0.5)  
+
+执行后是死循环，手动关闭会异常
+[huawei@n161 ccc]$ python3 1.py
+主进程启动
+主程0 -42173，默认列表：0，     Mng列表：0
+进程1 -42179, 默认列表：0，     Mng列表：0，MyProcess
+进程2 -42180，默认列表：0，     Mng列表：0
+进程3 -42181，默认列表：0，     Mng列表：1
+主程0 -42173，默认列表：0，     Mng列表：1
+进程2 -42180，默认列表：1，     Mng列表：1
+进程3 -42181，默认列表：0，     Mng列表：2
+主程0 -42173，默认列表：0，     Mng列表：2
+进程2 -42180，默认列表：2，     Mng列表：2
+进程3 -42181，默认列表：0，     Mng列表：3
+主程0 -42173，默认列表：0，     Mng列表：3
+```
+### Queue共享
+
+```
+#!/usr/bin/python3
+
+import multiprocessing
+import time
+ 
+# 队列。先进先出
+queuer = multiprocessing.Queue(maxsize=5)  # 元素数量上限。最大长度5
+ 
+# queue.put(item, block=True, timeout=None)方法参数：
+#   item，放入队列中的数据元素。
+#   block，当队列中元素个数达到上限(queuer.full()返回true)，继续往里放数据时：
+#       如果 block=False，直接引发queue.Full异常；效果同put_nowait(item)方法。
+#       如果 block=True-默认，timeout=None，则一直等待,直到出现空位放入数据；
+#       如果 block=True，timeout=N(正整数)，则等待N秒。N秒后没出现空位则引发queue.Full异常。
+#   timeout，设置超时时间。默认None。
+ 
+# queue.get(block=True, timeout=None)方法参数：
+#   block，当队列中没有数据元素(queuer.empty()返回true)，继续取数据时：
+#       如果 block=False，直接引发queue.Empty异常；
+#       如果 block=True-默认，timeout=None，则一直等待出现数据可以取出；
+#       如果 block=True，timeout=N(正整数)，则等待N秒，N秒后没有数据可供取出则引发queue.Empty异常。
+#   timeout，设置超时时间。默认None
+ 
+ 
+def processPut():
+    queuer.put(666)
+    while True:
+        queuer.put("A") 
+        time.sleep(2) #  延迟2秒
+        # print("添加：%s" %  queuer.qsize()) # Raises NotImplementedError on Mac OSX because of broken sem_getvalue()
+        print("添加了")
+ 
+ 
+def processGet():
+    element = queuer.get()
+    print(element)
+    while True:
+        ele = queuer.get() # 如果已经空了，则阻塞等待出现可用数据
+        time.sleep(0.2)
+        print("取出了：%s" % ele) 
+ 
+ 
+def main():
+    putor = multiprocessing.Process(target=processPut)
+    getor = multiprocessing.Process(target=processGet)
+    putor.start()
+    getor.start()
+ 
+ 
+if "__main__" == __name__:
+    main() 
+
+
+是死循环，手动关闭会异常
+[huawei@n161 ccc]$ python3 1.py
+666
+取出了：A
+添加了
+取出了：A
+添加了
+取出了：A
+添加了
+取出了：A
+添加了
+取出了：A
+
+```
+### Pipe共享
+
+```
+#!/usr/bin/python3
+
+import multiprocessing
+import time
+ 
+# 管道。进出随意但有方向
+piper = multiprocessing.Pipe(True)  # True：双工-同时收发。Fase：左收右发，两个口是元组 [0]接收recv，[1]发送send
+ 
+def processPut(): 
+    for i in ["a", "b", "c", "d"]:
+        piper[1].send(i) 
+        print("添加了 ", i)
+        time.sleep(2)
+ 
+ 
+def processGet(): 
+    while True:
+        ele = piper[0].recv() # 如果已经空了，则阻塞等待出现可用数据 
+        print("取出了：", ele) 
+        # time.sleep(3)
+ 
+ 
+def main():
+    putor = multiprocessing.Process(target=processPut)
+    getor = multiprocessing.Process(target=processGet)
+    putor.start()
+    getor.start()
+ 
+    putor.join()       # 执行send时阻塞管道，使recv方法等待执行
+    getor.terminate() # 循环send完毕，管道释放。recv取不到数据时，自动结束
+ 
+ 
+if "__main__" == __name__:
+    main()  
+
+[huawei@n161 ccc]$ python3 1.py
+添加了  a
+取出了： a
+添加了  b
+取出了： b
+添加了  c
+取出了： c
+添加了  d
+取出了： d
+```
+
+# 协程
+http://www.gaohaiyan.com/2667.html
+
+# 网络通信
+## urllib.request
