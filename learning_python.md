@@ -10,7 +10,7 @@ python语言及其应用						继续第11章，后面都是东拼西凑先不用
 
 Python Cookbook（第3版）
 
-看漫画学Python							继续第16.3章
+看漫画学Python							还差第15章
 ---
 # 基础知识
 
@@ -4205,6 +4205,11 @@ Thu Sep  8 16:40:12 2022
 time.struct_time(tm_year=2022, tm_mon=9, tm_mday=8, tm_hour=16, tm_min=40, tm_sec=12, tm_wday=3, tm_yday=251, tm_isdst=0)
 time.struct_time(tm_year=2022, tm_mon=9, tm_mday=8, tm_hour=8, tm_min=40, tm_sec=12, tm_wday=3, tm_yday=251, tm_isdst=0)
 ```
+
+## 计时器
+
+见[单线程案例](#单线程案例)
+
 # 管道
 ## 简单使用
 依然是使用管道符号进行操作，python从stdin中进行读取
@@ -5547,7 +5552,7 @@ except:
 	print('Something wrong happened ...') 
 ```
 
-# 进程与线程
+# 进程
 ## 进程信息
 ```
 import os
@@ -5648,7 +5653,10 @@ I'm loopy, in process 54826
         Number 5 of 1000000. Honk!
 ```
 
-## 简单多进程并发
+## 多进程并行
+![](并行.png)  
+并行是指两个或者多个事件在同一时刻发生，Python 中的进程属于并行，能充分利用计算机资源，效率最高，同时执行多个任务，占用多个 CPU 资源；  
+
 使用multiprocessing的JoinableQueue队列实现
 ```
 import multiprocessing as mp
@@ -5682,28 +5690,8 @@ Drying bread dish
 Drying entree dish
 Drying dessert dish
 ```
-
-## 简单多线程
-```
-import threading
-def do_this(what):
-	whoami(what)
-def whoami(what):
-	print("Thread %s says: %s" % (threading.current_thread(), what))
-
-if __name__ == "__main__":
-	whoami("I'm the main program")
-	for n in range(4):
- 		p = threading.Thread(target=do_this, args=("I'm function %s" % n,))
- 		p.start()
-
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
-Thread <_MainThread(MainThread, started 140689071798080)> says: I'm the main program
-Thread <Thread(Thread-1, started 140688941364992)> says: I'm function 0
-Thread <Thread(Thread-2, started 140688932972288)> says: I'm function 1
-Thread <Thread(Thread-3, started 140688924579584)> says: I'm function 2
-Thread <Thread(Thread-4, started 140688916186880)> says: I'm function 3
-```
+## 进程锁
+https://www.codersrc.com/archives/6854.html
 
 ## 进程间通信
 python进程间共享数据的方式有：socket、文件/数据库、内存。内存方式即python中封装的特定功能的类。python的进程也有同线程一样的Lock，避免操作同一对象时发生脏读。
@@ -5913,6 +5901,821 @@ if "__main__" == __name__:
 添加了  d
 取出了： d
 ```
+
+
+# 线程
+## 单线程案例
+```
+import _thread
+import time
+from datetime import datetime
+
+def Test(name):
+    for i in range(3):
+        print(name,datetime.now())
+        time.sleep(1)
+def main():
+    Test("one")
+    Test("two")
+
+if __name__=='__main__':
+    start=time.time()
+    main()
+    end=time.time()
+    print("运行程序花费了%s秒"%(end-start))
+
+
+[huawei@n161 ccc]$ python3 1.py
+one 2022-10-10 13:50:21.213282
+one 2022-10-10 13:50:22.214364
+one 2022-10-10 13:50:23.215710
+two 2022-10-10 13:50:24.217094
+two 2022-10-10 13:50:25.218867
+two 2022-10-10 13:50:26.220392
+运行程序花费了6.008822202682495秒
+```
+
+
+## threading模块
+
+threading 模块除了包含 _thread 模块（ _thread：老模块，提供了低级别的、原始的线程以及一个简单的锁，它相比于 threading 模块的功能还是比较有限的。 ）中的所有方法外，还提供其他方法：
+
+- threading.currentThread()： 返回当前的线程变量。
+- threading.enumerate()：  返回一个包含正在运行的线程的list列表。正在运行指线程启动后、结束前。
+- threading.activeCount()： 返回正在运行的线程数量，与 len(threading.enumerate()) 有相同的结果。
+
+除了使用方法外，threading 线程模块同样提供了 threading.Thread 类来处理线程（即可以面向对象也可以面向过程，两种方式使用多线程），threading.Thread类提供了以下方法:
+
+- run(): 用以表示线程活动的方法。
+- threading.Thread — 创建线程并初始化线程，可以为线程传递参数 ；
+- threading.enumerate — 返回一个包含正在运行的线程的list；
+- threading.activeCount — 返回正在运行的线程数量，与len(threading.enumerate)有相同的结- 
+- Thread.start — 启动线程 ；
+- Thread.join — 阻塞函数，一直等到线程结束为止 ；
+- Thread.isAlive — 返回线程是否活动的；
+- Thread.getName — 返回线程名；
+- Thread.setName — 设置线程名；
+- Thread.setDaemon — 设置为后台线程，这里默认是 False，设置为 True 之后则主线程不会再等待子线程结束才结束，而是主线程结束意味程序退出，子线程也立即结束，注意调用时必须设置在start 之前；
+
+```
+# 导入线程threading模块
+import threading
+# 导入内置模块time
+import time
+
+def wash_clothes(*args,**kargcs):
+    time.sleep(2)
+    print("wash_clothes:",args)
+    time.sleep(2)
+    print("wash_clothes:", kargcs)
+
+def clean_room(*args,**kargcs):
+    time.sleep(2)
+    print("clean_room:",args)
+    time.sleep(2)
+    print("clean_room:", kargcs)
+
+if __name__ == "__main__":
+        # args 传递元组，可以同时传递多个数据
+        # kwargs 传递字典，可以同时传递多个键值对
+    t1 = threading.Thread(target=wash_clothes,args=(1,"猿说python"),kwargs={"a":1,"b":False})
+    t2 = threading.Thread(target=clean_room,args=(2,False),kwargs={"c":0.2,"d":False})
+    # setDaemon(True)意味着主线程退出，不管子线程执行到哪一步，子线程自动结束
+    # t1.setDaemon(True)
+    # t2.setDaemon(True)
+    t1.start()
+    t2.start()
+    print("threading.enumerate():",threading.enumerate())
+    print("threading.activeCount():", threading.activeCount())
+    print("t1.isAlive():",t1.isAlive())
+    print("t1.getName():", t1.getName())
+    print("t2.isAlive():", t2.isAlive())
+    t2.setName("my_custom_thread_2")
+    print("t2.getName():", t2.getName())
+
+[huawei@n161 ccc]$ python3 1.py
+threading.enumerate(): [<_MainThread(MainThread, started 139909790644032)>, <Thread(Thread-1, started 139909660210944)>, <Thread(Thread-2, started 139909651818240)>]
+threading.activeCount(): 3
+t1.isAlive(): True
+t1.getName(): Thread-1
+t2.isAlive(): True
+t2.getName(): my_custom_thread_2
+wash_clothes: (1, '猿说python')
+clean_room: (2, False)
+wash_clothes: {'a': 1, 'b': False}
+clean_room: {'c': 0.2, 'd': False}
+```
+
+### 线程类方式
+
+通过创建一个子类继承于 threading.Thread ，并实例化后调用 start() 方法启动新线程，即它调用了线程的 run() 方法。这里使用了 join()方法来阻塞父线程，让其等待子线程运行完再运行，可以看到，最后花费了３秒的时间，是[单线程案例](#单线程案例)的一半。
+
+```
+#!/usr/bin/python3
+import threading
+import time
+from datetime import datetime
+
+class myThread(threading.Thread):
+    def __init__(self,name):
+        threading.Thread.__init__(self)
+        self.name=name
+    def run(self):
+        for i in range(3):
+            print(self.name,datetime.now())
+            time.sleep(1)
+def main():
+    thread1=myThread("one ")
+    thread2=myThread("two ")
+    thread1.start()           #启动线程，代用了该线程的 run() 方法
+    thread2.start()
+    thread1.join()       #必须等子线程运行完了父线程才可以运行
+    thread2.join()   
+if __name__=='__main__':
+    start=time.time()
+    main()
+    end=time.time()
+    print("运行程序花费了%s秒"%(end-start))
+
+
+[huawei@n161 ccc]$ python3 1.py
+one  2022-10-10 14:00:31.487769
+two  2022-10-10 14:00:31.487972
+two  2022-10-10 14:00:32.488338
+one  2022-10-10 14:00:32.489280
+two  2022-10-10 14:00:33.489747
+one  2022-10-10 14:00:33.490600
+运行程序花费了3.004295587539673秒
+```
+
+
+### 线程函数方式
+
+Thread函数的target参数指向线程体函数，我们可以自定义该线程体函数；通过name参数可以设置线程名，如果省略这个参数，则系统会为其分配一个名称；args是为线程体函数提供的参数，是一个元组类型。
+
+与上面的案例结果一样，只是使用了不同的方法
+```
+#!/usr/bin/python3
+import threading
+import time
+from datetime import datetime
+
+def Test(name):
+    for i in range(3):
+        print(name,datetime.now())
+        time.sleep(1)
+def main():
+        t1=threading.Thread(target=Test,args=("one",))  #调用threading.Thread函数，target参数是要执行的函数，args是要传入的参数，为元组类型
+        t2=threading.Thread(target=Test,args=("two",))
+        t1.start()        #启动线程
+        t2.start()
+        t1.join()       #必须等子线程运行完了父线程才可以运行
+        t2.join()
+if __name__=='__main__':
+    start=time.time()
+    main()
+    end=time.time()
+    print("运行程序花费了%s秒"%(end-start))
+
+
+[huawei@n161 ccc]$ python3 1.py
+one 2022-10-10 14:05:59.340984
+two 2022-10-10 14:05:59.341188
+two 2022-10-10 14:06:00.342355
+one 2022-10-10 14:06:00.342422
+two 2022-10-10 14:06:01.343655
+one 2022-10-10 14:06:01.343718
+运行程序花费了3.0045223236083984秒
+```
+
+另一个案例
+
+```
+import threading
+def do_this(what):
+	whoami(what)
+def whoami(what):
+	print("Thread %s says: %s" % (threading.current_thread(), what))
+
+if __name__ == "__main__":
+	whoami("I'm the main program")
+	for n in range(4):
+ 		p = threading.Thread(target=do_this, args=("I'm function %s" % n,))
+ 		p.start()
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+Thread <_MainThread(MainThread, started 140689071798080)> says: I'm the main program
+Thread <Thread(Thread-1, started 140688941364992)> says: I'm function 0
+Thread <Thread(Thread-2, started 140688932972288)> says: I'm function 1
+Thread <Thread(Thread-3, started 140688924579584)> says: I'm function 2
+Thread <Thread(Thread-4, started 140688916186880)> says: I'm function 3
+```
+
+## 并发
+![](并发.png)  
+并发是指两个或多个事件在同一时间间隔发生，Python 中的线程属于并发，不管计算机有多少个 CPU ，不管你开了多少个线程，同一时间多个任务会在其中一个 CPU 来回切换，只占用一个 CPU ，效率并不高；
+
+### Lock
+    互斥锁 Lock 主要针对多个线程同时操作同一个数据（即并行访问共享资源），使用互斥锁可以保证保护共享资源，防止出现脏数据。
+    互斥锁就好比排队上厕所，一个坑位只能蹲一个人，只有占用坑位的人完事了，另外一个人才能上！
+Lock是可用的最低级的同步指令。Lock处于锁定状态时，不被特定的线程拥有。Lock包含两种状态：锁定和非锁定，以及两个基本的方法：
+- acquire([timeout]): 使线程进入同步阻塞状态，尝试获得锁定。
+- release(): 释放锁。使用前线程必须已获得锁定，否则将抛出异常。
+
+
+下面的案例如果没有使用lock则得到的不是0
+```
+import threading
+num = 0
+
+def add(lock):
+    global num
+    for i in range(1000000):
+        lock.acquire()
+        num += 1
+        lock.release()
+
+def reduce(lock):
+    global num
+    for i in range(1000000):
+        lock.acquire()
+        num -= 1
+        lock.release()
+
+# 创建锁
+lock = threading.Lock()
+# 创建线程
+t1 = threading.Thread(target=add, args=(lock, ))
+t2 = threading.Thread(target=reduce, args=(lock, ))
+t1.start()
+t2.start()
+# 等待子进程执行完
+t1.join()
+t2.join()
+print(num)
+
+[huawei@n161 ccc]$ python3 1.py
+0
+```
+另一个案例，确保了同步的操作
+```
+import threading
+import time
+
+lock = threading.Lock() #创建锁
+
+def fun(data):
+    try:
+        lock.acquire(True) #锁定
+        print("------> fun 1:",time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),data)
+        time.sleep(1)
+        print("------> fun 2:", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),data)
+    finally:
+        lock.release()#释放
+        # lock.release() 这里如多次释放会崩溃，所以要根据实际情况使用此类锁
+
+threading.Thread(target = fun, name='socket_tcp_server', kwargs={'data':100}).start()
+threading.Thread(target = fun, name='socket_tcp_server', kwargs={'data':200}).start()
+threading.Thread(target = fun, name='socket_tcp_server', kwargs={'data':300}).start()
+threading.Thread(target = fun, name='socket_tcp_server', kwargs={'data':400}).start()
+
+如果没有上面的lock操作，则会首先4个fun1，后再4个fun2，使用了lock则可确保同步
+[huawei@n161 ccc]$ python3 1.py
+------> fun 1: 2022-10-10 14:51:38 100
+------> fun 2: 2022-10-10 14:51:39 100
+------> fun 1: 2022-10-10 14:51:39 200
+------> fun 2: 2022-10-10 14:51:40 200
+------> fun 1: 2022-10-10 14:51:40 300
+------> fun 2: 2022-10-10 14:51:41 300
+------> fun 1: 2022-10-10 14:51:41 400
+------> fun 2: 2022-10-10 14:51:42 400
+```
+
+### RLock
+在一个线程函数中使用了锁lock.acquire()还没有释放锁时，调用了另一个方法，方法中又使用了锁，这样如果使用同一把普通的锁很容易出现死锁。此时可以使用Rlock（可重入的锁），但是要注意使用了几次Rlock.acquire()，就必须使用几次Rlock.release()
+
+```
+#!/usr/bin/python3
+import threading
+num = 0
+
+def add(rlock):
+    global num
+    for i in range(1000000):
+        rlock.acquire()
+        num += 1
+        dosomething(rlock)
+        rlock.release()
+
+def reduce(rlock):
+    global num
+    for i in range(1000000):
+        rlock.acquire()
+        num -= 1
+        dosomething(rlock)
+        rlock.release()
+
+
+def dosomething(rlock):
+    # 模拟其他操作的函数
+    rlock.acquire()
+    # dosomething
+    rlock.release()
+
+
+# 创建锁
+rlock = threading.RLock()
+# 创建线程
+t1 = threading.Thread(target=add, args=(rlock,))
+t2 = threading.Thread(target=reduce, args=(rlock,))
+t1.start()
+t2.start()
+# 等待子进程执行完
+t1.join()
+t2.join()
+print(num)
+
+
+[huawei@n161 ccc]$ python3 1.py
+0
+```
+### 使用锁的坏处
+
+- 因为创建锁解锁都要花费时间，会影响程序性能；并且在使用锁时，容易产生死锁。
+- 产生死锁的方式：1.创建锁，没有解锁 ; 2.两个线程互相有对方的锁，然后互相等待。
+
+### 线程死锁
+- 单个互斥锁的死锁：acquire / release 是成对出现的，互斥锁对资源锁定之后就一定要解锁，否则资源会一直处于锁定状态，其他线程无法修改；就好比上面的代码，任何一个线程没有释放资源 release，程序就会一直处于阻塞状态(在等待资源被释放)
+
+- 多个互斥锁的死锁：在同时操作多个互斥锁的时候一定要格外小心，因为一不小心就容易进入死循环，假如有这样一个场景：boss 让程序员一实现功能一的开发，让程序员二实现功能二的开发，功能开发完成之后一起整合代码！
+
+```
+#导入线程threading模块
+import threading
+#导入线程time模块
+import time
+
+
+# 创建互斥锁
+mutex_one = threading.Lock()
+mutex_two = threading.Lock()
+
+def programmer_thread1():
+    mutex_one.acquire()
+    print("我是程序员1，module1开发正式开始，谁也别动我的代码")
+    time.sleep(2)
+    # 此时会堵塞，因为这个mutex_two已经被线程programmer_thread2抢先上锁了,等待解锁
+    mutex_two.acquire()
+    print("等待程序员2通知我合并代码")
+    mutex_two.release()
+    mutex_one.release()
+
+def programmer_thread2():
+    mutex_two.acquire()
+    print("我是程序员2，module2开发正式开始，谁也别动我的代码")
+    time.sleep(2)
+    # 此时会堵塞，因为这个mutex_one已经被线程programmer_thread1抢先上锁了,等待解锁
+    mutex_one.acquire()
+    print("等待程序员1通知我合并代码")
+    mutex_one.release()
+    mutex_two.release()
+
+def main():
+    t1 = threading.Thread(target=programmer_thread1)
+    t2 = threading.Thread(target=programmer_thread2)
+    # 启动线程
+    t1.start()
+    t2.start()
+    # 阻塞函数，等待线程结束
+    t1.join()
+    t2.join()
+    # 整合代码结束
+    print("整合代码结束 ")
+
+if __name__ == "__main__":
+    main()
+
+两个线程都陷入阻塞中，因为两个线程都在等待对方解锁，这就是死锁！所以在开发中对于死锁的问题还是需要多多注意！
+[huawei@n161 ccc]$ python3 myprocess.py 
+我是程序员1，module1开发正式开始，谁也别动我的代码
+我是程序员2，module2开发正式开始，谁也别动我的代码
+^CTraceback (most recent call last):
+  File "myprocess.py", line 44, in <module>
+    main()
+  File "myprocess.py", line 38, in main
+    t1.join()
+```
+### Event
+    事件 Event 主要用于唤醒正在阻塞等待状态的线程;
+事件Event函数介绍：
+- set：全局内置标志 Flag，将标志 Flag 设置为 True,通知在等待状态 ( wait ) 的线程恢复运行; - isSet：获取标志 Flag 当前状态，返回 True 或者 False ;
+- wait：一旦调用，线程将会处于阻塞状态，直到等待其他线程调用 set 函数恢复运行;
+- clear：将标志设置为False；
+
+事件 event 中有一个全局内置标志 Flag，值为 True 或者False。使用 wait 函数的线程会处于阻塞状态,此时 Flag 指为 False，直到有其他线程调用 set 函数让全局标志 Flag 置为 True ，其阻塞的线程立刻恢复运行，还可以用 isSet 函数检查当前的 Flag 状态.
+
+演示多个线程都在wait同一event，待event发出信号，这些线程都可以继续执行了，但多个线程间并未做同步
+```
+
+# 导入线程模块
+import threading
+
+# 创建event事件
+eEvent = threading.Event()
+
+def get_girl_friend(id):
+    print("单身狗{}都准备完毕，内置Flag状态：{}.....".format(id,eEvent.isSet()))
+    eEvent.wait()
+    print("单身狗%d告别单身....."%id)
+
+
+if __name__ == "__main__":
+    thread_list = list()
+    for i in range(1,11):
+        # 创建并初始化线程
+        t = threading.Thread(target=get_girl_friend,args=(i,))
+        # 启动线程
+        t.start()
+        # 将线程句柄添加list列表中
+        thread_list.append(t)
+    # 所有线程准备完毕，将event内置Flag设置为True,恢复正在阻塞的线程
+    eEvent.set()
+    # 遍历列表，阻塞主线程
+    for t in thread_list:
+        # 阻塞主线程，等待所有子线程结束
+        t.join()
+    print("程序结束！")
+
+[huawei@n161 ccc]$ python3 1.py
+单身狗1都准备完毕，内置Flag状态：False.....
+单身狗2都准备完毕，内置Flag状态：False.....
+单身狗3都准备完毕，内置Flag状态：False.....
+单身狗4都准备完毕，内置Flag状态：False.....
+单身狗6都准备完毕，内置Flag状态：False.....
+单身狗5都准备完毕，内置Flag状态：False.....
+单身狗7都准备完毕，内置Flag状态：False.....
+单身狗8都准备完毕，内置Flag状态：False.....
+单身狗9都准备完毕，内置Flag状态：False.....
+单身狗10都准备完毕，内置Flag状态：False.....
+单身狗2告别单身.....
+单身狗4告别单身.....
+单身狗6告别单身.....
+单身狗5告别单身.....
+单身狗9告别单身.....
+单身狗1告别单身.....
+单身狗3告别单身.....
+单身狗7告别单身.....
+单身狗8告别单身.....
+单身狗10告别单身.....
+程序结束！
+```
+
+### threading.Timer
+
+线程定时器用于指定时间间隔后启动线程！适用场景：完成定时任务，例如：定时提醒-闹钟等等。
+
+timer = threading.Timer(interval, function, args=None, kwargs=None)，参数介绍：
+- interval：定时器间隔，间隔多少秒之后启动定时器任务(单位：秒)；
+- function：线程函数；
+- args：线程参数，可以传递元组类型数据，默认为空(缺省参数)；
+- kwargs：线程参数，可以传递字典类型数据，默认为空(缺省参数)；
+
+
+此案例在主线程创建了线程定时器，在 5 秒之后执行 thread_Timer 线程函数，而在 thread_Timer 函数结束的时候，又设置了定时器线程 thread_Timer ，这就完成了一个递归的操作，间隔 5 秒重复定时任务！
+```
+
+# 导入线程模块
+import threading
+
+def thread_Timer():
+    print("该起床啦...5秒之后再次呼叫你起床...")
+
+    # 声明全局变量
+    global t1
+    # 创建并初始化线程
+    t1 = threading.Timer(5,thread_Timer)
+    # 启动线程
+    t1.start()
+
+
+if __name__ == "__main__":
+    # 创建并初始化线程
+    t1 = threading.Timer(5, thread_Timer)
+    # 启动线程
+    t1.start()
+
+会无限循环下去。。。
+[huawei@n161 ccc]$ python3 1.py
+该起床啦...5秒之后再次呼叫你起床...
+该起床啦...5秒之后再次呼叫你起床...
+该起床啦...5秒之后再次呼叫你起床...
+
+```
+
+### Condition
+
+    条件变量用于复杂的线程间同步。内部使用的是lock或者Rlock，同时 Condition 自身提供了 wait、notify、notifyAll 方法，用于阻塞、通知并行线程，可以访问共享资源了。可以这么理解，Condition 提供了一种多线程通信机制，假如线程 1 需要数据，那么线程 1 就阻塞等待，这时线程 2 就去制造数据，线程 2 制造好数据后，通知线程 1 可以去取数据了，然后线程 1 去获取数据（生产者消费者）。
+
+重要的方法：
+- acquire：线程锁，注意线程条件变量 Condition 中的所有相关函数使用必须在acquire / release 内部操作；
+- release：释放锁，注意线程条件变量 Condition 中的所有相关函数使用必须在acquire / release 内部操作；
+- wait( timeout )：线程挂起(阻塞状态)，直到收到一个 notify 通知或者超时才会被唤醒继续运行（超时参数默认不设置，可选填，类型是浮点数，单位是秒）。wait 必须在已获得 Lock 前提下才能调用，否则会触发 RuntimeError；
+- notify(n=1)：通知其他线程，那些挂起的线程接到这个通知之后会开始运行，缺省参数，默认是通知一个正等待通知的线程,最多则唤醒 n 个等待的线程。 notify 必须在已获得 Lock 前提下才能调用，否则会触发 RuntimeError ，notify 不会主动释放 Lock ；
+- notifyAll：如果wait状态线程比较多，notifyAll 的作用就是通知所有线程；  
+
+注意互斥锁Lock、事件Event、条件变量Condition 三者的区别，场景不同，使用方式也不同，前两者一般可以作为简单的线程交互，线程条件变量 Condition 可以用于比较复杂的线程交互！
+
+
+简单的案例，演示了两个线程各执行一次打印
+
+```
+# 导入线程模块
+import threading
+# 创建条件变量condition
+con = threading.Condition()
+
+def thread_one(name):
+    # 条件变量condition 线程上锁
+    con.acquire()
+    print("{}:成语接龙准备好了吗".format(name))
+    # 唤醒正在等待(wait)的线程
+    con.notify()
+    # 等待对方回应消息，使用wait阻塞线程，等待对方通过notify唤醒本线程
+    con.wait()
+    print("{}:一干二净".format(name))
+    # 唤醒对方
+    con.notify()
+    # 等待消息答应
+    con.wait()
+    print("{}:一天就知道看抖音美女，给你来个简单点的，来了：毛手毛脚".format(name))
+    # 唤醒对方
+    con.notify()
+    # 等待消息答应
+    con.wait()
+    print("{}:哟哟哟，不错不错！".format(name))
+    # 唤醒对方
+    con.notify()
+    # 条件变量condition 线程释放锁
+    con.release()
+
+def thread_two(name):
+    # 条件变量condition 线程上锁
+    con.acquire()
+    # wait阻塞状态，等待其他线程通过notify唤醒本线程
+    con.wait()
+    print("{}:准备好了~开始吧！".format(name))
+    # 唤醒对方
+    con.notify()
+    # 等待消息答应
+    con.wait()
+    print("{}:净你妹啊，没法接...来个简单点的...".format(name))
+    # 唤醒对方
+    con.notify()
+    # 等待消息答应
+    con.wait()
+    print("{}:嘿,这个我知道：脚踏实地".format(name))
+    # 唤醒对方
+    con.notify()
+    con.release()
+
+if __name__ == "__main__":
+    # 创建并初始化线程
+    t1 = threading.Thread(target=thread_one,args=("A"))
+    t2 = threading.Thread(target=thread_two,args=("B"))
+    # 启动线程 -- 注意线程启动顺序，启动顺序很重要
+    t2.start()
+    t1.start()
+    # 阻塞主线程，等待子线程结束
+    t1.join()
+    t2.join()
+    print("程序结束！")
+
+
+[huawei@n161 ccc]$ python3 1.py
+A:成语接龙准备好了吗
+B:准备好了~开始吧！
+A:一干二净
+B:净你妹啊，没法接...来个简单点的...
+A:一天就知道看抖音美女，给你来个简单点的，来了：毛手毛脚
+B:嘿,这个我知道：脚踏实地
+A:哟哟哟，不错不错！
+程序结束！
+```
+
+唤醒一个与多个的案例
+```
+#!/usr/bin/python3
+import threading
+import time
+
+product = [0]
+def consumer(cond):
+    with cond:
+        print('wait for product')
+        cond.wait()
+        print('get product:{}'.format(product))
+
+def producer(cond):
+    product.append(10)
+    with cond: 
+        cond.notify()	# 唤起一个
+        print('notify !')
+    time.sleep(3)
+    product.append(20)
+    with cond:
+        cond.notify()	# 再唤起一个
+        print('notify !')
+    time.sleep(3)
+    product.append(30)
+    with cond:
+        cond.notify_all()	# 全部唤起
+        print('notify all!')
+
+condition = threading.Condition()
+
+c1 = threading.Thread(name='c1',target=consumer,args=(condition,))
+c2 = threading.Thread(name='c2',target=consumer,args=(condition,))
+c3 = threading.Thread(name='c3',target=consumer,args=(condition,))
+c4 = threading.Thread(name='c4',target=consumer,args=(condition,))
+p = threading.Thread(name='p',target=producer,args=(condition,))
+
+c1.start()
+c2.start()
+c3.start()
+c4.start()
+
+p.start()
+
+[huawei@n161 ccc]$ python3 1.py
+wait for product
+wait for product
+wait for product
+wait for product
+notify !
+get product:[0, 10]
+notify !
+get product:[0, 10, 20]
+notify all!
+get product:[0, 10, 20, 30]
+get product:[0, 10, 20, 30]
+```
+
+生产者消费者案例
+```
+# 导入线程模块
+import threading
+import time
+
+# 创建条件变量condition
+con = threading.Condition()
+meat_num = 0
+
+def thread_consumers():
+    # 条件变量condition 线程上锁
+    con.acquire()
+
+    # 全局变量声明关键字 global
+    global meat_num
+    meat_num = 0
+
+    # 等待肉片下锅煮熟
+    con.wait()
+    while True:
+        print("我来一块肉片...")
+        meat_num -= 1
+        print("剩余肉片数量：%d"%meat_num)
+        time.sleep(0.5)
+        if meat_num == 0:
+            # 肉片吃光了，通知老板添加肉片
+            print("老板，再来一份老肉片...")
+            con.notify()
+            # 肉片吃光了，等待肉片
+            con.wait()
+
+    # 条件变量condition 线程释放锁
+    con.release()
+
+
+def thread_producer():
+    # 条件变量condition 线程上锁
+    con.acquire()
+    # 全局变量声明关键字 global
+    global meat_num
+
+    # 肉片熟了，可以开始吃了
+    meat_num = 10
+    print("肉片熟了，可以开始吃了...")
+    con.notify()
+    while True:
+        # 阻塞函数,等待肉片吃完的通知
+        con.wait()
+        meat_num = 10
+        # 添加肉片完成，可以继续开吃
+        print("添加肉片成功！当前肉片数量：%d"%meat_num)
+        time.sleep(1)
+        con.notify()
+
+    con.release()
+
+
+if __name__ == "__main__":
+    # 创建并初始化线程
+    t1 = threading.Thread(target=thread_producer)
+    t2 = threading.Thread(target=thread_consumers)
+
+    # 启动线程 -- 注意线程启动顺序，启动顺序很重要
+    t2.start()
+    t1.start()
+
+    # 阻塞主线程，等待子线程结束
+    t1.join()
+    t2.join()
+
+    print("程序结束！")
+
+```
+
+### Semaphore
+    信号量也是一把锁，可以指定信号量为5，对比互斥锁同一时间只能有一个任务抢到锁去执行，信号量同一时间可以有5个任务拿到锁去执行。如果说互斥锁（如lock）是合租房屋的人去抢一个厕所，那么信号量就相当于一群路人争抢公共厕所，公共厕所有多个坑位，这意味着同一时间可以有多个人上公共厕所，但公共厕所容纳的人数是一定的，这便是信号量的大小
+
+- 概述：信号量是用来 控制线程并发数的。
+- 原理：BoundedSemaphore和Semaphore管理一个内置的计数器。每当 资源释放递增时(调用acquire)计数器-1,资源消耗时递减(调用release)计数器+1。
+- 调用格式： threading.BoundedSemaphore/Semaphore(value);值默认1
+- 使用场景： 停车位(固定的停车位,车位全部被占用则进不来;只有车子离开其余车才能进来)
+- BoundedSemaphore和Semaphore区别： 前者将在调用release()时检查计数器的值是否超过了计数器的初始值,如果超过将抛出一个异常。
+- 注意事项： 计数器不能小于0,当计数器为0时:acquire()将阻塞线程至同步锁定状态,直到其他线程调用release()。
+
+
+案例：停车场只有3个停车位。来了5辆汽车需要停车这时候就使用Semaphore来控制访问量了只能同时允许3辆车同时进入停车场,第4辆车只有等先进入的3辆车中有车出来才可进入
+```
+import threading,time,random
+semaphore=threading.Semaphore(3)#同一时间只能有3个线程处于运行状态
+
+def run (ii):
+    semaphore.acquire() # 获得信号量:信号量减一
+    print(ii,'号车可以进入')
+    time.sleep(random.randint(0,10)*1)
+    print(ii,'号停车位释放')
+    semaphore.release()# 释放信号量:信号量加一
+
+for i in range(5):#创建5个线程
+    t=threading.Thread(target=run,args=(i,))
+    t.start()
+
+[huawei@n161 ccc]$ python3 1.py
+0 号车可以进入
+1 号车可以进入
+2 号车可以进入
+1 号停车位释放
+3 号车可以进入
+3 号停车位释放
+4 号车可以进入
+2 号停车位释放
+4 号停车位释放
+0 号停车位释放
+```
+### BoundedSemaphore
+BoundedSemaphore调用时如果计数器的值超过了初始值会抛出异常;但是Semaphore不会
+```
+import threading,time,random
+semaphore=threading.BoundedSemaphore(3)#同一时间只能有3个线程处于运行状态
+
+def run (ii):
+    semaphore.acquire() # 获得信号量:信号量减一
+    print(ii,'号车可以进入')
+    time.sleep(random.randint(0,10)*1)
+    print(ii,'号停车位释放')
+    #***************此处高能******************
+    semaphore.release()# 释放信号量:信号量加一
+    # 再次释放信号量:信号量加一，这时超过限定的信号量数目会报错ValueError: Semaphore released too many times
+    semaphore.release()
+    #***************高能结束******************
+
+for i in range(5):#创建5个线程
+    t=threading.Thread(target=run,args=(i,))
+    t.start()
+
+执行到0后再release会崩溃。。。
+[huawei@n161 ccc]$ python3 1.py
+0 号车可以进入
+1 号车可以进入
+2 号车可以进入
+0 号停车位释放
+3 号车可以进入
+4 号车可以进入
+3 号停车位释放
+1 号停车位释放
+Exception in thread Thread-2:
+Traceback (most recent call last):
+```
+### Barrier
+https://www.codersrc.com/archives/6581.html
+
+### Queue、LifoQueue、PriorityQueue
+https://www.codersrc.com/archives/6609.html
+
+## 线程池 ThreadPoolExecutor
+https://www.codersrc.com/archives/6707.html
 
 # 协程
 http://www.gaohaiyan.com/2667.html
