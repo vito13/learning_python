@@ -12,7 +12,7 @@ Python Cookbook（第3版）
 
 看漫画学Python							还差第15章
 
-http://www.ityouknow.com/python.html    再继续29
+http://www.ityouknow.com/python.html    再继续35
 
 ---
 # 基础知识
@@ -144,22 +144,46 @@ pprint.pprint(sys.path)
  '/usr/lib/python3.6/site-packages']
 ```
 
-## 随机数
-- 随机整数 randint
-- 随机列表元素 choice
+## 伪随机数
+- random()函数可以随机生成一个[0,1)的浮点数。
+- randint(a,b)函数可以在指定范围内随机生成一个整数，其中参数a是下限，参数 b 是上限，生成的随机数n：a <= n <= b。
+- uniform(a,b)函数可以在指定范围内随机生成一个浮点数，两个参数其中一个是上限，一个是下限。如果a > b，则生成的随机数n: b <= n <= a。如果 a <b， 则 a <= n <= b。
+- sample(sequence, k)函数可以获取从总体序列或集合中选择的唯一元素的k长度列表。sample()函数不会修改原有序列，它主要用在无重复的随机抽样场景，实现从大量样本中快速进行抽样
+- randrange()函数主要用于返回一个随机数，它有三个参数，其中第三个参数step是可选参数。具体区别如下：
+    - randrange([start], stop)可以在指定范围内随机生成一个整数，生成的随机数n：a <= n <= b。其中，参数start和参数stop是有要求的，必须小数在前大数在后，否则会报错。
+    - randrange([start], stop[, step])函数可以先从1到10中产生一个间隔是2的等差数列[1,3,5,7,9]，再从中随机获取一个随机数。
+- choice(sequence)函数可以从非空序列 sequence 中随机返回一个数，参数 sequence 表示一个有序类型，可以包含 list、tuple 等
+- shuffle(x[, random])函数可以将一个有序列表中的元素打乱，再重新排序
+
 ```
-#!/usr/bin/python3
+import random
+print(random.random())
+print(random.randint(5,50)) 
+print(random.uniform(2,5))
+print(random.uniform(5,2))
+lst = [1,2,3,4,5]  
+print(random.sample(lst,4))  
+print(lst) 
+print(random.randrange(1,10,2))
+strlist = ['C++','C#','Java','Python']  
+strtemp = ('Do you love python')  
+print(random.choice(strlist))
+print(random.choice(strtemp))  
+lst = ['A' , 'B', 'C', 'D', 'E' ]
+random.shuffle(lst)  
+print (lst)  
 
-from random import randint
-print(randint(1, 6))
-from random import choice
-players = ['charles', 'martina', 'michael', 'florence', 'eli']
-first_up = choice(players)
-print(first_up)
-
-[huawei@n148 pythontest]$ /usr/bin/python3 "/home/huawei/playground/pythontest/pyth.py"
-3
-michael
+[huawei@n161 ccc]$ python3 1.py
+0.9216266647181643
+41
+3.428690309360838
+4.214136072878796
+[1, 3, 2, 4]
+[1, 2, 3, 4, 5]
+7
+Python
+y
+['E', 'A', 'B', 'D', 'C']
 ```
 ## pass
 防止在if里什么都不写无法运行，可暂时用pass占位
@@ -1607,90 +1631,7 @@ print(x[0:2])
 (1, 2, 3)
 (1, 2)
 ```
-## 具名元祖 namedtuple
-- 命名元组是元组的子类，既可以通过名称（使用 .name）来访问其中的值，也可以通过位置进行访问（使用[offset]）
-- 它无论看起来还是使用起来都和不可变对象非常相似
-- 具名元组的实例也很节省空间，与使用对象相比，使用命名元组在时间和空间上效率更高。
-- 可以使用点号（.）对特性进行访问，而不需要使用字典风格的方括号
-- 可以把它作为字典的键
-- 用以构建只有少数属性但是没有方法的对象
 
-简单使用
-```
-from collections import namedtuple
-Duck = namedtuple('Duck', 'bill tail')
-duck = Duck('wide orange', 'long')
-print(duck)
-print(duck.bill)
-print(duck.tail)
-
-parts = {'bill': 'wide orange', 'tail': 'long'} # 用字典来构造命名元组
-duck2 = Duck(**parts) # **作用是将 parts 字典中的键和值抽取出来作为参数提供给 Duck() 使用。等同于 duck2 = Duck(bill = 'wide orange', tail = 'long')
-print(duck2)
-duck3 = duck2._replace(tail='magnificent', bill='crushing')	# 命名元组是不可变的，但可以替换其中某些域的值并返回一个新的命名元组
-print(duck3)
-
-
-duck_dict = {'bill': 'wide orange', 'tail': 'long'}
-print(duck_dict)
-duck_dict['color'] = 'green'	# 可以向字典里添加新的键值对
-print(duck_dict)
-
-duck.color = 'green'	# err 但无法对命名元组这么做
-
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
-Duck(bill='wide orange', tail='long')
-wide orange
-long
-Duck(bill='wide orange', tail='long')
-Duck(bill='crushing', tail='magnificent')
-{'bill': 'wide orange', 'tail': 'long'}
-{'bill': 'wide orange', 'tail': 'long', 'color': 'green'}
-Traceback (most recent call last):
-  File "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py", line 22, in <module>
-    duck.color = 'green'        # 但无法对命名元组这么做
-AttributeError: 'Duck' object has no attribute 'color'
-```
-
-
-高级使用，类似struct，可以快速定义结构并创建变量，但仅有属性不能有方法
-- _fields
-- _make()
-- _asdict()
-
-```
-from collections import namedtuple
-City = namedtuple('City', 'name country population coordinates')	# 参数是类名，另一个是类的各个字段的名字
-tokyo = City('Tokyo', 'JP', 36.933, (35.689722, 139.691667))	# 创建对象
-print(tokyo)	# 访问
-print(tokyo.population)
-print(tokyo.coordinates)
-print(tokyo[1])
-print(City._fields)	# _fields 属性是一个包含这个类所有字段名称的元组。
-
-
-LatLong = namedtuple('LatLong', 'lat long')
-delhi_data = ('Delhi NCR', 'IN', 21.935, LatLong(28.613889, 77.208889))
-delhi = City._make(delhi_data)	# 用_make()通过接受一个可迭代对象来生成这个类的一个实例，它的作用跟City(*delhi_data)是一样的
-
-print(delhi._asdict())	#_asdict()把具名元组以collections.OrderedDict的形式返回，下面是迭代每一项
-for key, value in delhi._asdict().items():
-	print(key + ':', value)
-
-
-
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
-City(name='Tokyo', country='JP', population=36.933, coordinates=(35.689722, 139.691667))
-36.933
-(35.689722, 139.691667)
-JP
-('name', 'country', 'population', 'coordinates')
-OrderedDict([('name', 'Delhi NCR'), ('country', 'IN'), ('population', 21.935), ('coordinates', LatLong(lat=28.613889, long=77.208889))])
-name: Delhi NCR
-country: IN
-population: 21.935
-coordinates: LatLong(lat=28.613889, long=77.208889)
-```
 ## 元组的相对不可变性
 - 下面的描述貌似眼熟，详见代码说明，感觉就像是改变常量指针指向的内容。。。
 - 元组与多数 Python 集合（列表、字典、集，等等）一样，保存的是对象的引用。1 如果引用的元素是可变的，即便元组本身不可变，元素依然可变。
@@ -2459,41 +2400,119 @@ bytearray(b'\x01\x02\x03\xff')
 bytearray(b'\x01\x7f\x03\xff')
 bytearray(b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff')
 ```
-## 内存视图 memoryview
-## NumPy
-## SciPy
 
-## 双向队列 deque
-collections 模块提供了一种 deque() 对象，它类似于列表，但从左端添加和弹出的速度较快，而在中间查找的速度较慢。 此种对象适用于实现队列和广度优先树搜索
+# 枚举 enum
 
-- 是一个线程安全、可以快速从两端添加或者删除元素的数据类型。
-- 主要的方法参见“流畅的python 2.9.4”
+
+## 创建、访问、迭代
+
+枚举属性值可以是任何东西: int, str 等。如果确切的值不重要，您可以使用 auto 实例，并为您选择适当的值。如果您将 auto 与其他值混合，则必须小心。 枚举类型中，不可以设置相同名称的 name，可以有相同的 value。
 ```
-from collections import deque
-dq = deque(range(10), maxlen=10)	# maxlen 是一个可选参数，代表这个队列可以容纳的元素的数量，而且一旦设定，这个属性就不能修改了。
-print(dq)
-dq.rotate(3)	# 队列的旋转操作接受一个参数 n，当 n > 0 时，队列的最右边的 n 个元素会被移动到队列的左边。当 n < 0 时，最左边的 n 个元素会被移动到右边。
-print(dq)
-dq.rotate(-4) 
-print(dq)
-dq.appendleft(-1)	# 当试图对一个已满（len(d) == d.maxlen）的队列做头部添加操作的时候，它尾部的元素会被删除掉。注意在下一行里，元素 0 被删除了。
-print(dq)
-dq.extend([11, 22, 33])	# 在尾部添加 3 个元素的操作会挤掉 -1、1 和 2。
-print(dq)
-dq.extendleft([10, 20, 30, 40])	# extendleft(iter) 方法会把迭代器里的元素逐个添加到双向队列的左边，因此迭代器里的元素会逆序出现在队列里。
-print(dq)
+from enum import Enum, auto, unique
+# 创建
+# @unique，枚举值唯一， 加入此句可确保所有值不能有重复，否则异常
+class HttpStatus(Enum):
+    OK = 200
+    BAD_REQUEST = 400
+    FORBIDDEN = 403
+    NOT_FOUND = 404
+    REQUEST_TIMEOUT = 408
+    SERVICE_UNAVAILABLE = 500
+    OTHER = auto.value
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
-deque([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], maxlen=10)
-deque([7, 8, 9, 0, 1, 2, 3, 4, 5, 6], maxlen=10)
-deque([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], maxlen=10)
-deque([-1, 1, 2, 3, 4, 5, 6, 7, 8, 9], maxlen=10)
-deque([3, 4, 5, 6, 7, 8, 9, 11, 22, 33], maxlen=10)
-deque([40, 30, 20, 10, 3, 4, 5, 6, 7, 8], maxlen=10)
-``` 
+print('Member: {}'.format(HttpStatus.OK))               # Member: HttpStatus.OK
+print('Member name: {}'.format(HttpStatus.OK.name))     # Member name: OK
+print('Member value: {}'.format(HttpStatus.OK.value))   # Member value: 200
+print(repr(HttpStatus.OK))                              # <enum 'HttpStatus'>
+print(type(HttpStatus.OK))                              # <HttpStatus.OK: 200>
+print(isinstance(HttpStatus.OK, HttpStatus))            # True
 
-## 堆
-heapq 模块提供了基于常规列表来实现堆的函数。 最小值的条目总是保持在位置零。 这对于需要重复访问最小元素而不希望运行完整列表排序的应用来说非常有用
+# 迭代  遍历的每一个 status 是一个独立的枚举成员，拥有 name 和 value 属性
+for status in HttpStatus:
+    print('{} : {}'.format(status.name, status.value))
+
+# 另一种形式
+for name, member in HttpStatus.__members__.items():
+    print('{} : {}'.format(name, member))
+    
+
+# 枚举成员与属性访问
+print(HttpStatus(200))      # HttpStatus.OK 通过枚举 value 进行访问，访问需要使用元组()的形式
+print(HttpStatus['OK'])     # HttpStatus.OK 通过枚举 name 进行访问，访问需要使用列表[]的形式
+number = HttpStatus.OK      # 将属性赋予另一个 enum 成员
+print(number)               # HttpStatus.OK 
+
+[huawei@n161 ccc]$ python3 1.py
+Member: HttpStatus.OK
+Member name: OK
+Member value: 200
+<HttpStatus.OK: 200>
+<enum 'HttpStatus'>
+True
+OK : 200
+BAD_REQUEST : 400
+FORBIDDEN : 403
+NOT_FOUND : 404
+REQUEST_TIMEOUT : 408
+SERVICE_UNAVAILABLE : 500
+OTHER : <object object at 0x7fcc2fc2b0b0>
+OK : HttpStatus.OK
+BAD_REQUEST : HttpStatus.BAD_REQUEST
+FORBIDDEN : HttpStatus.FORBIDDEN
+NOT_FOUND : HttpStatus.NOT_FOUND
+REQUEST_TIMEOUT : HttpStatus.REQUEST_TIMEOUT
+SERVICE_UNAVAILABLE : HttpStatus.SERVICE_UNAVAILABLE
+OTHER : HttpStatus.OTHER
+HttpStatus.OK
+HttpStatus.OK
+```
+
+##  枚举自动赋值
+```
+from enum import Enum, auto, unique
+
+
+# 枚举自动赋值
+# 此功能用于我们在使用枚举时，只在意枚举的标识符的含义而不在意值的情况下，但是如果需要与字符串或整数混合使用就要额外注意。
+class Color(Enum):
+    red = auto()
+    blue = auto()
+    green = auto()
+
+print(list(Color) == [Color.red, Color.blue, Color.green])
+print(Color.red.value ==  1)
+print(Color.blue.value ==  2)
+print(Color.green.value == 3)
+
+# 使用 auto() 得到的是整数自增型，如果我们需要别的方式，只需要在我们的枚举类中，重写 _generate_next_value_ 方法。
+class Color(Enum):
+    def _generate_next_value_(self, start, count, last):
+        return self
+    red = auto()
+    blue = auto()
+    green = auto()
+
+print(list(Color) == [Color.red, Color.blue, Color.green])
+print(Color.red.value == 'red')
+print(Color.blue.value == 'blue')
+print(Color.green.value == 'green')
+
+[huawei@n161 ccc]$ python3 1.py
+True
+True
+True
+True
+True
+True
+True
+True
+
+```
+
+## 比较、方法、继承
+
+详见 http://www.ityouknow.com/python/2019/10/15/python-enum-033.html
+
 
 # 判断
 ## 比较数值与字符串
@@ -4403,30 +4422,58 @@ True
 刷新写缓冲区，在文件没有关闭的情况下将数据写入文件中。
 
 ## json
-
+json 是一个文本序列化格式，可以直观阅读的，json 只能表示 Python 内置类型的子集，不能表示自定义的类
 - json.dumps(obj) 序列化，obj 转换为 json 格式的字符串；
 - json.dump(obj, fp) 序列化，将 obj 转换为 json 格式的字符串，将字符串写入文件；
 - json.loads(str) 反序列化，将 json 格式的字符串反序列化为一个 Python 对象；
 - json.load(fp) 反序列化，从文件中读取含 json 格式的数据，将之反序列化为一个 Python 对象。
 
-写json
+演示操作，注意ensure_ascii的作用
 ```
-#!/usr/bin/python3
+#字典转成json字符串 加上ensure_ascii=False以后，可以识别中文， indent=4是间隔4个空格显示   
 import json
-numbers = [2, 3, 5, 7, 11, 13]
-filename = 'numbers.json'
-with open(filename, 'w') as f:
-	json.dump(numbers, f)
-```
-读json
-```
-#!/usr/bin/python3
-import json
-filename = 'numbers.json'
-numbers = []
-with open(filename) as f:
-	numbers = json.load(f)
-print(numbers)
+d={'小明':{'sex':'男1','addr':'上海','age':26},'小红':{ 'sex':'女','addr':'上海', 'age':24},}
+# 将对象转为Json字符串
+v = json.dumps(d, ensure_ascii=False,indent=4);
+print(v)
+
+
+
+# 直接dump对象到文件
+with open('users.json','w',encoding='utf-8') as fw: 
+    json.dump(d,fw,ensure_ascii=False,indent=4)
+
+
+
+# 打开文件后读文件，再loads读到的字符串到数据结构中，操作比较繁琐。。。
+with open('users.json','r',encoding='utf-8') as f: 
+#读文件
+    res=f.read()
+    datas = json.loads(res)
+    print(datas)
+
+
+# 这里直接open后load，自动到数据结构中
+with open('users.json','r',encoding='utf-8') as f:
+    numbers = json.load(f)
+    print(numbers)
+
+
+[huawei@n161 ccc]$ python3 1.py
+{
+    "小明": {
+        "sex": "男1",
+        "addr": "上海",
+        "age": 26
+    },
+    "小红": {
+        "sex": "女",
+        "addr": "上海",
+        "age": 24
+    }
+}
+{'小明': {'sex': '男1', 'addr': '上海', 'age': 26}, '小红': {'sex': '女', 'addr': '上海', 'age': 24}}
+{'小明': {'sex': '男1', 'addr': '上海', 'age': 26}, '小红': {'sex': '女', 'addr': '上海', 'age': 24}}
 ```
 读写案例  
 没有记录则写文件，有记录则读文件并展示
@@ -4461,6 +4508,44 @@ def greet_user():
 
 greet_user()
 ```
+
+## Pickle
+
+pickle 是一个二进制序列化格式， 是 Python 专用的， pickle 可以表示大量的 Python 数据类型。
+Pickle 模块与 Json 模块功能相似，也包含四个函数，即 dump()、dumps()、loads() 和 load()，它们的主要区别如下：
+- dumps 和 dump 的区别在于前者是将对象序列化，而后者是将对象序列化并保存到文件中。
+- loads 和 load 的区别在于前者是将序列化的字符串反序列化，而后者是将序列化的字符串从文件读取并反序列化。
+
+```
+# dumps功能
+import pickle
+data = ['A', 'B', 'C','D']  
+bindata = pickle.dumps(data)   # dumps()函数可以将数据通过特殊的形式转换为只有python语言认识的字符串
+print(bindata)
+
+with open('test.bin', 'wb') as f:
+    pickle.dump(data, f)    # dump()函数可以将数据通过特殊的形式转换为只有python语言认识的字符串，并写入文件
+    print('写入成功')
+
+
+# loads功能
+msg = pickle.loads(bindata) # loads()函数可以将pickle数据转换为python的数据结构
+print(msg)
+
+
+# load功能
+with open('test.bin', 'rb') as f:
+    data = pickle.load(f)   # load()函数可以从数据文件中读取数据，并转换为python的数据结构
+    print(data)
+
+[huawei@n161 ccc]$ python3 1.py
+b'\x80\x03]q\x00(X\x01\x00\x00\x00Aq\x01X\x01\x00\x00\x00Bq\x02X\x01\x00\x00\x00Cq\x03X\x01\x00\x00\x00Dq\x04e.'
+写入成功
+['A', 'B', 'C', 'D']
+['A', 'B', 'C', 'D']
+
+```
+
 ## cvs
 模块支持以逗号分隔值格式直接读取和写入文件，这些格式通常由数据库和电子表格支持。
 
@@ -7449,98 +7534,6 @@ xxxooyyyxxxooyyyxxxooyyy
 ```
 
 
-### Queue 队列
-
-Queue是FIFO的队列
-
-- Queue.qsize —返回队列大小
-- Queue.empty —判断队列是否为空
-- Queue.full —判断队列是否满了
-- Queue.get([block[,timeout]]) —从队列头删除并返回一个 item ，block 默认为 True ，- 示当队列为空却去 get 的时候会阻塞线程，等待直到有有 item 出现为止来 get 出这个- item 。如果是 False 的话表明当队列为空你却去 get 的时候，会引发异常。在 block 为- True 的情况下可以再设置 timeout 参数。表示当队列为空，get 阻塞 timeout 指定的秒数- 后还没有 get 到的话就引发 Full 异常。- 
-- Queue.task_done —从场景上来说，处理完一个 get 出来的 item 之后，调用 task_done 将- 队列发出一个信号，表示本任务已经完成(与 Queue.get 配对使用)。- 
-- Queue.put(…[,block[,timeout]]) —向队尾插入一个 item ，同样若 block=True 的话队列- 时就阻塞等待有空位出来再 put ，block=False时引发异常。同 get 的 timeout，put 的- timeout 是在 block 为 True 的时候进行超时设置的参数。- 
-- Queue.join —监视所有 item 并阻塞主线程，直到所有 item 都调用了task_done 之后主线程才继续向下执行。这么做的好处在于，假如一个线程开始处理最后一个任务，它从任务队列中拿走最后一个任务，此时任务队列就空了但最后那个线程还没处理完。当调用了join之后，主线程就不会因为队列空了而擅自结束，而是等待最后那个线程处理完成了。
-
-
-
-```
-
-下面的代码不够严谨，需要加锁才行
-
-import threading
-import queue
-
-q = queue.Queue(5)  # 长度，队列中最多存放5个数据
-
-
-def put():
-    for i in range(20):
-        q.put(i)
-        print("数字%d存入队列成功" % i)
-    q.join()  # 阻塞进程，直到所有任务完成，取多少次数据task_done多少次才行，否则最后的ok无法打印
-    print('ok')
-
-
-def get():
-    for i in range(20):
-        value = q.get()
-        print("数字%d从队列中取出" % value)
-        q.task_done()  # 必须每取走一个数据，发一个信号给join
-    # q.task_done()   #放在这没用，因为join实际上是一个计数器，put了多少个数据，
-    # 计数器就是多少，每task_done一次，计数器减1，直到为0才继续执行
-
-
-t1 = threading.Thread(target=put, args=())
-t1.start()
-t2 = threading.Thread(target=get, args=())
-t2.start()
-
-下面把打印的内容省略了一些
-[huawei@n161 ccc]$ python3 1.py
-数字0存入队列成功
-数字0从队列中取出
-数字1存入队列成功
-数字1从队列中取出
-.
-.
-.
-ok
-```
-
-
-### LifoQueue 栈
-
-下面的案例不够好，仅仅用于演示作用而已
-```
-
-import queue
-import threading
-import time
-
-# 可以设置队列的长度 q=queue.LifoQueue(5)，意味着队列中最多存放5个元素,当队列满的时候自动进入阻塞状态
-q=queue.LifoQueue() 
-def put():
-    for i in range(10):
-        q.put(i)
-        print("数据%d被存入到队列中" % i)
-    q.join()
-    print('ok')
-
-def get():
-    for i in range(10):
-        value = q.get()
-        print("数据%d从队列中取出" % value)
-        q.task_done()
-
-t1=threading.Thread(target=put,args=())
-t1.start()
-t2=threading.Thread(target=get,args=())
-t2.start()
-```
-
-### PriorityQueue 优先队列
-
-在将数据存入到优先队列 PriorityQueue 时，设置的值越小，优先级越高；按优先级：不管是数字、字母、列表 list 、元组 tuple 等（字典 dict 、集合 set 没测），使用优先级存数据取数据，队列中的数据必须是同一类型，都是按照实际数据的 ascii 码表的顺序进行优先级匹配，汉字是按照 unicode 表。
 
 ## 线程池 ThreadPoolExecutor
 https://www.codersrc.com/archives/6707.html
@@ -7549,7 +7542,374 @@ https://www.codersrc.com/archives/6707.html
 http://www.gaohaiyan.com/2667.html
 
 
-# 容器
-## 
+# 其它容器
+
+## 内存视图 memoryview
+## NumPy
+## SciPy
+
+## 堆
+heapq 模块提供了基于常规列表来实现堆的函数。 最小值的条目总是保持在位置零。 这对于需要重复访问最小元素而不希望运行完整列表排序的应用来说非常有用
+
+## Queue 队列
+
+先进先出(First In First Out: FIFO)队列
+
+queue.Queue(maxsize=0) 入参 maxsize 是一个整数，用于设置队列的最大长度。一旦队列达到上限，插入数据将会被阻塞，直到有数据出队列之后才可以继续插入。如果 maxsize 设置为小于或等于零，则队列的长度没有限制。
+
+```
+import queue
+q = queue.Queue()  # 创建 Queue 队列
+for i in range(3):
+    q.put(i)  # 在队列中依次插入0、1、2元素
+for i in range(3):
+    print(q.get())  # 依次从队列中取出插入的元素，数据元素输出顺序为0、1、2
+
+[huawei@n161 ccc]$ python3 1.py
+0
+1
+2
+```
+
+方法：
+- Queue.qsize —返回队列大小
+- Queue.empty —判断队列是否为空
+- Queue.full —判断队列是否满了
+- Queue.get(block=True, timeout=None) 从队列中取出数据并返回该数据内容。
+    - block，当队列中没有数据元素继续取数据时：如果 block=False，直接引发 queue.Empty 异常；如果 block=True，且 timeout=None，则一直等待直到有数据入队列后可以取出数据；如果 block=True，且 timeout=N，N 为某一正整数时，则等待 N 秒，如果队列中还没有数据放入的话就引发 queue.Empty 异常。
+    - timeout，设置超时时间。
+- Queue.get_nowait() 相当于 Queue.get(block=False)block，当队列中没有数据元素继续取数据时直接引发 queue.Empty 异常。
+- Queue.task_done 表示队列内的数据元素已经被取出，即每个 get 用于获取一个数据元素， 后续调用 task_done 告诉队列，该数据的处理已经完成。如果被调用的次数多于放入队列中的元素个数，将引发 ValueError 异常。
+- Queue.put(item, block=True, timeout=None)   
+    - item，放入队列中的数据元素。
+    - block，当队列中元素个数达到上限继续往里放数据时：如果 block=False，直接引发 queue.Full 异常；如果 block=True，且 timeout=None，则一直等待直到有数据出队列后可以放入数据；如果 block=True，且 timeout=N，N 为某一正整数时，则等待 N 秒，如果队列中还没有位置放入数据就引发 queue.Full 异常。
+    - timeout，设置超时时间。
+- Queue.put_nowait(item) 相当于 Queue.put(item, block=False)，当队列中元素个数达到上限继续往里放数据时直接引发 queue.Full 异常。
+- Queue.join 一直阻塞直到队列中的所有数据元素都被取出和执行，只要有元素添加到 queue 中就会增加。当未完成任务的计数等于0，join 就不会阻塞。
+
+案例：生产者和消费者线程分别生产数据和消费数据，先生产后消费。采用 task_done 和 join 确保处理信息在多个线程间安全交换，生产者生产的数据能够全部被消费者消费掉。
+```
+from queue import Queue
+import random
+import threading
+import time
+
+#生产者线程
+class Producer(threading.Thread):
+    def __init__(self, t_name, queue):
+        threading.Thread.__init__(self, name=t_name)
+        self.data=queue
+    def run(self):
+        for i in range(5):
+            print ("%s: %s is 生产 %d to the queue!" %(time.ctime(), self.getName(), i))
+            self.data.put(i)  # 将生产的数据放入队列
+            time.sleep(random.randrange(10)/5)
+        print ("%s: %s finished!" %(time.ctime(), self.getName()))
+
+#消费者线程
+class Consumer(threading.Thread):
+    def __init__(self, t_name, queue):
+        threading.Thread.__init__(self, name=t_name)
+        self.data=queue
+    def run(self):
+        for i in range(5):
+            val = self.data.get()  # 拿出已经生产好的数据
+            print ("%s: %s is 消费. %d in the queue is consumed!" %(time.ctime(), self.getName(), val))
+            time.sleep(random.randrange(5))
+            self.data.task_done() # 告诉队列有关这个数据的任务已经处理完成
+        print ("%s: %s finished!" %(time.ctime(), self.getName()))
+
+#主线程
+def main():
+    queue = Queue()
+    producer = Producer('生产者.', queue)
+    consumer = Consumer('消费者.', queue)
+    producer.start()
+    consumer.start()
+    queue.join()  # 阻塞，直到生产者生产的数据全都被消费掉
+    producer.join() # 等待生产者线程结束
+    consumer.join() # 等待消费者线程结束
+    print ('All threads terminate!')
+ 
+if __name__ == '__main__':
+    main()
+
+[huawei@n161 ccc]$ python3 1.py
+Wed Oct 12 14:20:05 2022: 生产者. is 生产 0 to the queue!
+Wed Oct 12 14:20:05 2022: 消费者. is 消费. 0 in the queue is consumed!
+Wed Oct 12 14:20:06 2022: 生产者. is 生产 1 to the queue!
+Wed Oct 12 14:20:08 2022: 生产者. is 生产 2 to the queue!
+Wed Oct 12 14:20:09 2022: 生产者. is 生产 3 to the queue!
+Wed Oct 12 14:20:09 2022: 消费者. is 消费. 1 in the queue is consumed!
+Wed Oct 12 14:20:09 2022: 消费者. is 消费. 2 in the queue is consumed!
+Wed Oct 12 14:20:09 2022: 生产者. is 生产 4 to the queue!
+Wed Oct 12 14:20:09 2022: 生产者. finished!
+Wed Oct 12 14:20:12 2022: 消费者. is 消费. 3 in the queue is consumed!
+Wed Oct 12 14:20:14 2022: 消费者. is 消费. 4 in the queue is consumed!
+Wed Oct 12 14:20:18 2022: 消费者. finished!
+All threads terminate!
+
+```
+
+
+
+## LifoQueue 栈
+
+queue.LifoQueue(maxsize=0)  入参 maxsize 与先进先出队列的定义一样。
+
+```
+import queue
+q = queue.LifoQueue()  # 创建 LifoQueue 队列
+for i in range(3):
+    q.put(i)  # 在队列中依次插入0、1、2元素
+for i in range(3):
+    print(q.get())  # 依次从队列中取出插入的元素，数据元素输出顺序为2、1、0
+
+[huawei@n161 ccc]$ python3 1.py
+2
+1
+0
+
+```
+
+## PriorityQueue 优先队列
+
+PriorityQueue(maxsize=0) 入参 maxsize 与先进先出队列的定义一样。
+
+优先级队列，比较队列中每个数据的大小，值最小的数据拥有出队列的优先权。数据一般以元组的形式插入，典型形式为(priority_number, data)。如果队列中的数据没有可比性，那么数据将被包装在一个类中，忽略数据值，仅仅比较优先级数字。
+
+```
+import queue
+q = queue.PriorityQueue()  # 创建 PriorityQueue 队列
+data1 = (1, 'python')
+data2 = (2, '-')
+data3 = (3, '100')
+style = (data2, data3, data1)
+for i in style:
+    q.put(i)  # 在队列中依次插入元素 data2、data3、data1
+for i in range(3):
+    print(q.get())  # 依次从队列中取出插入的元素，数据元素输出顺序为 data1、data2、data3
+
+[huawei@n161 ccc]$ python3 1.py
+(1, 'python')
+(2, '-')
+(3, '100')
+```
+
+## SimpleQueue 低配队列
+
+SimpleQueue 是 Python 3.7 版本中新加入的特性，与 Queue、LifoQueue 和 PriorityQueue 三种队列相比缺少了 task_done 和 join 的高级使用方法，所以才会取名叫 Simple 了
+
+## namedtuple 具名元祖
+- 命名元组是元组的子类，既可以通过名称（使用 .name）来访问其中的值，也可以通过位置进行访问（使用[offset]）
+- 它无论看起来还是使用起来都和不可变对象非常相似
+- 具名元组的实例也很节省空间，与使用对象相比，使用命名元组在时间和空间上效率更高。
+- 可以使用点号（.）对特性进行访问，而不需要使用字典风格的方括号
+- 可以把它作为字典的键
+- 用以构建只有少数属性但是没有方法的对象
+
+简单使用
+```
+from collections import namedtuple
+Duck = namedtuple('Duck', 'bill tail')
+duck = Duck('wide orange', 'long')
+print(duck)
+print(duck.bill)
+print(duck.tail)
+
+parts = {'bill': 'wide orange', 'tail': 'long'} # 用字典来构造命名元组
+duck2 = Duck(**parts) # **作用是将 parts 字典中的键和值抽取出来作为参数提供给 Duck() 使用。等同于 duck2 = Duck(bill = 'wide orange', tail = 'long')
+print(duck2)
+duck3 = duck2._replace(tail='magnificent', bill='crushing')	# 命名元组是不可变的，但可以替换其中某些域的值并返回一个新的命名元组
+print(duck3)
+
+
+duck_dict = {'bill': 'wide orange', 'tail': 'long'}
+print(duck_dict)
+duck_dict['color'] = 'green'	# 可以向字典里添加新的键值对
+print(duck_dict)
+
+duck.color = 'green'	# err 但无法对命名元组这么做
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+Duck(bill='wide orange', tail='long')
+wide orange
+long
+Duck(bill='wide orange', tail='long')
+Duck(bill='crushing', tail='magnificent')
+{'bill': 'wide orange', 'tail': 'long'}
+{'bill': 'wide orange', 'tail': 'long', 'color': 'green'}
+Traceback (most recent call last):
+  File "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py", line 22, in <module>
+    duck.color = 'green'        # 但无法对命名元组这么做
+AttributeError: 'Duck' object has no attribute 'color'
+```
+
+
+高级使用，类似struct，可以快速定义结构并创建变量，但仅有属性不能有方法
+- _fields
+- _make()
+- _asdict()
+
+```
+from collections import namedtuple
+City = namedtuple('City', 'name country population coordinates')	# 参数是类名，另一个是类的各个字段的名字
+tokyo = City('Tokyo', 'JP', 36.933, (35.689722, 139.691667))	# 创建对象
+print(tokyo)	# 访问
+print(tokyo.population)
+print(tokyo.coordinates)
+print(tokyo[1])
+print(City._fields)	# _fields 属性是一个包含这个类所有字段名称的元组。
+
+
+LatLong = namedtuple('LatLong', 'lat long')
+delhi_data = ('Delhi NCR', 'IN', 21.935, LatLong(28.613889, 77.208889))
+delhi = City._make(delhi_data)	# 用_make()通过接受一个可迭代对象来生成这个类的一个实例，它的作用跟City(*delhi_data)是一样的
+
+print(delhi._asdict())	#_asdict()把具名元组以collections.OrderedDict的形式返回，下面是迭代每一项
+for key, value in delhi._asdict().items():
+	print(key + ':', value)
+
+
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+City(name='Tokyo', country='JP', population=36.933, coordinates=(35.689722, 139.691667))
+36.933
+(35.689722, 139.691667)
+JP
+('name', 'country', 'population', 'coordinates')
+OrderedDict([('name', 'Delhi NCR'), ('country', 'IN'), ('population', 21.935), ('coordinates', LatLong(lat=28.613889, long=77.208889))])
+name: Delhi NCR
+country: IN
+population: 21.935
+coordinates: LatLong(lat=28.613889, long=77.208889)
+```
+## ChainMap 
+
+ChainMap() 可以将多个字典集合到一个字典中去，对外提供一个统一的视图。注意：该操作并是不将所有字典做了一次拷贝，实际上是在多个字典的上层又进行了一次封装而已。
+
+```
+from collections import ChainMap
+
+user1 = {"name":"admin", "age":"20"}
+user2 = {"name":"root", "weight": 65}
+users = ChainMap(user1, user2)
+print(users.maps)
+
+users.maps[0]["name"] = "tiger"
+print(users.maps)
+
+for key, value in users.items():
+    print(key, value)
+
+[huawei@n161 ccc]$ python3 1.py
+[{'name': 'admin', 'age': '20'}, {'name': 'root', 'weight': 65}]
+[{'name': 'tiger', 'age': '20'}, {'name': 'root', 'weight': 65}]
+age 20
+weight 65
+name tiger
+```
+如果 ChainMap() 中的多个字典有重复 key，查看的时候可以看到所有的 key，但遍历的时候却只会遍历 key 第一次出现的位置，其余的忽略。同时，我们可以通过返回的新的视图来更新原来的的字典数据。进一步验证了该操作不是做的拷贝，而是直接指向原字典。
+
+
+## deque 双向队列
+dqueue 是 ”double-ended queue” 的简称，是一种类似列表(list)的容器，实现了在两端快速添加(append)和弹出(pop)操作。在中间查找的速度较慢。 此种对象适用于实现队列和广度优先树搜索
+
+- 是一个线程安全、可以快速从两端添加或者删除元素的数据类型。
+- 主要的方法参见“流畅的python 2.9.4”
+
+```
+from collections import deque
+q = deque([1, 2, 3])
+q.append('4')
+q.appendleft('0')
+print(q)
+print(q.popleft())
+
+[huawei@n161 ccc]$ python3 1.py
+deque(['0', 1, 2, 3, '4'])
+0
+```
+另一个案例
+```
+from collections import deque
+dq = deque(range(10), maxlen=10)	# maxlen 是一个可选参数，代表这个队列可以容纳的元素的数量，而且一旦设定，这个属性就不能修改了。
+print(dq)
+dq.rotate(3)	# 队列的旋转操作接受一个参数 n，当 n > 0 时，队列的最右边的 n 个元素会被移动到队列的左边。当 n < 0 时，最左边的 n 个元素会被移动到右边。
+print(dq)
+dq.rotate(-4) 
+print(dq)
+dq.appendleft(-1)	# 当试图对一个已满（len(d) == d.maxlen）的队列做头部添加操作的时候，它尾部的元素会被删除掉。注意在下一行里，元素 0 被删除了。
+print(dq)
+dq.extend([11, 22, 33])	# 在尾部添加 3 个元素的操作会挤掉 -1、1 和 2。
+print(dq)
+dq.extendleft([10, 20, 30, 40])	# extendleft(iter) 方法会把迭代器里的元素逐个添加到双向队列的左边，因此迭代器里的元素会逆序出现在队列里。
+print(dq)
+
+[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+deque([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], maxlen=10)
+deque([7, 8, 9, 0, 1, 2, 3, 4, 5, 6], maxlen=10)
+deque([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], maxlen=10)
+deque([-1, 1, 2, 3, 4, 5, 6, 7, 8, 9], maxlen=10)
+deque([3, 4, 5, 6, 7, 8, 9, 11, 22, 33], maxlen=10)
+deque([40, 30, 20, 10, 3, 4, 5, 6, 7, 8], maxlen=10)
+``` 
+## Counter 统计重复个数
+
+Counter 可以简单理解为一个计数器，可以统计每个元素出现的次数，同样 Counter() 是需要接受一个可迭代的对象的。其实一个 Counter 就是一个字典，其额外提供的 most_common() 函数通常用于求 Top k 问题。
+```
+from collections import Counter
+
+animals = ["cat", "dog", "cat", "bird", "horse", "tiger", "horse", "cat"]
+animals_counter = Counter(animals)
+print(animals_counter)
+print(animals_counter.most_common(2))
+
+[huawei@n161 ccc]$ python3 1.py
+Counter({'cat': 3, 'horse': 2, 'dog': 1, 'bird': 1, 'tiger': 1})
+[('cat', 3), ('horse', 2)]
+```
+
+## OrderedDict
+
+OrderedDict 是字典的子类，保证了元素的插入顺序。在 3.7 版本下，字典同样也保证了元素的插入顺序。那相比内置字典 OrderedDict 有哪些升级呢。
+- 算法上， OrderedDict 可以比 dict 更好地处理频繁的重新排序操作。在跟踪最近的访问这种场景（例如在 LRU cache）下非常适用。
+- OrderedDict 类有一个 move_to_end() 方法，可以有效地将元素移动到任一端。
+
+```
+from collections import OrderedDict
+
+user = OrderedDict()
+user["name"] = "admin"
+user["age"] = 23
+user["weight"] = 65
+print(user)
+user.move_to_end("name") # 将元素移动至末尾
+print(user)
+user.move_to_end("name", last = False) # 将元素移动至开头
+print(user)
+
+[huawei@n161 ccc]$ python3 1.py
+OrderedDict([('name', 'admin'), ('age', 23), ('weight', 65)])
+OrderedDict([('age', 23), ('weight', 65), ('name', 'admin')])
+OrderedDict([('name', 'admin'), ('age', 23), ('weight', 65)])
+```
+
+## defaultdict 
+
+defaultdict 是内置 dict 类的子类。它实现了当 key 不存在是返回默认值的功能，除此之外，与内置 dict 功能完全一样。
+```
+from collections import defaultdict
+
+default_dict = defaultdict(int)
+default_dict["x"] = 10
+print(default_dict["x"])
+print(default_dict["y"])
+
+[huawei@n161 ccc]$ python3 1.py
+10
+0   
+```
+
 # 网络通信
 ## urllib.request
