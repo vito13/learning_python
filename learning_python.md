@@ -12,7 +12,7 @@ Python Cookbook（第3版）
 
 看漫画学Python							还差第15章
 
-http://www.ityouknow.com/python.html    再继续35
+http://www.ityouknow.com/python.html    再继续78
 
 ---
 # 基础知识
@@ -133,7 +133,7 @@ import sys, pprint
 pprint.pprint(sys.path) 
 
 [huawei@n148 pytest]$ python3 pyth.py 
-['/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest',
+['/home/huawei/hwwork/doc/md/aaa/pytest',
  '/usr/local/lib/python3.6/site-packages/setuptools-19.6-py3.6.egg',
  '/usr/lib64/python36.zip',
  '/usr/lib64/python3.6',
@@ -262,10 +262,10 @@ change_local()
 print('globals:', globals())
 print(animal)
 
-[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
+[huawei@n148 doc]$ python -u "/home/huawei/hwwork/doc/md/aaa/pltest/pyth.py"
 fruitbat
 ('locals:', {'animal': 'wombat'})
-('globals:', {'__builtins__': <module '__builtin__' (built-in)>, '__file__': '/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py', '__package__': None, 'change_local': <function change_local at 0x7f9b8b392758>, 'animal': 'fruitbat', '__name__': '__main__', '__doc__': None})
+('globals:', {'__builtins__': <module '__builtin__' (built-in)>, '__file__': '/home/huawei/hwwork/doc/md/aaa/pltest/pyth.py', '__package__': None, 'change_local': <function change_local at 0x7f9b8b392758>, 'animal': 'fruitbat', '__name__': '__main__', '__doc__': None})
 fruitbat
 ```
 
@@ -376,7 +376,7 @@ print(animal)
 change_and_print_global()
 print(animal)
 
-[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
+[huawei@n148 doc]$ python -u "/home/huawei/hwwork/doc/md/aaa/pltest/pyth.py"
 fruitbat
 ('inside change_and_print_global:', 'wombat')
 wombat
@@ -486,7 +486,7 @@ print(country_code)
 country_code = {code: country.upper() for country, code in country_code.items() if code < 66}
 print(country_code)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 {'China': 86, 'India': 91, 'United States': 1, 'Indonesia': 62, 'Brazil': 55, 'Pakistan': 92, 'Bangladesh': 880, 'Nigeria': 234, 'Russia': 7, 'Japan': 81}
 {1: 'UNITED STATES', 62: 'INDONESIA', 55: 'BRAZIL', 7: 'RUSSIA'}
 ```
@@ -500,7 +500,7 @@ from unicodedata import name
 s = {chr(i) for i in range(32, 256) if 'SIGN' in name(chr(i),'')}
 print(s)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 {'®', '§', '±', '<', '%', '°', '©', '¥', '¶', '+', '¤', '#', '¬', '÷', '$', '=', '£', '>', '¢', 'µ', '×'}
 ```
 
@@ -562,7 +562,7 @@ alphabet = 'abcdefg' + \
 
 print(alphabet)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 abcdefghijklmnopqrstuvwxyz
 ```
 ## 大写、小写、首字母大小
@@ -619,7 +619,7 @@ print(len(letters))
 letters = 'abcdefghijklmnopqrstuvwxyz'
 print(letters.startswith('abc'))
 print(letters.endswith('abc'))
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 True
 False
 ```
@@ -628,7 +628,7 @@ False
 filenames = [ 'Makefile', 'foo.c', 'bar.py', 'spam.c', 'spam.h' ] 
 print([name for name in filenames if name.endswith(('.c', '.h')) ])
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 ['foo.c', 'spam.c', 'spam.h']
 ```
 ## 判断都是字母数字
@@ -661,7 +661,7 @@ print(letters[2])
 print(letters[-1])
 print(letters[-2])
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 a
 b
 c
@@ -753,7 +753,7 @@ for line in lines:
 print(pi_string)
 print(len(pi_string))
 
-[huawei@n148 pytest]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 pytest]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 3.141592653589793238462643383279
 32
 
@@ -867,7 +867,7 @@ name = 'Henny'
 print(name.replace('H', 'P'))
 print('P' + name[1:])
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 Penny
 Penny
 ```
@@ -938,7 +938,7 @@ print(pi_string)
 print(f"{pi_string[:20]}...")
 print(len(pi_string))
 
-[huawei@n148 pytest]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 pytest]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 3.141592653589793238462643383279
 3.141592653589793238...
 32
@@ -963,7 +963,7 @@ ds = snowman.encode('utf-8')	# 将Unicode字符编码为字节序列。UTF-8 是
 print(len(ds))	# 占用了 3 字节的空间，注意不是所有单个 Unicode字符都是3
 print(ds)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 ☃
 1
 3
@@ -986,7 +986,7 @@ print(place2)
 print(len(place2))
 print(type(place2))
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 café
 4
 <class 'str'>
@@ -1193,7 +1193,7 @@ print(fruits)
 fruits.sort()
 print(fruits)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 ['apple', 'banana', 'grape', 'raspberry']
 ['grape', 'raspberry', 'apple', 'banana']
 ['raspberry', 'grape', 'banana', 'apple']
@@ -1299,7 +1299,7 @@ knights.index('herring')	# err
 marxes = ['Groucho', 'Chico', 'Harpo']
 print(', '.join(marxes))
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 Groucho, Chico, Harpo
 ```
 ## 遍历
@@ -1469,7 +1469,7 @@ french = 'Lundi', 'Mardi', 'Mercredi'
 print(list(zip(english, french)))
 print(dict(zip(english, french)))
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 [('Monday', 'Lundi'), ('Tuesday', 'Mardi'), ('Wednesday', 'Mercredi')]
 {'Monday': 'Lundi', 'Tuesday': 'Mardi', 'Wednesday': 'Mercredi'}
 ```
@@ -1515,7 +1515,7 @@ print(a)
 print(b)
 print(c)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 ()
 ('Groucho',)
 ('Groucho', 'Chico', 'Harpo')
@@ -1534,7 +1534,7 @@ for passport in sorted(traveler_ids):
 for country, _ in traveler_ids:		# 元祖拆包后的第二个元素没有，用占位符代替
 	print(country)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 BRA/CE342567
 ESP/XDA205856
 USA/31195855
@@ -1603,7 +1603,7 @@ for name, cc, pop, (latitude, longitude) in metro_areas:
 	if longitude <= 0:
 		print(fmt.format(name, latitude, longitude))
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
                 |   lat.    |   long.  
 Mexico City     |   19.4333 |  -99.1333
 New York-Newark |   40.8086 |  -74.0204
@@ -1946,7 +1946,7 @@ signals['blue'] = 'confuse everyone'
 print(signals)
 print(original_signals)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 {'green': 'go', 'yellow': 'go faster', 'red': 'smilefor the camera', 'blue': 'confuse everyone'}
 {'green': 'go', 'yellow': 'go faster', 'red': 'smilefor the camera'}
 ```  
@@ -1993,7 +1993,7 @@ print(set(['Dasher', 'Dancer', 'Prancer', 'Mason-Dixon']))	# 基于列表
 print(set(('Ummagumma', 'Echoes', 'Atom Heart Mother')))	# 基于元组
 print(set({'apple': 'red', 'orange': 'orange', 'cherry': 'red'}))	# 基于字典，仅使用k
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 set()
 {0, 2, 4, 6, 8}
 {'s', 'l', 'e', 't', 'r'}
@@ -2032,7 +2032,7 @@ print(bool1)
 x = set1.copy()	# 深拷贝
 print(x)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 {'apple', 'kkk', 'banana', 'pear', 'orange'}
 {'ppp', 'apple', 'kkk', 'banana', 'pear', 'orange'}
 {'ppp', 'apple', 'kkk', 'banana', 'orange'}
@@ -2056,7 +2056,7 @@ for name, contents in drinks.items():
 	if 'vodka' in contents and not ('vermouth' in contents or 'cream' in contents):
 		print(name)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 black russian
 screwdriver
 ```
@@ -2115,7 +2115,7 @@ stooges = ['Moe', 'Curly', 'Larry']
 tuple_of_lists = marxes, pythons, stooges
 print(tuple_of_lists)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 (['Groucho', 'Chico', 'Harpo'], ['Chapman', 'Cleese', 'Gilliam', 'Jones', 'Palin'], ['Moe', 'Curly', 'Larry'])
 ```
 ## 字典的k是元祖
@@ -2128,7 +2128,7 @@ houses = {
 
 print(houses)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 {(44.79, -93.14, 285): 'My House', (38.89, -77.03, 13): 'The White House'}
 ```
 ## 列表里存列表
@@ -2143,7 +2143,7 @@ print(all_birds)
 print(all_birds[0])
 print(all_birds[1][0])
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pytest/pyth.py"
 [['hummingbird', 'finch'], ['dodo', 'passenger pigeon', 'Norwegian Blue'], 'macaw', [3, 'French hens', 2, 'turtledoves']]
 ['hummingbird', 'finch']
 dodo
@@ -2167,7 +2167,7 @@ print(board)
 board[2][0] = 'X'
 print(board)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 [['_', '_', '_'], ['_', '_', '_'], ['_', '_', '_']]
 [['_', '_', '_'], ['_', '_', 'X'], ['_', '_', '_']]
 
@@ -2183,7 +2183,7 @@ print(weird_board)
 weird_board[1][2] = 'O'
 print(weird_board)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 [['_', '_', '_'], ['_', '_', '_'], ['_', '_', '_']]
 [['_', '_', 'O'], ['_', '_', 'O'], ['_', '_', 'O']]
 ```
@@ -2350,7 +2350,7 @@ fp.close()
 print(floats2[-1])	# 最末元素
 print(floats2 == floats)	# 判断数组相同
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 0.4028576664776865
 0.4028576664776865
 True
@@ -2374,7 +2374,7 @@ print(b'\x01abc\xff')	# 无对应，原样显示
 the_bytes = bytes(range(0, 256))	# 建一个包含 0到255 的所有数的bytes 
 print(the_bytes)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 b'\x01\x02\x03\xff'
 b'a'
 b'\x01abc\xff'
@@ -2395,7 +2395,7 @@ print(the_byte_array)
 the_byte_array = bytearray(range(0, 256))	# 建一个包含 0到255 的所有数的bytearray
 print(the_byte_array)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 bytearray(b'\x01\x02\x03\xff')
 bytearray(b'\x01\x7f\x03\xff')
 bytearray(b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff')
@@ -2705,9 +2705,9 @@ for n in range(99, 0, -1):
 - try  
 仅当 try 块中没有异常抛出时才运行 else 块。
 
-# 迭代
+# 迭代器
 
-## 迭代器
+
 - 迭代器（iterator）是一种可在容器（container）中遍访的接口，为使用者封装了内部逻辑。
 - 迭代器是这样的对象：实现了无参数的 __next__ 方法，返回序列中的下一个元素；
 - 如果没有元素了，那么抛出 StopIteration 异常。
@@ -3140,6 +3140,218 @@ for i in iter(d10, 5):
 
 
 
+## itertools模块
+
+在 Python 中，迭代器是一种非常好用的数据结构，其最大的优势就是延迟生成，按需使用，从而大大提高程序的运行效率。而 itertools 作为 Python 的内置模块，就为我们提供了一套非常有用的用于操作可迭代对象的函数。注意一点，他返回的不是list，而是iterator
+
+### 无穷迭代器
+
+- count(start, [step]) 其中 step 是默认参数，可选的，默认值为 1。 该函数返回一个新的迭代器，从 start 开始，返回以 step 为步长的均匀间隔的值。会创建一个无限迭代器，从当前数字无限循环下去，停止可以按Ctrl+c键
+- cycle( p)会把传入的序列无限的循环打印
+- repeat(elem [,n])可以把一个元素无限循环，当然如果指定 times 的话，则只会重复 times 次。
+```
+import itertools
+# for i in itertools.count(1, 2):
+#     print(i)    # 1,3,5...
+
+# for i in itertools.cycle("XYZ"):
+#     print(i)    # x,y,z,x,y,z...
+
+for i in itertools.repeat("XYZ", 7): # 可以添加第二个参数来限制个数，默认无限
+    print(i)    # xyz,xyz...
+```
+### 有限迭代器
+
+- chain(p,q…)可以把一组迭代对象串联起来，形成一个更大的迭代器
+- groupby(iterable,key=None])把迭代器中相邻的元素按照key函数分组，当key=None时，把相邻的重复元素进行分组
+- accumulate()
+
+```
+import itertools
+
+import itertools
+for i in itertools.chain("abc", "123"):
+    print(i)    # a,b,c,1,2,3
+
+
+
+def sortBy(score):
+	if score > 80:
+		return "A"
+	elif score >= 60:
+		return "B"
+	else:
+		return "C"
+
+scores = [81, 82, 84, 76, 64, 78, 59, 44, 55, 89]
+scores = sorted(scores, key=sortBy)  # 这里需要先排序，否则90会被放到新的分组，原因见 http://www.ityouknow.com/python/2019/10/23/python-itertools-039.html
+for m, n in itertools.groupby(scores, key=sortBy):
+	print(m, list(n))
+
+[huawei@n161 ccc]$ python3 1.py
+A [81, 82, 84, 89]
+B [76, 64, 78]
+C [59, 44, 55]
+```
+
+### 排列组合迭代器
+
+- product(*iterables, repeat=1) 输出可迭代对象的笛卡尔积，有点类似于嵌套循环。其中 repeat 可以设置循环次数。
+- permutations(iterable, r=None) 返回 iterable 中长度为 r 的所有排列。默认值 r 为 iterable 的长度。即使元素的值相同，不同位置的元素也被认为是不同的。即认为('a', 'b')与('b', 'a')不同，否则需使用combinations方法，会去重
+- combinations(iterable, r=None) 返回 iterable 中长度为 r 的有序排列。默认值 r 为 iterable 的长度。 与 permutations 操作不同的是该函数严格按照 iterable 中元素的顺序进行排列。
+- combinations_with_replacement(iterable, r=None) 返回 iterable 中长度为 r 的有序排列。默认值 r 为 iterable 的长度。 与 combinations 操作不同的是该函数允许每个元素重复出现。
+
+```
+取排列组合
+import itertools
+for i in itertools.product("ab", "12"):
+    print(i)
+print(list(itertools.product("34", "56")))
+print(list(itertools.product("cd", repeat=2)))
+
+[huawei@n161 ccc]$ python3 1.py
+('a', '1')
+('a', '2')
+('b', '1')
+('b', '2')
+[('3', '5'), ('3', '6'), ('4', '5'), ('4', '6')]
+[('c', 'c'), ('c', 'd'), ('d', 'c'), ('d', 'd')]
+
+
+取所有排列组合，当r大于参数len则组合为空
+import itertools
+for i in itertools.permutations("abc", r=2):
+    print(i)
+
+print(list(itertools.permutations("123", r=4)))
+[huawei@n161 ccc]$ python3 1.py
+('a', 'b')
+('a', 'c')
+('b', 'a')
+('b', 'c')
+('c', 'a')
+('c', 'b')
+[]
+
+
+与permutations不一样，认为('a', 'b')与('b', 'a')相同，会去除这类重复
+import itertools
+for i in itertools.combinations("abc", r=2):
+    print(i)
+
+print(list(itertools.combinations("123", r=4)))
+
+[huawei@n161 ccc]$ python3 1.py
+('a', 'b')
+('a', 'c')
+('b', 'c')
+[]
+
+
+与前面的不同，允许出现('a', 'a')、('b', 'b')这类
+import itertools
+for i in itertools.combinations_with_replacement("abc", r=2):
+    print(i)
+
+print(list(itertools.combinations_with_replacement("123", r=2)))
+
+[huawei@n161 ccc]$ python3 1.py
+('a', 'a')
+('a', 'b')
+('a', 'c')
+('b', 'b')
+('b', 'c')
+('c', 'c')
+[('1', '1'), ('1', '2'), ('1', '3'), ('2', '2'), ('2', '3'), ('3', '3')]
+```
+
+### 比较
+- compress(data, selectors) 该函数功能很简单，就是根据 selectors 中的值判断是否保留 data 中对应位置的值。
+```
+import itertools
+data = [81, 82, 84, 76, 64, 78]
+tf = [1,1,0,1,1,0]
+print(list(itertools.compress(data, tf)))
+
+# 输出结果如下
+[81, 82, 76, 64]
+
+```
+- dropwhile(predicate, iterable) 创建一个迭代器，从 predicate 首次为 false 时开始迭代元素。
+```
+import itertools
+x = itertools.dropwhile(lambda x: x < 5, [1,3,5,7,4,2,1])
+print(list(x))
+
+# 输出结果如下。即使 predicate 首次为 false 后面的元素不满足 predicate 也同样会被迭代。
+[5, 7, 4, 2, 1]
+```
+- filterfalse(predicate, iterable) 创建一个迭代器，返回 iterable 中 predicate 为 false 的元素。
+```
+import itertools
+x = itertools.filterfalse(lambda x: x < 5, [1,3,5,7,4,2,1])
+print(list(x))
+
+# 输出结果如下
+[5, 7]
+```
+- islice(iterable, start, stop[, step]) 对 iterable 进行切片操作。从 start 开始到 stop 截止，同时支持以步长为 step 的跳跃。
+```
+import itertools
+print(list(itertools.islice('123456789', 2)))
+print(list(itertools.islice('123456789', 2, 4)))
+print(list(itertools.islice('123456789', 2, None)))
+print(list(itertools.islice('123456789', 0, None, 2)))
+
+# 输出结果如下
+['1', '2']
+['3', '4']
+['3', '4', '5', '6', '7', '8', '9']
+['1', '3', '5', '7', '9']
+```
+
+- starmap(function, iterable) 从可迭代对象中获取参数来执行该函数。
+```
+import itertools
+print(list(itertools.starmap(pow,[(2,10), (3,3)])))
+
+# 输出结果如下
+[1024, 27]
+```
+- takewhile(predicate, iterable) 创建一个迭代器，遇到 predicate 为 false 则停止迭代元素。与 dropwhile 完全相反。
+
+```
+import itertools
+x = itertools.takewhile(lambda x: x < 5, [1,3,5,7,4,2,1])
+print(list(x))
+
+# 输出结果如下
+[1, 3]
+```
+
+### 其余
+- accumulate(iterable [,func])是一个计算迭代器，如果不指定参数函数，将会采取默认的求和函数
+```
+import itertools
+for i in itertools.accumulate([1,2,4,5,3]):
+    print(i)
+
+也可以指定参数函数，比如求最大值
+for i in itertools.accumulate([1,2,4,5,3], max):
+    print(i)
+
+[huawei@n161 ccc]$ python3 1.py
+1
+3
+7
+12
+15
+1
+2
+4
+5
+5
+```
 
 # 函数
 ## 定义、传值、默认值、类型
@@ -3382,7 +3594,7 @@ print(tag(**my_tag))	在 my_tag 前面加上 **，字典中的所有元素作为
 具名参数上，余下的则被 **attrs 捕获。
 
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 <br />
 <p>hello</p>
 <p>hello</p>
@@ -3649,7 +3861,7 @@ edit_story(stairs, enliven)
 print("-----lambda:")
 edit_story(stairs, lambda word: word.capitalize() + '!')
 
-[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
+[huawei@n148 doc]$ python -u "/home/huawei/hwwork/doc/md/aaa/pltest/pyth.py"
 -----func:
 Thud!
 Meow!
@@ -3710,7 +3922,7 @@ def main():
 if __name__=='__main__':
 	main()
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 running register(<function f1 at 0x7fe2d585b1e0>)	# register 在模块中其他函数之前运行了两次
 running register(<function f2 at 0x7fe2d585b268>)	# 如果仅仅是导入此py则只会打印出这两句，因不会执行main函数
 running main()
@@ -3753,7 +3965,7 @@ print(b)
 print(b())
 
 
-[huawei@n148 postdb_doc]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pltest/pyth.py"
+[huawei@n148 doc]$ python -u "/home/huawei/hwwork/doc/md/aaa/pltest/pyth.py"
 <type 'function'>
 <function inner2 at 0x7f814caec7d0>
 We are the knights who say: 'Duck'
@@ -3781,7 +3993,7 @@ print(avg(10))
 print(avg(20))
 print(avg(30))
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 10.0
 15.0
 20.0
@@ -3810,7 +4022,7 @@ import sys, pprint
 pprint.pprint(sys.path) 
 
 [huawei@n148 pytest]$ python3 pyth.py 
-['/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pytest',
+['/home/huawei/hwwork/doc/md/aaa/pytest',
  '/usr/local/lib/python3.6/site-packages/setuptools-19.6-py3.6.egg',
  '/usr/lib64/python36.zip',
  '/usr/lib64/python3.6',
@@ -4392,6 +4604,41 @@ bdata = fin.read()
 print(len(bdata))
 fin.close()
 ```
+
+## pathlib模块提供的读写
+- Path.open(mode=’r’)，以 “r” 格式打开 Path 路径下的文件，若文件不存在即创建后打开。
+- Path.read_bytes()，打开 Path 路径下的文件，以字节流格式读取文件内容，等同 open 操作文件的 “rb” 格式。
+- Path.read_text()，打开 Path 路径下的文件，以 str 格式读取文件内容，等同 open 操作文件的 “r” 格式。
+- Path.write_bytes()，对 Path 路径下的文件进行写操作，等同 open 操作文件的 “wb” 格式。
+- Path.write_text()，对 Path 路径下的文件进行写操作，等同 open 操作文件的 “w” 格式。
+
+读写文本
+```
+from pathlib import Path
+currentPath = Path.cwd()
+mkPath = currentPath / 'python-100.txt'
+with mkPath.open('w') as f:  # 创建并以 "w" 格式打开 python-100.txt 文件。
+    f.write('python-100')  # 写入 python-100 字符串。
+f = open(mkPath, 'r')
+print("读取的文件内容为:%s" % f.read())
+f.close()
+
+```
+
+读写文本与二进制文件
+```
+from pathlib import Path
+currentPath = Path.cwd()
+mkPathText = currentPath / 'python-100-text.txt'
+mkPathText.write_text('python-100')
+print("读取的文件内容为:%s" % mkPathText.read_text())
+
+str2byte = bytes('python-100', encoding = 'utf-8')
+mkPathByte = currentPath / 'python-100-byte.txt'
+mkPathByte.write_bytes(str2byte)
+print("读取的文件内容为:%s" % mkPathByte.read_bytes())
+```
+
 ## seek、tell、close
 - seek(offset, from_what) 改变文件当前的位置。offset 移动距离；from_what 起始位置，0 表示开头，1 表示当前位置，2 表示结尾，默认值为 0 ，即开头。
 ```
@@ -4549,6 +4796,155 @@ b'\x80\x03]q\x00(X\x01\x00\x00\x00Aq\x01X\x01\x00\x00\x00Bq\x02X\x01\x00\x00\x00
 ## cvs
 模块支持以逗号分隔值格式直接读取和写入文件，这些格式通常由数据库和电子表格支持。
 
+# 路径操作
+
+## 获取目录
+
+- Path.cwd()，返回文件当前所在目录。
+- Path.home()，返回用户的主目录。
+```
+from pathlib import Path
+currentPath = Path.cwd()
+homePath = Path.home()
+print("文件当前所在目录:%s\n用户主目录:%s" %(currentPath, homePath))
+
+[huawei@n161 ccc]$ python3 1.py
+文件当前所在目录:/home/huawei/hwwork/doc/md/ccc
+用户主目录:/home/huawei
+```
+
+## 目录拼接
+
+斜杠 / 操作符用于拼接路径，比如创建子路径。
+
+```
+from pathlib import Path
+currentPath = Path.cwd()
+newPath = currentPath / 'python-100'
+print("新目录为:%s" %(newPath))
+
+[huawei@n161 ccc]$ python3 1.py
+新目录为:/home/huawei/hwwork/doc/md/ccc/python-100
+```
+
+## 创建、删除目录
+
+- Path.mkdir()，创建给定路径的目录。
+- Path.rmdir()，删除该目录，目录文件夹必须为空。
+
+```
+from pathlib import Path
+currentPath = Path.cwd()
+makePath = currentPath / 'python-100'
+makePath.mkdir()
+print("创建的目录为:%s" %(makePath))
+```
+
+```
+from pathlib import Path
+currentPath = Path.cwd()
+delPath = currentPath / 'python-100'
+delPath.rmdir()
+print("删除的目录为:%s" %(delPath))
+```
+
+
+
+## 获取文件所在目录的不同部分字段
+
+- Path.resolve()，通过传入文件名，返回文件的完整路径。
+- Path.name，可以获取文件的名字，包含后缀名。
+- Path.parent，返回文件所在文件夹的名字。
+- Path.stem，获取文件名不包含后缀名。
+- Path.suffix，获取文件的后缀名。
+- Path.anchor，获取文件所在的盘符。
+
+```
+from pathlib import Path
+txtPath = Path('python-100.txt')
+nowPath = txtPath.resolve()
+print("文件的完整路径为:%s" % nowPath)
+print("文件完整名称为(文件名+后缀名):%s" % nowPath.name)
+print("文件名为:%s" % nowPath.stem)
+print("文件后缀名为:%s" % nowPath.suffix)
+print("文件所在的文件夹名为:%s" % nowPath.parent)
+print("文件所在的盘符为:%s" % nowPath.anchor)
+
+[huawei@n161 ccc]$ python3 1.py
+文件的完整路径为:/home/huawei/hwwork/doc/md/ccc/python-100.txt
+文件完整名称为(文件名+后缀名):python-100.txt
+文件名为:python-100
+文件后缀名为:.txt
+文件所在的文件夹名为:/home/huawei/hwwork/doc/md/ccc
+文件所在的盘符为:/
+```
+## 文件、路径是否存在判断
+
+- Path.exists()，判断 Path 路径是否指向一个已存在的文件或目录，返回 True 或 False。
+- Path.is_dir()，判断 Path 是否是一个路径，返回 True 或 False。
+- Path.is_file()，判断 Path 是否指向一个文件，返回 True 或 False。
+
+```
+from pathlib import Path
+currentPath = Path.cwd() / 'python'
+
+print(currentPath.exists())  # 判断是否存在 python 文件夹，此时返回 False。
+print(currentPath.is_dir())  # 判断是否存在 python 文件夹，此时返回 False。
+
+currentPath.mkdir()  # 创建 python 文件夹。
+
+print(currentPath.exists())  # 判断是否存在 python 文件夹，此时返回 True。
+print(currentPath.is_dir())  # 判断是否存在 python 文件夹，此时返回 True。
+
+currentPath = Path.cwd() / 'python-100.txt'
+
+print(currentPath.exists())  # 判断是否存在 python-100.txt 文件，此时文件未创建返回 False。
+print(currentPath.is_file())  # 判断是否存在 python-100.txt 文件，此时文件未创建返回 False。
+
+f = open(currentPath,'w')  # 创建 python-100.txt 文件。
+f.close()
+
+print(currentPath.exists())  # 判断是否存在 python-100.txt 文件，此时返回 True。
+print(currentPath.is_file())  # 判断是否存在 python-100.txt 文件，此时返回 True。
+
+```
+
+## 文件统计以及匹配查找
+
+- Path.iterdir()，返回 Path 目录文件夹下的所有文件，返回的是一个生成器类型。
+- Path.glob(pattern)，返回 Path 目录文件夹下所有与 pattern 匹配的文件，返回的是一个生成器类型。
+- Path.rglob(pattern)，返回 Path 路径下所有子文件夹中与 pattern 匹配的文件，返回的是一个生成器类型。
+
+
+
+```
+# 使用 Path.iterdir() 获取当前文件下的所有文件，并根据后缀名统计其个数。
+import pathlib
+from collections import Counter
+currentPath = pathlib.Path.cwd()
+print(currentPath)
+gen = (i.suffix for i in currentPath.iterdir())
+print(Counter(gen))
+
+[huawei@n161 ccc]$ python3 1.py
+/home/huawei/hwwork/postdb_doc/mdbooks/ccc
+Counter({'.py': 3, '.json': 2, '': 2, '.txt': 2, '.pl': 1, '.md': 1, '.pdf': 1, '.tex': 1, '.log': 1, '.conf': 1, '.bin': 1})
+```
+
+
+```
+import pathlib
+from collections import Counter
+currentPath = pathlib.Path.cwd() / '..'
+gen = (i.suffix for i in currentPath.glob('*.txt'))  # 获取当前文件下的所有 txt 文件，并统计其个数。
+print(Counter(gen))
+gen = (i.suffix for i in currentPath.rglob('*.md'))  # 获取目录中子文件夹下的所有 md 文件，并统计其个数。
+print(Counter(gen))
+
+[huawei@n161 ccc]$ python3 1.py
+Counter({'.txt': 1})
+Counter({'.md': 1874})
+```
 # 文件与目录
 http://www.ityouknow.com/python/2019/10/09/python-os-demonstration-026.html
 ## 文件操作
@@ -4727,7 +5123,7 @@ print(now + 17*one_day)
 yesterday = now - one_day
 print(yesterday)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 2022-09-09
 2022-09-25
 2022-09-07
@@ -4753,7 +5149,7 @@ strdate = "2022:10:08 17:15:39";
 data = datetime.datetime.strptime(strdate, "%Y:%m:%d %H:%M:%S");
 print(data)
 
-[huawei@n161 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/ccc/1.py"
+[huawei@n161 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/ccc/1.py"
 2014-10-31
 31
 10
@@ -4803,7 +5199,7 @@ print(time.ctime(now))
 print(time.localtime(now))
 print(time.gmtime(now))
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 1662626412.5671046
 Thu Sep  8 16:40:12 2022
 time.struct_time(tm_year=2022, tm_mon=9, tm_mday=8, tm_hour=16, tm_min=40, tm_sec=12, tm_wday=3, tm_yday=251, tm_isdst=0)
@@ -4892,7 +5288,7 @@ if re_content:
 else:
     print("没有匹配到内容")
 
-[huawei@n161 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/ccc/1.py"
+[huawei@n161 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/ccc/1.py"
 <_sre.SRE_Match object; span=(0, 6), match='Python'>
 (0, 6)
 Python
@@ -4913,7 +5309,7 @@ print(result.groups())
 print(result.group(1))
 print(result.group(2))
 
-[huawei@n161 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/ccc/1.py"
+[huawei@n161 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/ccc/1.py"
 <_sre.SRE_Match object; span=(6, 49), match='123456789 Word_This is just a test 666 Test'>
 123456789 Word_This is just a test 666 Test
 ('123456789', '666')
@@ -4959,7 +5355,7 @@ print(regex2.findall(string))
 #输出：['abcdefg  acbdgef', 'abcdgfe  cadbgfe']
 
 
-[huawei@n161 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/ccc/1.py"
+[huawei@n161 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/ccc/1.py"
 ['1', '2', '3', '4']
 ['123']
 [('abcdefg  acbdgef', 'abcdefg'), ('abcdgfe  cadbgfe', 'abcdgfe')]
@@ -5339,7 +5735,7 @@ fowl.set_name('Daffy')
 print(fowl.name)
 
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 inside the getter
 Howard
 inside the getter
@@ -5371,7 +5767,7 @@ print(fowl.name)
 fowl.name = 'Donald'
 print(fowl.name)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 inside the getter
 Howard
 inside the setter
@@ -5481,7 +5877,7 @@ breezy_a = A()
 wheezy_a = A()
 A.kids()
 
-[huawei@n161 aaa]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/v2.py"
+[huawei@n161 aaa]$ python -u "/home/huawei/hwwork/doc/md/aaa/v2.py"
 ('A has', 3, 'little objects.')
 ```
 另一个案例
@@ -5587,7 +5983,7 @@ print(Demo.statmeth('spam'))
 
 
 
-[huawei@n161 aaa]$ python -u "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/v2.py"
+[huawei@n161 aaa]$ python -u "/home/huawei/hwwork/doc/md/aaa/v2.py"
 (<class __main__.Demo at 0x7fbaf2b19530>,)
 (<class __main__.Demo at 0x7fbaf2b19530>, 'spam')
 ()
@@ -5835,7 +6231,7 @@ bingo = BingoCage(range(3))
 print(bingo.pick())
 print(bingo())
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 0
 2
 ```
@@ -5925,7 +6321,7 @@ print(person.name)
 print(doctor.name)
 print(lawyer.name)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 Fudd
 Doctor Fudd
 Fudd, Esquire
@@ -5975,7 +6371,7 @@ bob = EmailPerson('Bob Frapples', 'bob@frapples.com')
 print(bob.name)
 print(bob.email)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 Bob Frapples
 bob@frapples.com
 ```
@@ -6057,7 +6453,7 @@ bill = Bill('wide orange')
 duck = Duck(bill, tail)
 duck.about()
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 This duck has a wide orange bill and a long tail
 ```
 ## 检测子类
@@ -6149,7 +6545,7 @@ who_says(hunted1)
 who_says(hunted2)
 who_says(brook)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 Elmer Fudd says: I'm hunting wabbits.
 Bugs Bunny says: What's up, doc?
 Daffy Duck says: It's rabbit season!
@@ -6319,7 +6715,7 @@ if __name__ == "__main__":
 		p = multiprocessing.Process(target=do_this, args=("I'm function %s" % n,))
 		p.start()
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 Process 54726 says: I'm the main program
 Process 54727 says: I'm function 0
 Process 54728 says: I'm function 1
@@ -6352,7 +6748,7 @@ if __name__ == "__main__":
 	p.terminate()
 
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 I'm main, in process 54825
 I'm loopy, in process 54826
         Number 1 of 1000000. Honk!
@@ -6389,7 +6785,7 @@ washer(dishes, dish_queue)
 dish_queue.join()
 
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 Washing salad dish
 Washing bread dish
 Washing entree dish
@@ -6492,7 +6888,9 @@ if "__main__" == __name__:
 进程3 -42181，默认列表：0，     Mng列表：3
 主程0 -42173，默认列表：0，     Mng列表：3
 ```
-### Queue共享
+### Queue
+
+Queue 队列使用一个管道和少量锁和信号量实现的共享队列实例，它是线程和进程安全的，常被用于两个进程之间的通讯。例如有一个 wirte 进程负责写数据，另外一个 read 进程负责读数据。当我们需要将写的数据交给读的进程时，可以通过 Queue 作为中间桥梁，先把 write 进程写的数据交给队列，再由队列将数据传递给 read 进程。
 
 ```
 #!/usr/bin/python3
@@ -6562,7 +6960,9 @@ if "__main__" == __name__:
 取出了：A
 
 ```
-### Pipe共享
+### Pipe
+
+Pipe 和 Queue 一样，可以作为进程之间通信的通道。Pipe()函数返回两个对象 conn1 和 conn2 ，这两个对象表示管道的两端。Pipe()函数有一个可选参数 duplex，参数 duplex 的默认值为 True，表示该管道是双向的，即两个对象都可以发送和接收消息。如果把参数 duplex 设置为 False ，表示该管道是单向的，即 conn1 只能用于接收消息，conn2 只能用于发送消息。
 
 ```
 #!/usr/bin/python3
@@ -6611,6 +7011,37 @@ if "__main__" == __name__:
 取出了： d
 ```
 
+### Lock
+由于多线程共享进程的资源和地址空间，因此，在对这些公共资源进行操作时，为了防止这些公共资源出现异常的结果，必须考虑线程的同步和互斥问题。为了保证进程间的同步，我们可以使用 Lock 类给线程或者进程加锁。Lock 返回的是一个非递归锁对象，Lock 实际上是一个工厂函数。它返回由默认上下文初始化的 multiprocessing.synchronize.Lock 对象。一旦某一个进程或者线程拿到了锁，后续的任何其他进程或线程的其他请求都会被阻塞直到锁被释放。
+
+```
+#!/usr/bin/python3
+from multiprocessing import Process, Lock
+def f(l, i):
+    l.acquire()
+    try:
+        print('this is', i)
+    finally:
+        l.release()
+
+if __name__ == '__main__':
+    lock = Lock()
+
+    for num in range(10):
+        Process(target=f, args=(lock, num)).start()
+
+[huawei@n161 ccc]$ python3 1.py
+this is 0
+this is 1
+this is 2
+this is 3
+this is 4
+this is 5
+this is 6
+this is 7
+this is 8
+this is 9
+```
 
 # 线程
 ## 单线程案例
@@ -6644,27 +7075,119 @@ two 2022-10-10 13:50:26.220392
 运行程序花费了6.008822202682495秒
 ```
 
+## threading
 
-## threading模块
+### 线程函数方式
+使用 threading 模块中 Thread 类的构造器创建线程，即直接对类 threading.Thread 进行实例化，并调用实例化对象的 start 方法创建线程。调用 threading.Thread 类的如下构造器创建线程：  
 
-threading 模块除了包含 _thread 模块（ _thread：老模块，提供了低级别的、原始的线程以及一个简单的锁，它相比于 threading 模块的功能还是比较有限的。 ）中的所有方法外，还提供其他方法：
+    threading.Thread(group=None, target=None, name=None, args=(), kwargs={}, *, daemon=None)
 
-- threading.currentThread()： 返回当前的线程变量。
-- threading.enumerate()：  返回一个包含正在运行的线程的list列表。正在运行指线程启动后、结束前。
-- threading.activeCount()： 返回正在运行的线程数量，与 len(threading.enumerate()) 有相同的结果。
+- Thread函数的target参数指向线程体函数，我们可以自定义该线程体函数；通过name参数可以设置线程名，如果省略这个参数，则系统会为其分配一个名称；args是为线程体函数提供的参数，是一个元组类型。
+- group：指定该线程所属的线程组，目前该参数还未实现，为了日后扩展 ThreadGroup 类实现而保留。
+- target：用于 run() 方法调用的可调用对象，默认是 None，表示不需要调用任何方法。
+- args：是用于调用目标函数的参数元组，默认是 ()。
+- kwargs：是用于调用目标函数的关键字参数字典，默认是 {}。
+- daemon：如果 daemon 不是 None，线程将被显式的设置为守护模式，不管该线程是否是守护模式，如果是 None (默认值)，线程将继承当前线程的守护模式属性。
 
-除了使用方法外，threading 线程模块同样提供了 threading.Thread 类来处理线程（即可以面向对象也可以面向过程，两种方式使用多线程），threading.Thread类提供了以下方法:
 
-- run(): 用以表示线程活动的方法。
-- threading.Thread — 创建线程并初始化线程，可以为线程传递参数 ；
-- threading.enumerate — 返回一个包含正在运行的线程的list；
-- threading.activeCount — 返回正在运行的线程数量，与len(threading.enumerate)有相同的结- 
-- Thread.start — 启动线程 ；
-- Thread.join — 阻塞函数，一直等到线程结束为止 ；
-- Thread.isAlive — 返回线程是否活动的；
-- Thread.getName — 返回线程名；
-- Thread.setName — 设置线程名；
-- Thread.setDaemon — 设置为后台线程，这里默认是 False，设置为 True 之后则主线程不会再等待子线程结束才结束，而是主线程结束意味程序退出，子线程也立即结束，注意调用时必须设置在start 之前；
+threading.Thread 实例的方法、属性
+- start()	启动线程活动，它在一个线程里最多只能被调用一次。
+- run()	表示线程活动的方法。
+- join(timeout=None)	等待至线程中止。
+- getName()	返回线程名。
+- setName()	设置线程名。
+- is_alive()	返回线程是否是活动的。
+- daemon	是否为守护线程的标志。
+- ident	线程标识符，线程尚未开始返回 None，已启动返回非零整数。
+
+
+```
+import time
+import threading
+def work(num):
+    print('线程名称：',threading.current_thread().getName(),'参数：',num,'开始时间：',time.strftime('%Y-%m-%d %H:%M:%S'))
+if __name__ == '__main__':
+    print('主线程开始时间：',time.strftime('%Y-%m-%d %H:%M:%S'))
+    t1 = threading.Thread(target=work,args=(3,))
+    t2 = threading.Thread(target=work,args=(2,))
+    t3 = threading.Thread(target=work,args=(1,))
+    t1.start()
+    t2.start()
+    t3.start()
+    t1.join()
+    t2.join()
+    t3.join()
+    print('主线程结束时间：', time.strftime('%Y-%m-%d %H:%M:%S'))
+
+
+[huawei@n161 ccc]$ python3 1.py
+主线程开始时间： 2022-10-13 14:00:54
+线程名称： Thread-1 参数： 3 开始时间： 2022-10-13 14:00:54
+线程名称： Thread-2 参数： 2 开始时间： 2022-10-13 14:00:54
+线程名称： Thread-3 参数： 1 开始时间： 2022-10-13 14:00:54
+主线程结束时间： 2022-10-13 14:00:54
+```
+
+另一个案例
+
+```
+#!/usr/bin/python3
+import threading
+import time
+from datetime import datetime
+
+def Test(name):
+    for i in range(3):
+        print(name,datetime.now())
+        time.sleep(1)
+def main():
+        t1=threading.Thread(target=Test,args=("one",))  #调用threading.Thread函数，target参数是要执行的函数，args是要传入的参数，为元组类型
+        t2=threading.Thread(target=Test,args=("two",))
+        t1.start()        #启动线程
+        t2.start()
+        t1.join()       #必须等子线程运行完了父线程才可以运行
+        t2.join()
+if __name__=='__main__':
+    start=time.time()
+    main()
+    end=time.time()
+    print("运行程序花费了%s秒"%(end-start))
+
+
+[huawei@n161 ccc]$ python3 1.py
+one 2022-10-10 14:05:59.340984
+two 2022-10-10 14:05:59.341188
+two 2022-10-10 14:06:00.342355
+one 2022-10-10 14:06:00.342422
+two 2022-10-10 14:06:01.343655
+one 2022-10-10 14:06:01.343718
+运行程序花费了3.0045223236083984秒
+```
+
+另一个案例
+
+```
+import threading
+def do_this(what):
+	whoami(what)
+def whoami(what):
+	print("Thread %s says: %s" % (threading.current_thread(), what))
+
+if __name__ == "__main__":
+	whoami("I'm the main program")
+	for n in range(4):
+ 		p = threading.Thread(target=do_this, args=("I'm function %s" % n,))
+ 		p.start()
+
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
+Thread <_MainThread(MainThread, started 140689071798080)> says: I'm the main program
+Thread <Thread(Thread-1, started 140688941364992)> says: I'm function 0
+Thread <Thread(Thread-2, started 140688932972288)> says: I'm function 1
+Thread <Thread(Thread-3, started 140688924579584)> says: I'm function 2
+Thread <Thread(Thread-4, started 140688916186880)> says: I'm function 3
+```
+
+
 
 ```
 # 导入线程threading模块
@@ -6716,8 +7239,42 @@ clean_room: {'c': 0.2, 'd': False}
 ```
 
 ### 线程类方式
+继承 threading 模块中的 Thread 类创建线程类，即用 threading.Thread 派生出一个新的子类，将新建类实例化，并调用其 start 方法创建线程。
 
-通过创建一个子类继承于 threading.Thread ，并实例化后调用 start() 方法启动新线程，即它调用了线程的 run() 方法。这里使用了 join()方法来阻塞父线程，让其等待子线程运行完再运行，可以看到，最后花费了３秒的时间，是[单线程案例](#单线程案例)的一半。
+threading 直接调用的方法：
+- active_count()	返回当前存活的线程类 Thread 对象，返回个数等于 enumerate() 返回的列表长度。
+- current_thread()	返回当前对应调用者的 Thread 对象。
+- get_ident()	返回当前线程的线程标识符，它是一个非零的整数。
+- enumerate()	以列表形式返回当前所有存活的 Thread 对象。
+- main_thread()	返回主 Thread 对象。
+- settrace(func)	为所有 threading 模块开始的线程设置追踪函数。
+- setprofile(func)	为所有 threading 模块开始的线程设置性能测试函数。
+- stack_size([size])	返回创建线程时用的堆栈大小。
+
+```
+import time
+import threading
+class MyThread(threading.Thread):
+    def __init__(self,num):
+        super().__init__()
+        self.num = num
+    def run(self):
+        print('线程名称：', threading.current_thread().getName(), '参数：', self.num, '开始时间：', time.strftime('%Y-%m-%d %H:%M:%S'))
+if __name__ == '__main__':
+    print('主线程开始时间：',time.strftime('%Y-%m-%d %H:%M:%S'))
+    t1 = MyThread(3)
+    t2 = MyThread(2)
+    t3 = MyThread(1)
+    t1.start()
+    t2.start()
+    t3.start()
+    t1.join()
+    t2.join()
+    t3.join()
+    print('主线程结束时间：', time.strftime('%Y-%m-%d %H:%M:%S'))
+```
+
+另一个案例，通过创建一个子类继承于 threading.Thread ，并实例化后调用 start() 方法启动新线程，即它调用了线程的 run() 方法。这里使用了 join()方法来阻塞父线程，让其等待子线程运行完再运行，可以看到，最后花费了３秒的时间，是[单线程案例](#单线程案例)的一半。
 
 ```
 #!/usr/bin/python3
@@ -6757,67 +7314,97 @@ one  2022-10-10 14:00:33.490600
 运行程序花费了3.004295587539673秒
 ```
 
+### 守护线程
+守护线程（也称后台线程）是在后台运行的，它的任务是为其他线程提供服务，如 Python 解释器的垃圾回收线程就是守护线程。如果所有的前台线程都死亡了，守护线程也会自动死亡。
 
-### 线程函数方式
+如果你设置一个线程为守护线程，就表示这个线程是不重要的，在进程退出的时候，不用等待这个线程退出；如果你的主线程在退出的时候，不用等待哪些子线程完成，那就设置这些线程为守护线程；如果你想等待子线程完成后再退出，那就什么都不用做，或者显示地将 daemon 属性设置为 false。
 
-Thread函数的target参数指向线程体函数，我们可以自定义该线程体函数；通过name参数可以设置线程名，如果省略这个参数，则系统会为其分配一个名称；args是为线程体函数提供的参数，是一个元组类型。
-
-与上面的案例结果一样，只是使用了不同的方法
+使用了守护线程的生产者消费者演示
 ```
-#!/usr/bin/python3
+join() 函数是阻塞的。当消费者通过 get() 从队列获取一项任务并处理完成之后，需要调用且只可以调用一次 task_done()，该方法会给队列发送一个信号，join()函数则在监听这个信号。可以简单理解为队列内部维护了一个计数器，该计数器标识未完成的任务数，每当添加任务时，计数器会增加，调用 task_done()时计数器则会减少，直到队列为空。而 join() 就是在监听队列是否为空，一旦条件满足则结束阻塞状态。
+
+
+from queue import Queue
+from threading import Thread
+
+class Producer(Thread):
+    def __init__(self, q):
+        super().__init__()
+        self.count = 5
+        self.q = q
+
+    def run(self):
+        while self.count > 0:
+            print("生产")
+            if self.count == 1:
+                self.count -= 1
+                self.q.put(2)
+            else:
+                self.count -= 1
+                self.q.put(1)
+
+
+class Consumer(Thread):
+
+    def __init__(self, q):
+        super().__init__()
+        self.q = q
+
+    def run(self):
+        while True:
+            print("消费")
+            data = self.q.get()
+            if data == 2:
+                print("stop because data=", data)
+                # 任务完成，从队列中清除一个元素
+                self.q.task_done()
+                break
+            else:
+                print("data is good,data=", data)
+                # 任务完成，从队列中清除一个元素
+                self.q.task_done()
+
+if __name__ == '__main__':
+    q = Queue()
+    p = Producer(q)
+    c = Consumer(q)
+    p.setDaemon(True)
+    c.setDaemon(True)
+    p.start()
+    c.start()
+    # 等待队列清空
+    p.join()
+    c.join()
+    print("queue is complete")
+```
+
+### TLS 线程局部存储
+
+Python 的 threading 模块提供了 local 方法，该方法返回得到一个全局对象，不同线程使用这个对象存储的数据，其它线程是不可见的(本质上就是不同的线程使用这个对象时为其创建一个独立的字典)
+
+```
+num 是全局变量，但每个线程定义的属性 num.x 是各自线程独有的，其它线程是不可见的，因此每个线程的计算结果未出现相互干扰的情况。
+
 import threading
 import time
-from datetime import datetime
 
-def Test(name):
-    for i in range(3):
-        print(name,datetime.now())
-        time.sleep(1)
-def main():
-        t1=threading.Thread(target=Test,args=("one",))  #调用threading.Thread函数，target参数是要执行的函数，args是要传入的参数，为元组类型
-        t2=threading.Thread(target=Test,args=("two",))
-        t1.start()        #启动线程
-        t2.start()
-        t1.join()       #必须等子线程运行完了父线程才可以运行
-        t2.join()
-if __name__=='__main__':
-    start=time.time()
-    main()
-    end=time.time()
-    print("运行程序花费了%s秒"%(end-start))
-
+# 使用 threading.local
+num = threading.local()
+def work():
+    num.x = 0
+    for i in range(10):
+        num.x += 1
+    print(threading.current_thread().getName(), num.x)
+    time.sleep(0.0001)
+for i in range(5):
+    threading.Thread(target=work).start()
 
 [huawei@n161 ccc]$ python3 1.py
-one 2022-10-10 14:05:59.340984
-two 2022-10-10 14:05:59.341188
-two 2022-10-10 14:06:00.342355
-one 2022-10-10 14:06:00.342422
-two 2022-10-10 14:06:01.343655
-one 2022-10-10 14:06:01.343718
-运行程序花费了3.0045223236083984秒
-```
-
-另一个案例
-
-```
-import threading
-def do_this(what):
-	whoami(what)
-def whoami(what):
-	print("Thread %s says: %s" % (threading.current_thread(), what))
-
-if __name__ == "__main__":
-	whoami("I'm the main program")
-	for n in range(4):
- 		p = threading.Thread(target=do_this, args=("I'm function %s" % n,))
- 		p.start()
-
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
-Thread <_MainThread(MainThread, started 140689071798080)> says: I'm the main program
-Thread <Thread(Thread-1, started 140688941364992)> says: I'm function 0
-Thread <Thread(Thread-2, started 140688932972288)> says: I'm function 1
-Thread <Thread(Thread-3, started 140688924579584)> says: I'm function 2
-Thread <Thread(Thread-4, started 140688916186880)> says: I'm function 3
+Thread-1 10
+Thread-2 10
+Thread-3 10
+Thread-4 10
+Thread-5 10
 ```
 
 ## 并发
@@ -7536,7 +8123,45 @@ xxxooyyyxxxooyyyxxxooyyy
 
 
 ## 线程池 ThreadPoolExecutor
-https://www.codersrc.com/archives/6707.html
+    对于 CPU 密集型的计算场景，理论上将线程的数量设置为 CPU 核数就是最合适的，这样可以将每个 CPU 核心的性能压榨到极致，不过在工程上，线程的数量一般会设置为 CPU 核数 + 1，这样在某个线程因为未知原因阻塞时多余的那个线程完全可以顶上。而对于 I/O 密集型的应用，就需要考虑 CPU 计算的耗时和 I/O 的耗时比了。如果 I/O 耗时和 CPU 耗时 为 1:1，那么两个线程是最合适的，因为当 A 线程做 I/O 操作时，B 线程执行 CPU 计算任务，当 B 线程做 I/O 操作时，A 线程执行 CPU 计算任务，CPU 和 I/O 的利用率都得到了百分百，完美。所以可以认为最佳线程数 = CPU 核数 * [1 +（I/O 耗时 / CPU 耗时]。
+
+ThreadPoolExecutor 是 python3 新引入的库
+
+创建容量为 2 的线程池，提交四个任务。通过 submit 和 as_completed 来提交和获取任务返回结果的。
+```
+import time
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def sayhello(name):
+    print("%s say Hello to %s" % (threading.current_thread().getName(), name));
+    time.sleep(1)
+    return name
+
+name_list =['admin','root','scott','tiger']
+start_time = time.time()
+with ThreadPoolExecutor(2) as executor: # 创建 ThreadPoolExecutor 
+    future_list = [executor.submit(sayhello, name) for name in name_list] # 提交任务
+
+for future in as_completed(future_list):
+    result = future.result() # 获取任务结果
+    print("%s get result : %s" % (threading.current_thread().getName(), result))
+
+print('%s cost %d second' % (threading.current_thread().getName(), time.time()-start_time))
+
+
+[huawei@n161 ccc]$ python3 1.py
+ThreadPoolExecutor-0_0 say Hello to admin
+ThreadPoolExecutor-0_1 say Hello to root
+ThreadPoolExecutor-0_0 say Hello to scott
+ThreadPoolExecutor-0_1 say Hello to tiger
+MainThread get result : scott
+MainThread get result : tiger
+MainThread get result : root
+MainThread get result : admin
+MainThread cost 2 second
+```
+
 
 # 协程
 http://www.gaohaiyan.com/2667.html
@@ -7588,6 +8213,7 @@ for i in range(3):
 - Queue.join 一直阻塞直到队列中的所有数据元素都被取出和执行，只要有元素添加到 queue 中就会增加。当未完成任务的计数等于0，join 就不会阻塞。
 
 案例：生产者和消费者线程分别生产数据和消费数据，先生产后消费。采用 task_done 和 join 确保处理信息在多个线程间安全交换，生产者生产的数据能够全部被消费者消费掉。
+另见案例[守护线程](#守护线程)也演示了生产者消费者，另外[进程间通信](#进程间通信)也有使用
 ```
 from queue import Queue
 import random
@@ -7731,7 +8357,7 @@ print(duck_dict)
 
 duck.color = 'green'	# err 但无法对命名元组这么做
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 Duck(bill='wide orange', tail='long')
 wide orange
 long
@@ -7740,7 +8366,7 @@ Duck(bill='crushing', tail='magnificent')
 {'bill': 'wide orange', 'tail': 'long'}
 {'bill': 'wide orange', 'tail': 'long', 'color': 'green'}
 Traceback (most recent call last):
-  File "/home/huawei/hwwork/postdb_doc/mdbooks/aaa/pyth.py", line 22, in <module>
+  File "/home/huawei/hwwork/doc/md/aaa/pyth.py", line 22, in <module>
     duck.color = 'green'        # 但无法对命名元组这么做
 AttributeError: 'Duck' object has no attribute 'color'
 ```
@@ -7772,7 +8398,7 @@ for key, value in delhi._asdict().items():
 
 
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 City(name='Tokyo', country='JP', population=36.933, coordinates=(35.689722, 139.691667))
 36.933
 (35.689722, 139.691667)
@@ -7846,7 +8472,7 @@ print(dq)
 dq.extendleft([10, 20, 30, 40])	# extendleft(iter) 方法会把迭代器里的元素逐个添加到双向队列的左边，因此迭代器里的元素会逆序出现在队列里。
 print(dq)
 
-[huawei@n148 postdb_doc]$ /usr/bin/python3 "/home/huawei/hwwork/postdb_doc/mdbooks/bbb/src/pyth.py"
+[huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/bbb/src/pyth.py"
 deque([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], maxlen=10)
 deque([7, 8, 9, 0, 1, 2, 3, 4, 5, 6], maxlen=10)
 deque([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], maxlen=10)
@@ -7857,6 +8483,8 @@ deque([40, 30, 20, 10, 3, 4, 5, 6, 7, 8], maxlen=10)
 ## Counter 统计重复个数
 
 Counter 可以简单理解为一个计数器，可以统计每个元素出现的次数，同样 Counter() 是需要接受一个可迭代的对象的。其实一个 Counter 就是一个字典，其额外提供的 most_common() 函数通常用于求 Top k 问题。
+
+另外还有统计文件类型的案例，见[文件统计以及匹配查找](#文件统计以及匹配查找)
 ```
 from collections import Counter
 
@@ -7913,3 +8541,99 @@ print(default_dict["y"])
 
 # 网络通信
 ## urllib.request
+
+# SQLite
+SQLite 是一种轻型嵌入式关系型数据库，它包含在一个相对小的 C 库中。SQLite 占用资源低，处理速度快，它支持 Windows、Linux、Unix 等多种主流操作系统，支持 Python、Java、C# 等多种语言，目前的版本已经发展到了 SQLite3。
+
+SQLite 是一个进程内的库，它实现了自给自足、无服务器、无需配置、支持事务。Python 可以通过 sqlite3 模块与 SQLite3 集成，Python 2.5.x 以上版本内置了 sqlite3 模块，因此，我们在 Python 中可以直接使用 SQLite。
+
+数据类型与常用函数详见 http://www.ityouknow.com/python/2019/12/03/python-SQLite-077.html
+```
+# 导入模块
+import sqlite3
+import os
+
+def create():
+    # 连接数据库
+    conn = sqlite3.connect('test.db')
+    # 创建游标
+    cs = conn.cursor()
+    # 创建表
+    cs.execute("CREATE TABLE student (id varchar(20) PRIMARY KEY, name varchar(20));")
+    cs.execute("INSERT INTO student (id, name) VALUES ('1', 'Jhon')")
+    cs.execute("INSERT INTO student (id, name) VALUES ('2', 'Alan')")
+    cs.execute("INSERT INTO student (id, name) VALUES ('3', 'Bob')")
+
+    # 关闭 Cursor
+    cs.close()
+    # 提交当前事务
+    conn.commit()
+    # 关闭连接
+    conn.close()
+
+def show():
+    # 连接数据库
+    conn = sqlite3.connect('test.db')
+    # 创建游标
+    cs = conn.cursor()
+    # 查询数据
+    cs.execute("SELECT id, name FROM student")
+    # 获取查询结果集中的下一行
+    print('fetchone-->', cs.fetchone())
+    # 获取查询结果集中的下一行组
+    print('fetchmany-->', cs.fetchmany())
+    # 获取查询结果集中所有（剩余）的行
+    print('fetchall-->', cs.fetchall())
+    cs.close()
+    conn.close()
+
+def update():
+    # 连接数据库
+    conn = sqlite3.connect('test.db')
+    # 创建游标
+    cs = conn.cursor()
+    # 修改数据
+    cs.execute("SELECT id, name FROM student WHERE id = '1'")
+    print('修改前-->', cs.fetchall())
+    cs.execute("UPDATE student set name = 'Nicolas' WHERE id = '1'")
+    cs.execute("SELECT id, name FROM student WHERE id = '1'")
+    print('修改后-->', cs.fetchall())
+    conn.commit()
+    cs.close()
+    conn.close()
+
+def remove():
+    # 连接数据库
+    conn = sqlite3.connect('test.db')
+    # 创建游标
+    cs = conn.cursor()
+    # 删除
+    cs.execute("SELECT id, name FROM student")
+    print('删除前-->', cs.fetchall())
+    cs.execute("DELETE FROM student WHERE id = '1'")
+    cs.execute("SELECT id, name FROM student")
+    print('删除后-->', cs.fetchall())
+    conn.commit()
+    cs.close()
+    conn.close()
+
+if __name__ == "__main__":
+    create()
+    show()
+    update()
+    show()
+    remove()
+    os.remove('test.db');
+
+[huawei@n161 ccc]$ python3 1.py
+fetchone--> ('1', 'Jhon')
+fetchmany--> [('2', 'Alan')]
+fetchall--> [('3', 'Bob')]
+修改前--> [('1', 'Jhon')]
+修改后--> [('1', 'Nicolas')]
+fetchone--> ('1', 'Nicolas')
+fetchmany--> [('2', 'Alan')]
+fetchall--> [('3', 'Bob')]
+删除前--> [('1', 'Nicolas'), ('2', 'Alan'), ('3', 'Bob')]
+删除后--> [('2', 'Alan'), ('3', 'Bob')]
+```
