@@ -10,13 +10,14 @@ python语言及其应用						继续第11章，后面都是东拼西凑先不用
 
 Python Cookbook（第3版）
 
-看漫画学Python							还差第15章
+看漫画学Python							基本完毕
 
-http://www.ityouknow.com/python.html    再继续78
+http://www.ityouknow.com/python.html    基本完毕
 
 ---
 # 基础知识
 
+> Python 是一门面向对象语言，在 Python 的世界一切皆对象。所以一切变量的本质都是对象的一个指针而已。
 > Python 最底层的基本数据类型：布尔型、整型、浮点型以及字符串型。
 
 ## 数据类型
@@ -399,6 +400,11 @@ print(x)
 global 和 nonlocal 的区别: 
 - 两者的功能不同。global 关键字修饰变量后标识该变量是全局变量，对该变量进行修改就是修改全局变量，而 nonlocal 关键字修饰变量后标识该变量是上一级函数中的局部变量，如果上一级函数中不存在该局部变量，nonlocal 位置会发生错误（最上层的函数使用 nonlocal 修饰变量必定会报错）。
 - 两者使用的范围不同。global 关键字可以用在任何地方，包括最上层函数中和嵌套函数中，即使之前未定义该变量，global 修饰后也可以直接使用，而 nonlocal 关键字只能用于嵌套函数中，并且外层函数中定义了相应的局部变量，否则会发生错误
+
+## 引用计数 getrefcount
+http://www.ityouknow.com/python/2020/01/06/python-gc-111.html
+
+sys.getrefcount(object)，返回值是传入对象的引用计数。由于作为参数传入getrefcount()的时候产生了一次临时引用，因此返回的计数值一般要比预期多1。
 
 ## range自然数序列
 - range() 函数的用法类似于使用切片
@@ -2583,8 +2589,6 @@ True
 True
 ```
 
-## getrefcount
-sys.getrefcount(object)，返回值是传入对象的引用计数。由于作为参数传入getrefcount()的时候产生了一次临时引用，因此返回的计数值一般要比预期多1。
 
 
 ## in、not in
@@ -3393,6 +3397,11 @@ print(musician)
 ```
 ## （传址）传列表、传字典
 实际是传引用，在函数内删掉后外面也都没了
+
+- **无论是值传递还是引用传递，我们只需关注函数内部是否会生成新的对象即可。凡是对原对象操作的函数，都会影响传递的实际参数；凡是生成了新对象的操作，都不会影响传递的实际参数。**
+
+- **如果要想在函数中改变对象，第一可以传入可变数据类型(列表，字典，集合)，直接改变；第二还可以创建一个新的对象，修改后返回。建议用后者，表达清晰明了，不易出错**
+
 ```
 #!/usr/bin/python3
 
@@ -4454,7 +4463,7 @@ http://www.ityouknow.com/python/2019/10/09/python-sys-demonstration-028.html
 
 
 # 文件读写
-
+http://www.ityouknow.com/python/2019/12/19/python-IO-Programming-read&write-files-93.html
 ## open模式与编码
 
 open()的模式如下，如果省略，Python将以默认的只读模式打开文件。默认是UTF-8编码打开
@@ -4794,7 +4803,38 @@ b'\x80\x03]q\x00(X\x01\x00\x00\x00Aq\x01X\x01\x00\x00\x00Bq\x02X\x01\x00\x00\x00
 ```
 
 ## cvs
-模块支持以逗号分隔值格式直接读取和写入文件，这些格式通常由数据库和电子表格支持。
+
+CSV 全称 Comma-Separated Values，中文叫逗号分隔值或字符分隔值，它以纯文本形式存储表格数据（数字和文本），其本质就是一个字符序列，可以由任意数目的记录组成，记录之间以某种换行符分隔，每条记录由字段组成，通常所有记录具有完全相同的字段序列，字段间常用逗号或制表符进行分隔。CSV 文件格式简单、通用，在现实中有着广泛的应用，其中使用最多的是在程序之间转移表格数据。
+
+- writer(csvfile, dialect=’excel’, **fmtparams)  
+返回一个 writer 对象，该对象负责将用户的数据在给定的文件类对象上转换为带分隔符的字符串。csvfile 可以是具有 write() 方法的任何对象，如果 csvfile 是文件对象，则使用 newline=’’ 打开；可选参数 dialect 是用于不同的 CSV 变种的特定参数组；可选关键字参数 fmtparams 可以覆写当前变种格式中的单个格式设置
+
+- reader(csvfile, dialect=’excel’, **fmtparams)  
+返回一个 reader 对象，该对象将逐行遍历 csvfile，csvfile 可以是文件对象和列表对象，如果是文件对象要使用 newline=’’ 打开
+
+- 其余参见 http://www.ityouknow.com/python/2020/01/03/python-csv-108.html
+
+```
+import csv
+with open('test.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(['id', 'name', 'age'])
+    writer.writerow(['1001', '张三', '222'])
+    # 写入多行
+    data = [('1001', '张三', '21'), ('1002', '李四', '31')]
+    writer.writerows(data)
+
+with open('test.csv', newline='') as csvfile:
+    reader = csv.reader(csvfile, delimiter=' ')
+    for row in reader:
+        print(', '.join(row))
+
+[huawei@n161 ccc]$ python3 1.py
+id,name,age
+1001,张三,222
+1001,张三,21
+1002,李四,31
+```
 
 # 路径操作
 
