@@ -14,6 +14,9 @@ Python Cookbook（第3版）
 
 http://www.ityouknow.com/python.html    基本完毕
 
+Python网络数据采集                      继续第4章
+
+Python编程快速上手                      继续第10章
 ---
 # 基础知识
 
@@ -101,7 +104,7 @@ else:
  print("\nYou'll be able to ride when you're a little older.")
 
 ```
-## 打印输出
+## 打印、漂亮打印。。。
 ```
 print('Age:', 42) 
 name = 'Gumby' 
@@ -419,6 +422,18 @@ for x in range(0,3):
 list( range(0, 3) )
 ```
 
+## exit 退出程序
+
+```
+import sys
+while True:
+    print('Type exit to exit.')
+    response = input()
+    if response == 'exit':
+        sys.exit()
+    print('You typed ' + response + '.')
+
+```
 
 # 命令行
 
@@ -532,7 +547,7 @@ print(s2)
 hello\nworld
 ```
 
-- 长字符串  
+- 多行字符串  
 使用3个引号（单双都可以）包围的字符串，会包含换行、排版、缩进等
 
 
@@ -653,9 +668,11 @@ setup.lower()
 ## 所有字母大小写互换
 setup.swapcase()
 ## 左对齐、右对齐、居中
-- setup.ljust(30)
-- setup.rjust(30)
-- setup.center(30)
+
+print('Hello'.rjust(10))
+print('Hello'.ljust(10))
+print('Hello'.center(10))
+
 
 ## 取字符
 当做数据进行索引即可
@@ -1803,13 +1820,7 @@ print(key, value)
 {'Alice': '2341'}
 Alice 2341
 ```
-## 检测K存在 in
-表达式k in d（其中d是一个字典）查找的是键而不是值
-```
-phonebook = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}	# 使用键值对方式构建
-print(phonebook)	# {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
-print('Beth' in phonebook);	# True
-```
+
 ## 字典视图 items
 -	返回值属于一种名为字典视图的特殊类型。字典视图可用于迭代，还可执行len与in检测。其中每个元素都为键值对，且顺序不确定。
 -	修改字典后视图会同步，但视图是只读的不允许修改
@@ -1854,7 +1865,15 @@ Traceback (most recent call last):
     pairs[1] = ('Beth', '0000')
 TypeError: 'dict_items' object does not support item assignment
 ```
-## 遍历
+## 遍历 keys、values、items、sort、set
+- keys
+  	获取仅包含字典中的键的视图（dict_keys()，它是键的迭代形式）
+- values
+	返回一个由字典中的值组成的字典视图，如果字典中有重复的v则视图中也包含这些重复内容。
+- items
+  	函数可以获取字典中所有的键值对
+- keys、values、items的返回结果均可作为list()方法的参数，返回列表
+
 ```
 d = {'x': 1, 'y': 2, 'z': 3} 
 for key in d: 
@@ -1863,14 +1882,7 @@ for key, value in d.items():
 	print(key, 'corresponds to', value) 
 
 ```
-## keys、values、items、sort、set
-- keys
-  	获取仅包含字典中的键的视图（dict_keys()，它是键的迭代形式）
-- values
-	返回一个由字典中的值组成的字典视图，如果字典中有重复的v则视图中也包含这些重复内容。
-- items
-  	函数可以获取字典中所有的键值对
-- keys、values、items的返回结果均可作为list()方法的参数，返回列表
+
 ```
 #!/usr/bin/python3
 favorite_languages = {
@@ -1895,6 +1907,20 @@ for language in set(favorite_languages.values()):	# 对返回的values集合进�
 
 
 ```
+
+
+## 检测K、v存在 in
+表达式k in d（其中d是一个字典）查找的是键而不是值，如下面的检测k、v方式
+
+- 'name' in spam.keys()
+- 'Zophie' in spam.values()
+
+```
+phonebook = {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}	# 使用键值对方式构建
+print(phonebook)	# {'Alice': '2341', 'Beth': '9102', 'Cecil': '3258'}
+print('Beth' in phonebook);	# True
+```
+
 ## 格式化format
 只要在字典中有此kv则就可以替换到format的参数里
 ```
@@ -4419,7 +4445,9 @@ OK
 - 测试导致断言失败时则打印一个F
 
 # 系统相关
+
 ## os
+
 操作系统相关调用和操作
 http://www.ityouknow.com/python/2019/10/09/python-os-demonstration-026.html
 
@@ -4462,7 +4490,7 @@ http://www.ityouknow.com/python/2019/10/09/python-sys-demonstration-028.html
 
 
 
-# 文件读写
+# 读写文件
 http://www.ityouknow.com/python/2019/12/19/python-IO-Programming-read&write-files-93.html
 ## open模式与编码
 
@@ -4836,12 +4864,64 @@ id,name,age
 1002,李四,31
 ```
 
-# 路径操作
+## 用 shelve 模块保存变量
 
-## 获取目录
+利用 shelve 模块可以将 Python 程序中的变量保存到二进制的 shelf 文件中。
 
-- Path.cwd()，返回文件当前所在目录。
-- Path.home()，返回用户的主目录。
+- shelf 值有 keys()和 values()方法，返回 shelf 中键和值的类似列表的值。因为这些方法返回类似列表的值，而不是真正的列表，所以应该将它们传递给 list()函数，取得列表的形式。
+```
+import shelve
+shelfFile = shelve.open('mydata')
+cats = ['Zophie', 'Pooka', 'Simon']
+shelfFile['cats'] = cats
+shelfFile.close()
+
+shelfFile = shelve.open('mydata')
+print(type(shelfFile))
+print(shelfFile['cats'])
+print(list(shelfFile.keys()))
+print(list(shelfFile.values()))
+shelfFile.close()
+
+[huawei@n161 ccc]$ python3 1.py
+<class 'shelve.DbfilenameShelf'>
+['Zophie', 'Pooka', 'Simon']
+['cats']
+[['Zophie', 'Pooka', 'Simon']]
+```
+
+## 用 pprint.pformat()函数保存变量
+
+与shelve功能类似，但却是文本的，以py格式写文件，后又当做模块导入代码
+
+```
+import pprint
+cats = [{'name': 'Zophie', 'desc': 'chubby'}, {'name': 'Pooka', 'desc': 'fluffy'}]
+print(pprint.pformat(cats))
+fileObj = open('myCats.py', 'w')
+fileObj.write('cats = ' + pprint.pformat(cats) + '\n')
+fileObj.close()
+
+import myCats
+print(myCats.cats)
+print(myCats.cats[0])
+print(myCats.cats[0]['name'])
+
+[huawei@n161 ccc]$ python3 1.py
+[{'desc': 'chubby', 'name': 'Zophie'}, {'desc': 'fluffy', 'name': 'Pooka'}]
+[{'desc': 'chubby', 'name': 'Zophie'}, {'desc': 'fluffy', 'name': 'Pooka'}]
+{'desc': 'chubby', 'name': 'Zophie'}
+Zophie
+```
+
+# 组织文件
+
+## 获取当前目录，家目录
+
+- os.getcwd() 获取现在的工作目录
+- Path.cwd() 返回文件当前所在目录。
+- Path.home() 返回用户的主目录。
+
 ```
 from pathlib import Path
 currentPath = Path.cwd()
@@ -4852,6 +4932,10 @@ print("文件当前所在目录:%s\n用户主目录:%s" %(currentPath, homePath)
 文件当前所在目录:/home/huawei/hwwork/doc/md/ccc
 用户主目录:/home/huawei
 ```
+
+## 改变当前目录
+
+os.chdir('../aaa')
 
 ## 目录拼接
 
@@ -4866,8 +4950,12 @@ print("新目录为:%s" %(newPath))
 [huawei@n161 ccc]$ python3 1.py
 新目录为:/home/huawei/hwwork/doc/md/ccc/python-100
 ```
+## 创建目录、删除目录
 
-## 创建、删除目录
+- 创建多层：os.makedirs('../eee/fff/ggg')
+- 创建单层：os.mkdir('poems')
+
+也可以使用另一种方式：
 
 - Path.mkdir()，创建给定路径的目录。
 - Path.rmdir()，删除该目录，目录文件夹必须为空。
@@ -4888,10 +4976,58 @@ delPath.rmdir()
 print("删除的目录为:%s" %(delPath))
 ```
 
+## 相对路径、绝对路径、两点间路径
+
+- os.path.abspath(path)  将返回参数的绝对路径的字符串。这是将相对路径转换为绝对路径的简便方法。
+- os.path.isabs(path)  如果参数是一个绝对路径，就返回 True，如果参数是一个相对路径，就返回 False。
+- os.path.relpath(path, start)  将返回从 start 路径到 path 的相对路径的字符串。如果没有提供 start，就使用当前工作目录作为开始路径。
 
 
-## 获取文件所在目录的不同部分字段
+```
+import os
+print(os.path.abspath('.'))
+print(os.path.abspath('Scripts'))
+print(os.path.isabs('.'))
+print(os.path.isabs(os.path.abspath('.')))
+print(os.path.relpath('/home/Download', './'))
 
+
+
+[huawei@n161 ccc]$ python3 1.py
+/home/huawei/hwwork/postdb_doc/mdbooks/ccc
+/home/huawei/hwwork/postdb_doc/mdbooks/ccc/Scripts
+False
+True
+../../../../../Download
+```
+
+## 分解路径
+
+- os.path.dirname(path) 将返回一个字符串，它包含 path 参数中最后一个斜杠之前的所有内容
+- os.path.basename(path) 将返回一个字符串，它包含 path 参数中最后一个斜杠之后的所有内容
+- os.path.split() 返回dirname与basename的结果
+- os.path.splitext() 分割出扩展名，但还有个点。。。
+- 分解每一个文件夹，注意linux平台返回列表第一个是空字符串
+```
+import os
+file = '/home/huawei/hwwork/postdb_doc/mdbooks/ccc/example.log'
+print(os.path.basename(file))
+print(os.path.dirname(file))
+print(os.path.split(file))
+print(os.path.splitext(file))
+print(file.split(os.path.sep))
+
+
+
+[huawei@n161 ccc]$ python3 1.py
+example.log
+/home/huawei/hwwork/postdb_doc/mdbooks/ccc
+('/home/huawei/hwwork/postdb_doc/mdbooks/ccc', 'example.log')
+('/home/huawei/hwwork/postdb_doc/mdbooks/ccc/example', '.log')
+['', 'home', 'huawei', 'hwwork', 'postdb_doc', 'mdbooks', 'ccc', 'example.log']
+```
+
+另一套方案
 - Path.resolve()，通过传入文件名，返回文件的完整路径。
 - Path.name，可以获取文件的名字，包含后缀名。
 - Path.parent，返回文件所在文件夹的名字。
@@ -4918,7 +5054,31 @@ print("文件所在的盘符为:%s" % nowPath.anchor)
 文件所在的文件夹名为:/home/huawei/hwwork/doc/md/ccc
 文件所在的盘符为:/
 ```
-## 文件、路径是否存在判断
+
+## 文件size、文件夹size
+
+调用 os.path.getsize(path)将返回 path 参数中文件的字节数，案例在[非递归便遍文件夹](#非递归便遍文件夹)
+
+
+## 文件、路径是否存在
+
+os模块的方案：
+
+```
+import os
+mypath = '/home/huawei/hwwork/postdb_doc/mdbooks/ccc'
+print(os.path.exists(mypath))
+print(os.path.isfile(mypath))
+print(os.path.isdir(mypath))
+
+
+[huawei@n161 ccc]$ python3 1.py
+True
+False
+True
+```
+
+Path模块的方案：
 
 - Path.exists()，判断 Path 路径是否指向一个已存在的文件或目录，返回 True 或 False。
 - Path.is_dir()，判断 Path 是否是一个路径，返回 True 或 False。
@@ -4949,7 +5109,46 @@ print(currentPath.is_file())  # 判断是否存在 python-100.txt 文件，此�
 
 ```
 
-## 文件统计以及匹配查找
+
+## 非递归遍历文件夹，glob，连接文件名
+
+- os.listdir(path) 获取指定位目录下的所有文件名和子文件夹名称，非递归
+- os.path.join(path,name)       连接目录与文件名或目录
+
+计算每个文件占用的size，大小同linux的ls命令结果一致
+```
+import os
+mypath = '/home/huawei/hwwork/postdb_doc/mdbooks/ccc'
+totalSize = 0
+for filename in os.listdir(mypath):
+    size = os.path.getsize(os.path.join(mypath, filename))
+    print(filename, size)
+    totalSize = totalSize + size
+print(totalSize)
+
+[huawei@n161 ccc]$ python3 1.py
+1.pl 496
+1.json 945
+1.py 249
+tex.md 3873
+tex.pdf 308647
+tex.tex 10292
+myprocess.py 1260
+__pycache__ 38
+example.log 102
+logging.conf 447
+config_logging.py 586
+users.json 181
+test.txt 40
+test.bin 40
+python 6
+python-100.txt 0
+test.csv 62
+filename.csv 73
+327337
+```
+
+另一种方案：
 
 - Path.iterdir()，返回 Path 目录文件夹下的所有文件，返回的是一个生成器类型。
 - Path.glob(pattern)，返回 Path 目录文件夹下所有与 pattern 匹配的文件，返回的是一个生成器类型。
@@ -4985,47 +5184,115 @@ print(Counter(gen))
 Counter({'.txt': 1})
 Counter({'.md': 1874})
 ```
-# 文件与目录
-http://www.ityouknow.com/python/2019/10/09/python-os-demonstration-026.html
-## 文件操作
 
-- os.getcwd()                   # 获取现在的工作目录
-- os.listdir()                  获取某个目录下的所有文件名
-- os.remove()                   删除某个文件
-- os.path.exists()              检验给出的路径是否真地存在
-- os.path.isfile()              判断是否为文件;若是，返回值为真
-- os.path.isdir()               判断是否为文件夹;若是，返回值为真
-- os.path.abspath(name)         获得绝对路径
-- os.path.splitext()            分离文件名与扩展名
-- os.path.split()               把一个路径拆分为目录+文件名的形式
-- os.path.join(path,name)       连接目录与文件名或目录
-- os.path.basename(path)        返回文件名
-- os.path.dirname(path)         返回文件路径
+## 复制文件和copytree
 
+- shutil.copy(source, destination) 将路径 source 处的文件复制到路径 destination处的文件夹（source 和 destination 都是字符串）。如果 destination 是一个文件名，它将作为被复制文件的新名字。该函数返回一个字符串，表示被复制文件的路径。返回值是刚刚被复制的文件的路径。
+- shutil.copytree()将复制整个文件夹，以及它包含的文件夹和文件。返回一个字符串，是新复制的文件夹的路径
+
+```
+import shutil, os
+shutil.copy('test.csv', '../test2.csv')
+shutil.copytree('../bbb', '../hhh/eee')
+
+```
+## 文件和文件夹的移动与改名
+
+- shutil.move(source, destination)，将路径 source 处的文件夹移动到路径destination，并返回新位置的绝对路径的字符串。确保文件与目标路径都存在否则异常
+- os.rename('bfile', 'ohwell.txt')	把文件重命名为ohno.txt
+```
+import shutil, os
+shutil.move('test.csv', '../test2.csv')
+shutil.move('../aaa', '../aaa2')
+```
+
+## 删除文件和文件夹
+- os.unlink(path) 删除 path 处的文件。
+- os.rmdir(path) 删除 path 处的文件夹。该文件夹必须为空，其中没有任何文件和文件夹。
+- shutil.rmtree(path) 删除 path 处的文件夹，它包含的所有文件和文件夹都会被删除。
+- os.remove() 删除某个文件
+
+删除当前文件夹内的指定类型文件
+```
+import os
+for filename in os.listdir():
+    if filename.endswith('.txt'):
+        os.unlink(filename)
+```
+
+## 用 send2trash 模块安全地删除 
+
+pip install send2trash
+
+详见“python编程快速上手9.1.4”
+
+```
+import send2trash
+baconFile = open('bacon.txt', 'a') # creates the file
+baconFile.write('Bacon is not a vegetable.')
+
+baconFile.close()
+send2trash.send2trash('bacon.txt')
+
+```
+
+## 遍历目录树
+
+os.walk()在循环的每次迭代中，返回 3 个值：
+- 当前文件夹名称的字符串。
+- 当前文件夹中子文件夹的字符串的列表。
+- 当前文件夹中文件的字符串的列表。
+- 所谓当前文件夹，是指 for 循环当前迭代的文件夹。程序的当前工作目录，不会因为 os.walk()而改变。
 
 
 ```
 import os
-os.path.exists('bfile')	# 文件或目录是否存在，支持相对或者绝对路径名
-os.path.isfile('bfile')	# 是否为文件
-os.path.isdir('bfile')	# 判断文件夹
-os.path.isabs('bfile')	# 判断绝对路径
-os.rename('bfile', 'ohwell.txt')	# 把文件重命名为ohno.txt
+for folderName, subfolders, filenames in os.walk('/home/huawei/hwwork/postdb_doc/mdbooks/98_testbook'):
+    print('The current folder is ' + folderName)
+    for subfolder in subfolders:
+        print('SUBFOLDER OF ' + folderName + ': ' + subfolder)
+    for filename in filenames:
+        print('FILE INSIDE ' + folderName + ': '+ filename)
+    print('')
 
-import shutil
-shutil.copy('ohwell.txt', 'ohno.txt')	# 把文件复制到ohno.txt
 
+[huawei@n161 ccc]$ python3 1.py
+The current folder is /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook
+SUBFOLDER OF /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook: 1
+FILE INSIDE /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook: 前言.md
+FILE INSIDE /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook: menu.md
+
+The current folder is /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1
+SUBFOLDER OF /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1: 2
+FILE INSIDE /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1: 存储计算分离.md
+
+The current folder is /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2
+SUBFOLDER OF /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2: 3
+SUBFOLDER OF /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2: 4
+FILE INSIDE /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2: 多数派协议.md
+FILE INSIDE /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2: 工作模式.md
+FILE INSIDE /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2: 整体架构.md
+
+The current folder is /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2/3
+FILE INSIDE /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2/3: 核心机制.md
+FILE INSIDE /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2/3: 网络连接和监听.md
+
+The current folder is /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2/4
+FILE INSIDE /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2/4: 多协程模型.md
+FILE INSIDE /home/huawei/hwwork/postdb_doc/mdbooks/98_testbook/1/2/4: 结点管理.md
+```
+
+
+## 链接操作
+
+```
+import os
 os.link('ohno.txt', 'yikes.txt')	# 把已有文件硬链接到一个新文件yikes.txt
 os.symlink('ohno.txt', 'jeepers.txt')	# symlink()创建一个符号链接
 os.path.islink('jeepers.txt')	# islink() 函数会检查参数是文件还是符号链接
-os.path.realpath('jeepers.txt')	# 获取符号文件指向的文件路径名
-
-
-print(os.path.abspath('pyth.py'))	# 相对转绝对路径
-os.remove('oops.txt')	# 删除
 ```
 
-## shutil 
+## shutil其余方法
 http://www.ityouknow.com/python/2019/10/09/python-shutil-027.html
 
 是高级的文件，文件夹，压缩包处理模块。shutil 可以看作 sh + util，即 shell 工具之意，该模块提供了一些针对文件和文件夹的高级操作，如：拷贝、删除、移动等，shutil 模块是对 os 模块的补充。常用方法如下：
@@ -5042,48 +5309,26 @@ shutil.copymode(src, dst)
 # 仅拷贝状态信息，包括：mode bits, atime, mtime, flags
 shutil.copystat(src, dst)
 
-# 拷贝文件和权限
-shutil.copy(src, dst)
 
 # 拷贝文件和状态信息
 shutil.copy2(src, dst)
 
 # 递归的去拷贝文件夹
 shutil.ignore_patterns(*patterns)
-shutil.copytree(src, dst, symlinks=False, ignore=None)
 
-# 递归删除文件夹
-shutil.rmtree(path[, ignore_errors[, onerror]])
-
-# 递归的去移动文件，它类似mv命令，其实就是重命名。
-shutil.move(src, dst)
 
 # 创建压缩包并返回文件路径，例如：zip、tar
 shutil.make_archive(base_name, format,...)
 ```
 
-## 目录操作
-- os.walk()
-- os.listdir()
-- os.rename()
-- os.getcwd()		# 当前工作目录
-- os.chdir()
-```
-os.mkdir('poems')
-os.chdir('poems')	
-os.listdir('.')	# 获取目录列表
-os.rmdir('poems')
-```
+
 
 ## 归档操作
 各类对archive的操作方法
 
 http://www.ityouknow.com/python/2019/10/09/python-shutil-027.html
-## grob
-```
-import glob
-print(glob.glob('m*'))
-```
+
+
 # 日期与时间
 ## datetime
 是 Python 内置的功能模块，它可以实现对日期的算数运算，以指定的方式格式化日期。datetime 模块内含有一个同名的 datetime 类，该类中包含多个操作日期的函数，例如：datetime.now()、datetime.fromtimestamp()、datetime.timedelta()等
@@ -8677,3 +8922,32 @@ fetchall--> [('3', 'Bob')]
 删除前--> [('1', 'Nicolas'), ('2', 'Alan'), ('3', 'Bob')]
 删除后--> [('2', 'Alan'), ('3', 'Bob')]
 ```
+# 安装python与pip
+```
+yum install gcc patch libffi-devel python-devel zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel -y
+wget https://www.python.org/ftp/python/3.7.10/Python-3.7.10.tgz
+tar -zxvf Python-3.7.10.tgz
+cd Python-3.7.10
+mkdir /usr/local/python3
+./configure --prefix=/usr/local/python3
+make && make install
+ln -s /usr/local/python3/bin/python3.7 /usr/bin/python3
+ln -s /usr/local/python3/bin/pip3.7 /usr/bin/pip3
+
+$ sudo vi ~/.bashrc
+加入 alias python='/usr/bin/python3.7'
+加入 alias pip=pip3
+. ~/.bashrc
+
+檢查Python3版本
+python -V
+python -m pip -V
+
+升级pip
+python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pip
+改pip为国内源
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+
+ 
