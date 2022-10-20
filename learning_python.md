@@ -16,7 +16,7 @@ http://www.ityouknow.com/python.html    基本完毕
 
 Python网络数据采集                      继续第4章
 
-Python编程快速上手                      继续第10章
+Python编程快速上手                      基本完毕
 ---
 # 基础知识
 
@@ -189,7 +189,26 @@ Python
 y
 ['E', 'A', 'B', 'D', 'C']
 ```
+
+## 数字四舍五入 round
+
+```
+import time
+now = time.time()
+print(now)
+print(round(now, 2))
+print(round(now, 4))
+print(round(now))
+
+
+[huawei@n161 ccc]$ python 1.py
+1666249651.4505882
+1666249651.45
+1666249651.4506
+1666249651
+```
 ## pass
+
 防止在if里什么都不写无法运行，可暂时用pass占位
 ```
 #!/usr/bin/python3
@@ -451,6 +470,16 @@ print ('脚本名:', str(sys.argv[0]))
 参数列表: ['61-buildpdf2bbb.py', 'arg1', 'arg2', 'arg3']
 脚本名: 61-buildpdf2bbb.py
 ```
+
+将所有参数练成join起来
+
+```
+import webbrowser, sys
+if len(sys.argv) > 1:
+    address = ' '.join(sys.argv[1:])
+    print(address)
+```
+
 # 序列的分类
 
 ## 扁平序列
@@ -2670,14 +2699,7 @@ print("\nFinished making your pizza!")
 (age_0 >= 21) or (age_1 >= 21)
 如果是简单的比较则可以使用链式 1 <= number <= 10
 ```
-## 断言
-```
-age = 10 
-assert 0 < age < 100 
-age = -1 
-assert 0 < age < 100, 'The age must be realistic'  # 可以自定义输出，否则就是默认
-assert 0 < age < 100 
-```
+
 # 循环
 ## while
 ```
@@ -4706,7 +4728,8 @@ True
 刷新写缓冲区，在文件没有关闭的情况下将数据写入文件中。
 
 ## json
-json 是一个文本序列化格式，可以直观阅读的，json 只能表示 Python 内置类型的子集，不能表示自定义的类
+json 是一个文本序列化格式，可以直观阅读的，JSON 能包含以下数据类型的值：字符串、整型、浮点型、布尔型、列表、字典和 NoneType。JSON 不能表示 Python 特有的对象，如 File 对象、CSV Reader 或 Writer 对象、Regex对象或 Selenium WebElement 对象。
+
 - json.dumps(obj) 序列化，obj 转换为 json 格式的字符串；
 - json.dump(obj, fp) 序列化，将 obj 转换为 json 格式的字符串，将字符串写入文件；
 - json.loads(str) 反序列化，将 json 格式的字符串反序列化为一个 Python 对象；
@@ -4840,7 +4863,7 @@ CSV 全称 Comma-Separated Values，中文叫逗号分隔值或字符分隔值�
 - reader(csvfile, dialect=’excel’, **fmtparams)  
 返回一个 reader 对象，该对象将逐行遍历 csvfile，csvfile 可以是文件对象和列表对象，如果是文件对象要使用 newline=’’ 打开
 
-- 其余参见 http://www.ityouknow.com/python/2020/01/03/python-csv-108.html
+- delimiter 和 lineterminator 关键字可用于改变分隔符与行距的参数，参见“python编程快速上手14.1.4”
 
 ```
 import csv
@@ -5330,8 +5353,35 @@ http://www.ityouknow.com/python/2019/10/09/python-shutil-027.html
 
 
 # 日期与时间
-## datetime
-是 Python 内置的功能模块，它可以实现对日期的算数运算，以指定的方式格式化日期。datetime 模块内含有一个同名的 datetime 类，该类中包含多个操作日期的函数，例如：datetime.now()、datetime.fromtimestamp()、datetime.timedelta()等
+
+
+## Python日期时间汇总
+
+在 Python 中，日期和时间可能涉及好几种不同的数据类型和函数。
+
+表示时间的 3 种不同类型的值：
+- Unix 纪元时间戳（time 模块中使用）是一个浮点值或整型值，表示自 1970 年1 月 1 日午夜 0 点（UTC）以来的秒数。
+- datetime 对象（属于 datetime 模块）包含一些整型值，保存在 year、month、day、hour、minute 和 second 等属性中。
+- timedelta 对象（属于 datetime 模块）表示的一段时间，而不是一个特定的时刻。
+
+时间函数及其参数和返回值：
+- time.time()函数返回一个浮点值，表示当前时刻的 Unix 纪元时间戳。
+- time.sleep(seconds)函数让程序暂停 seconds 参数指定的秒数。
+- datetime.datetime(year, month, day, hour, minute, second)函数返回参数指定的时刻的 datetime 对象。如果没有提供 hour、minute 或 second 参数，它们默认为 0。
+- datetime.datetime.now()函数返回当前时刻的 datetime 对象。
+- datetime.datetime.fromtimestamp(epoch)函数返回 epoch 时间戳参数表示的时刻的 datetime 对象。
+- datetime.timedelta(weeks, days, hours, minutes, seconds, milliseconds, microseconds)函数返回一个表示一段时间的 timedelta 对象。该函数的关键字参数都是可选的，不包括 month 或 year。
+- total_seconds()方法用于 timedelta 对象，返回 timedelta 对象表示的秒数。
+- strftime(format)方法返回一个字符串，用 format 字符串中的定制格式来表示datetime 对象表示的时间。
+- datetime.datetime.strptime(time_string, format)函数返回一个 datetime 对象，它的时刻由 time_string 指定，利用 format 字符串参数来解析。
+
+
+
+## datetime模块
+
+time 模块用于取得 Unix 纪元时间戳，并加以处理。但是，如果以更方便的格式显示日期，或对日期进行算术运算（例如，搞清楚 205 天前是什么日期，或 123天后是什么日期），就应该使用 datetime 模块。
+
+datetime是 Python 内置的功能模块，它可以实现对日期的算数运算，以指定的方式格式化日期。datetime 模块内含有一个同名的 datetime 类，该类中包含多个操作日期的函数，例如：datetime.now()、datetime.fromtimestamp()、datetime.timedelta()等
 
 - datetime 类提供了一个now()的方法可以获取当前日期和时间，还提供了带参数的构造函数datetime()，可以通过传入特定的数字返回不同的datetime 对象
 ```
@@ -5444,10 +5494,13 @@ print(data)
 2022:10:08 17:17:43
 2022-10-08 17:15:39
 ```
-## time
+## time模块
 与 datetime 模块有所不同，time 模块主要功能是读取系统时钟的当前时间。其中，time.time() 和 time.sleep() 是两个最常用的模块。
 
-- time.time() 函数返回的值是带小数点的，它表示从 Unix 纪元（1970年1月1日0点）到执行代码那一刻所经历的时间的秒数，这个数字称为UNIX纪元时间戳。
+
+### time函数
+
+函数返回的值是带小数点的，它表示从 Unix 纪元（1970年1月1日0点）到执行代码那一刻所经历的时间的秒数，这个数字称为UNIX纪元时间戳。
 
 ```
 import time
@@ -5491,9 +5544,9 @@ time.struct_time(tm_year=2022, tm_mon=9, tm_mday=8, tm_hour=16, tm_min=40, tm_se
 time.struct_time(tm_year=2022, tm_mon=9, tm_mday=8, tm_hour=8, tm_min=40, tm_sec=12, tm_wday=3, tm_yday=251, tm_isdst=0)
 ```
 
-- sleep()函数，如果需要让程序暂停一下，可以使用time.sleep()函数。sleep()函数有个参数，表示需要暂停的秒数
+### sleep函数
 
-打印one和打印two之间每次都间隔了一秒，因为time.time()函数输出结果的精确度比较高，会存在些许误差。time.sleep()函数会阻塞代码，只有当time.sleep()中的秒数流逝后，才会执行后续代码
+如果需要让程序暂停一下，可以使用time.sleep()函数。sleep()函数有个参数，表示需要暂停的秒数。打印one和打印two之间每次都间隔了一秒，因为time.time()函数输出结果的精确度比较高，会存在些许误差。time.sleep()函数会阻塞代码，只有当time.sleep()中的秒数流逝后，才会执行后续代码
 ```
 import time
 for i in range(2):
@@ -6857,6 +6910,23 @@ Traceback (most recent call last):
     raise Exception('hyperdrive overload') 
 Exception: hyperdrive overload
 ```
+
+## 断言
+
+assert语句包含以下部分：
+- assert 关键字；
+- 条件（即求值为 True 或 False 的表达式）；
+- 逗号；
+- 当条件为 False 时显示的字符串。
+- 在运行 Python 时传入-O 选项，可以禁用断言
+```
+age = 10 
+assert 0 < age < 100 
+age = -1 
+assert 0 < age < 100, 'The age must be realistic'  # 可以自定义输出，否则就是默认
+assert 0 < age < 100 
+```
+
 ## 异常类型
 见python基础教程第三版p133
 ## 自定义的异常类
@@ -6943,6 +7013,78 @@ except:
 	print('Something wrong happened ...') 
 ```
 
+# 日志
+
+## logging 模块
+
+- 创建
+
+```
+import logging
+logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s- %(message)s')
+logging.debug('Start of program')
+def factorial(n):
+    logging.debug('Start of factorial(%s%%)' % (n))
+    total = 1
+    for i in range(n + 1):
+        total *= i
+        logging.debug('i is ' + str(i) + ', total is ' + str(total))
+        logging.debug('End of factorial(%s%%)' % (n))
+    return total
+print(factorial(5))
+logging.debug('End of program')
+
+[huawei@n161 ccc]$ python3 1.py
+ 2022-10-19 14:25:05,962 - DEBUG- Start of program
+ 2022-10-19 14:25:05,962 - DEBUG- Start of factorial(5%)
+ 2022-10-19 14:25:05,962 - DEBUG- i is 0, total is 0
+ 2022-10-19 14:25:05,962 - DEBUG- End of factorial(5%)
+ 2022-10-19 14:25:05,962 - DEBUG- i is 1, total is 0
+ 2022-10-19 14:25:05,962 - DEBUG- End of factorial(5%)
+ 2022-10-19 14:25:05,962 - DEBUG- i is 2, total is 0
+ 2022-10-19 14:25:05,962 - DEBUG- End of factorial(5%)
+ 2022-10-19 14:25:05,962 - DEBUG- i is 3, total is 0
+ 2022-10-19 14:25:05,962 - DEBUG- End of factorial(5%)
+ 2022-10-19 14:25:05,962 - DEBUG- i is 4, total is 0
+ 2022-10-19 14:25:05,962 - DEBUG- End of factorial(5%)
+ 2022-10-19 14:25:05,962 - DEBUG- i is 5, total is 0
+ 2022-10-19 14:25:05,962 - DEBUG- End of factorial(5%)
+0
+ 2022-10-19 14:25:05,962 - DEBUG- End of program
+```
+
+- 级别设置
+
+```
+import logging
+logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
+logging.debug('Some debugging details.')
+logging.info('The logging module is working.')
+logging.warning('An error message is about to be logged.')
+logging.error('An error has occurred.')
+logging.critical('The program is unable to recover!')
+
+```
+
+- 关闭，logging.disable() 将禁用它之后的所有消息
+```
+import logging
+logging.basicConfig(level=logging.INFO, format=' %(asctime)s - %(levelname)s - %(message)s')
+logging.critical('Critical error! Critical error!')
+logging.disable(logging.CRITICAL)
+logging.critical('Critical error! Critical error!')
+logging.error('Error! Error!')
+```
+
+- 将日志记录到文件
+
+```
+import logging
+logging.basicConfig(filename='myProgramLog.txt', level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
+logging.critical('Critical error! Critical error!')
+logging.error('Error! Error!')
+```
+
 # 进程
 ## 进程信息
 ```
@@ -6965,9 +7107,13 @@ os.getgid()		# 用户组 ID
 - call
 	- 程序的输出会打印到对应的std中，只返回退出状态
 	- 在 Unix 类操作系统中，退出状态 0 通常表示运行成功
+- Popen
 
 ```
 import subprocess
+subprocess.Popen('ps')
+
+
 ret = subprocess.getoutput('date')
 print(ret)	# Thu Sep  8 15:43:03 CST 2022
 ret = subprocess.getoutput('date -u | wc')
@@ -8922,9 +9068,27 @@ fetchall--> [('3', 'Bob')]
 删除前--> [('1', 'Nicolas'), ('2', 'Alan'), ('3', 'Bob')]
 删除后--> [('2', 'Alan'), ('3', 'Bob')]
 ```
-# 安装python与pip
+# 删除、安装python与pip
+## 删除现有的python
+
+注意下面会删除所有版本的python。。。                
+
+```
+#强制清除已安装的程序及其关联
+sudo rpm -qa|grep python|sudo xargs rpm -e --allmatches --nodeps
+
+#删除所有残余文,xargs，允许你对输出执行其他某些命令
+sudo whereis python |sudo xargs rm -frv
+
+
+#验证删除，返回无结果说明清除干净
+whereis python
+```
+
 ```
 yum install gcc patch libffi-devel python-devel zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel -y
+
+下载源代码自己编译
 wget https://www.python.org/ftp/python/3.7.10/Python-3.7.10.tgz
 tar -zxvf Python-3.7.10.tgz
 cd Python-3.7.10
@@ -8934,8 +9098,9 @@ make && make install
 ln -s /usr/local/python3/bin/python3.7 /usr/bin/python3
 ln -s /usr/local/python3/bin/pip3.7 /usr/bin/pip3
 
+定义命令别名
 $ sudo vi ~/.bashrc
-加入 alias python='/usr/bin/python3.7'
+加入 alias python='/usr/bin/python3'
 加入 alias pip=pip3
 . ~/.bashrc
 
@@ -8948,6 +9113,18 @@ python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pip
 改pip为国内源
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
+## pip离线安装第三方库
 
+```
+1 在有网的机器上下载，在cmd下输入
+pip download 包名
 
- 
+2 在离线的机器上安装：
+pip install --no-index --find-links=file: “包的文件名”
+```
+
+## pip常用命令
+
+```
+pip list #查看安装的包
+```
