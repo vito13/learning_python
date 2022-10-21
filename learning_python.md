@@ -17,6 +17,9 @@ http://www.ityouknow.com/python.html    基本完毕
 Python网络数据采集                      继续第4章
 
 Python编程快速上手                      基本完毕
+
+Python Linux系统管理与自动化运维        继续第3.2章
+
 ---
 # 基础知识
 
@@ -4058,6 +4061,14 @@ print(avg(30))
 
 # 模块
 - 类支持继承，但模块不支持。Python 模块是单例
+
+## 检查第三方库是否正确安装
+
+正常则无任何输出，未安装对应模块则输出异常
+```
+[huawei@n161 mdbooks]$ python -c 'import sys'
+```
+
 ## 定义
 - 普通函数模块，另见类模块
 ```
@@ -5101,6 +5112,26 @@ False
 True
 ```
 
+检测可以读access的测试
+
+```
+import os 
+import sys 
+
+def main (): 
+    sys.argv.append ("") 
+    filename = sys.argv[1] 
+    if not os.path.isfile(filename):
+        raise SystemExit(filename + 'does not exsts')
+    elif not os.access(filename, os.R_OK):
+        raise SystemExit(filename + 'is not accessible')
+    else : 
+        print('filename s accessible')
+
+if __name__ == "__main__":
+    main()
+```
+
 Path模块的方案：
 
 - Path.exists()，判断 Path 路径是否指向一个已存在的文件或目录，返回 True 或 False。
@@ -5591,7 +5622,100 @@ import sys
 for line in sys.stdin: 
 	process(line) 
 ```
+## 使用fileinput读取stdin
 
+多种不同的调用方式均可运行，并且还支持多文件
+
+```
+import os 
+import sys 
+import fileinput 
+
+def main (): 
+    for line in fileinput.input():
+        meta = [fileinput.filename(), fileinput.fileno(), fileinput.filelineno(), fileinput.isfirstline(), fileinput.isstdin()]
+        print (*meta , end="")
+        print(line , end="") 
+
+if __name__ == "__main__":
+    main()
+
+
+
+[huawei@n161 ccc]$ cat test2.csv|python3 1.py
+<stdin> 0 1 True Trueid,name,age
+<stdin> 0 2 False True1001,张三,222
+<stdin> 0 3 False True1001,张三,21
+<stdin> 0 4 False True1002,李四,31
+[huawei@n161 ccc]$ python3 1.py < test2.csv
+<stdin> 0 1 True Trueid,name,age
+<stdin> 0 2 False True1001,张三,222
+<stdin> 0 3 False True1001,张三,21
+<stdin> 0 4 False True1002,李四,31
+[huawei@n161 ccc]$ python3 1.py  test2.csv
+test2.csv 3 1 True Falseid,name,age
+test2.csv 3 2 False False1001,张三,222
+test2.csv 3 3 False False1001,张三,21
+test2.csv 3 4 False False1002,李四,31
+
+
+[huawei@n161 ccc]$ python3 1.py  test2.csv 1.json
+test2.csv 3 1 True Falseid,name,age
+test2.csv 3 2 False False1001,张三,222
+test2.csv 3 3 False False1001,张三,21
+test2.csv 3 4 False False1002,李四,31
+1.json 3 1 True False[{"vegetable":"cauliflower","drink":"orange juice","fruit":"banana"},{"存储计算分离":"lettuce","存储":"计算","fruit":"概念手册"}]Add new textAdd new textAdd new text
+1.json 3 2 False False
+1.json 3 3 False False
+1.json 3 4 False False
+```
+
+## 输出到sys.stdout与sys.stderr
+
+
+```
+import os 
+import sys 
+def main (): 
+    sys.stdout.write('hello\n')
+    sys.stderr.write('error\n')
+
+if __name__ == "__main__":
+    main()
+
+
+默认2个都输出了
+[huawei@n161 ccc]$ python3 1.py  
+hello
+error
+
+将stdout重定向到null后只剩error了
+[huawei@n161 ccc]$ python3 1.py  > /dev/null
+error
+
+
+[huawei@n161 ccc]$ python3 1.py  2 > /dev/null
+error
+```
+
+通常如下使用stderr返回错误码
+
+```
+import os 
+import sys 
+
+def main (): 
+    sys.stderr.write('error\n')
+    sys.exit(3)
+
+if __name__ == "__main__":
+    main()
+
+[huawei@n161 ccc]$ python3 1.py  
+error
+[huawei@n161 ccc]$ echo $?
+3
+```
 
 # 正则 re
 建议字符串都使用原始字符串即r""  
@@ -9113,7 +9237,19 @@ python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pip
 改pip为国内源
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
+
+## pip简介
+
+
+- pip 提供了丰富的功能，其竞争对手easy_install则只支持安装，没有提供卸载和显示已安装列表的功能；
+- pip能够很好地支持虚拟环境；
+- pip可以通过requirements.txt集中管理依赖；
+- pip能够处理二进制格式（.whl); 
+- pip是先下载后安装，如果安装失败，也会清理干净，不会留下一个中间状态
+
 ## pip离线安装第三方库
+
+批量下载离线安装详见“Python Linux系统管理与自动化运维” 2.2.3
 
 ```
 1 在有网的机器上下载，在cmd下输入
@@ -9121,6 +9257,14 @@ pip download 包名
 
 2 在离线的机器上安装：
 pip install --no-index --find-links=file: “包的文件名”
+```
+
+## 安装pip自动补全
+
+```
+[huawei@n161 mdbooks]$ python3 -m pip completion --bash >> ~/.profile
+[huawei@n161 mdbooks]$ . ~/.profile
+
 ```
 
 ## pip常用命令
