@@ -18,7 +18,7 @@ Python网络数据采集                      继续第4章
 
 Python编程快速上手                      基本完毕
 
-Python Linux系统管理与自动化运维        继续第3.2章
+Python Linux系统管理与自动化运维        继续第4.3章
 
 ---
 # 基础知识
@@ -1579,6 +1579,10 @@ Chico
 Harpo
 
 ```
+## 元素数量
+
+使用len即可
+
 ## 打印元素
 ```
 lax_coordinates = (33.9425, -118.408056)
@@ -2467,8 +2471,36 @@ bytearray(b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x
 
 # 枚举 enum
 
-
 ## 创建、访问、迭代
+
+最简单的方式，value属性则是自动赋给成员的int常量，默认从1开始计数
+
+```
+from enum import Enum
+Month=Enum('Month', ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+print(Month.Jan.value)
+print(Month.Jan)
+
+for name,member in Month.__members__.items():
+    print(name,'=>',member,',',member.value)
+
+[huawei@10 japanese_words]$ python3 test.py 
+1
+Month.Jan
+Jan => Month.Jan , 1
+Feb => Month.Feb , 2
+Mar => Month.Mar , 3
+Apr => Month.Apr , 4
+May => Month.May , 5
+Jun => Month.Jun , 6
+Jul => Month.Jul , 7
+Aug => Month.Aug , 8
+Sep => Month.Sep , 9
+Oct => Month.Oct , 10
+Nov => Month.Nov , 11
+Dec => Month.Dec , 12
+```
+
 
 枚举属性值可以是任何东西: int, str 等。如果确切的值不重要，您可以使用 auto 实例，并为您选择适当的值。如果您将 auto 与其他值混合，则必须小心。 枚举类型中，不可以设置相同名称的 name，可以有相同的 value。
 ```
@@ -9103,6 +9135,9 @@ SQLite 是一种轻型嵌入式关系型数据库，它包含在一个相对小�
 SQLite 是一个进程内的库，它实现了自给自足、无服务器、无需配置、支持事务。Python 可以通过 sqlite3 模块与 SQLite3 集成，Python 2.5.x 以上版本内置了 sqlite3 模块，因此，我们在 Python 中可以直接使用 SQLite。
 
 数据类型与常用函数详见 http://www.ityouknow.com/python/2019/12/03/python-SQLite-077.html
+
+- connect 函数可以创建数据库或者连接数据库，如果这个数据库存在，就连接这个数据库，如果这个库不存在，就创建数据库。右边小括号里的是数据库名。
+- 创建了与数据库的连接后还需要一个游标来执行 sql 命令，所以用 conn 的 cursor 函数创建一个游标。
 ```
 # 导入模块
 import sqlite3
