@@ -483,6 +483,81 @@ if len(sys.argv) > 1:
     print(address)
 ```
 
+## getopt
+
+Python中getopt.getopt()这个函数是为了从外部输入不同的命令行选项时，对应执行不同的功能。目前有短选项和长选项两种格式。短选项格式为"-"加上单个字母选项；长选项为"--"加上一个单词，同样也是程序外部传参。
+
+- 语法
+
+    getopt.getopt(sys.argv,短选项，长选项)
+
+- 返回值
+
+    函数返回两个列表：opts和args。opts为分析出的格式信息。args为不属于格式信息的剩余的命令行参数。opts是一个两元组的列表。每个元素为：(选项串,附加参数)。如果没有附加参数则为空串''。
+
+- 写法要求
+
+    对于短格式，"-"号后面要紧跟一个选项字母。如果还有此选项的附加参数，可以用空格分开，也可以不分开。长度任意，可以用引号。如以下是正确的：  
+    -o  
+    -oa  
+    -obbbb  
+    -o bbbb  
+    -o "a b"  
+    对于长格式，"--"号后面要跟一个单词。如果还有些选项的附加参数，后面要紧跟"="，再加上参数。"="号前后不能有空格。如以下是正确的：
+    --help=file1  
+    而这些是不正确的：  
+    -- help=file1  
+    --help =file1  
+    --help = file1  
+    --help= file1  
+
+- 案例说明
+
+```
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "ho:", ["help", "output="])
+    # 长短选项的功能相同，可以随意选择使用
+except getopt.GetoptError:
+    # print help information and exit:
+```
+
+  1. 处理所使用的函数叫getopt()，因为是直接使用import导入的getopt模块，所以要加上限定getopt才可以。
+  2. 使用sys.argv[1:]过滤掉第一个参数（它是执行脚本的名字，不应算作参数的一部分）。
+  3. 在函数里，使用短格式分析串"ho:"。当一个选项只是表示开关状态时，即后面不带附加参数时，在分析串中写入选项字符。当选项后面是带一个附加参数时，在分析串中写入选项字符同时后面加一个":"号。所以"ho:"就表示"h"是一个开关选项；"o:"则表示后面应该带一个参数。函数中的'ho:'表示，在dos界面输入短格式选项‘-h’,并且有附加参数，短选项的附加参数写法如上要求
+  4. 在函数里，使用长格式,用一个列表包含几个长选项：["help", "output="]。长格式串也可以有开关状态，即后面不跟"="号。如果跟一个等号则表示后面还应有一个参数。这个长格式表示"help"是一个开关选项；"output="则表示后面应该带一个参数。函数中的["help", "output="]，表示在dos界面输入长格式串--help,不附加参数。--output，附加参数。
+  5. 调用getopt函数。函数返回两个列表：opts和args。opts为分析出的格式信息。args为不属于格式信息的剩余的命令行参数。opts是一个两元组的列表。每个元素为：(选项串,附加参数)。如果没有附加参数则为空串''。
+  6. 整个过程使用异常来包含，这样当分析出错时，就可以打印出使用信息来通知用户如何使用这个程序。
+  7. 如上面解释的一个命令行例子为：
+```
+'-h -o file --help --output=out file1 file2'
+　　在分析完成后，opts应该是：
+[('-h', ''), ('-o', 'file'), ('--help', ''), ('--output', 'out')]
+　　而args则为：
+['file1', 'file2']
+```
+
+案例  
+使用一个循环，每次从opts中取出一个两元组，赋给两个变量。o保存选项参数，a为附加参数。接着对取出的选项参数进行处理。
+
+```
+import getopt
+import sys
+
+opts,args = getopt.getopt(sys.argv[1:],'-h-f:-v',['help','filename=','version'])
+print(opts)
+for opt_name,opt_value in opts:
+    if opt_name in ('-h','--help'):
+        print("[*] Help info")
+        sys.exit()
+    if opt_name in ('-v','--version'):
+        print("[*] Version is 0.01 ")
+        sys.exit()
+    if opt_name in ('-f','--filename'):#当外部输入'-f1'或者'--flilename=1'时，输出为：[('--filename', '3')] \n [*] Filename is  3
+        fileName = opt_value
+        print("[*] Filename is ",fileName)
+        # do something
+        sys.exit()
+```
 # 序列的分类
 
 ## 扁平序列
@@ -4803,7 +4878,7 @@ with open('users.json','r',encoding='utf-8') as f:
     print(datas)
 
 
-# 这里直接open后load，自动到数据结构中
+# 这里直接open后load，自动到数据结构中， load后可以像使用字典那样取元素内容，如print(books['lesson'], books['count'])
 with open('users.json','r',encoding='utf-8') as f:
     numbers = json.load(f)
     print(numbers)
