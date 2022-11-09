@@ -4971,7 +4971,7 @@ b'\x80\x03]q\x00(X\x01\x00\x00\x00Aq\x01X\x01\x00\x00\x00Bq\x02X\x01\x00\x00\x00
 
 ```
 
-## cvs
+## csv
 
 CSV 全称 Comma-Separated Values，中文叫逗号分隔值或字符分隔值，它以纯文本形式存储表格数据（数字和文本），其本质就是一个字符序列，可以由任意数目的记录组成，记录之间以某种换行符分隔，每条记录由字段组成，通常所有记录具有完全相同的字段序列，字段间常用逗号或制表符进行分隔。CSV 文件格式简单、通用，在现实中有着广泛的应用，其中使用最多的是在程序之间转移表格数据。
 
@@ -5270,7 +5270,17 @@ print(currentPath.is_file())  # 判断是否存在 python-100.txt 文件，此�
 
 ```
 
-
+## (好用)遍历文件夹
+from os import path 
+```
+    filepath = os.path.abspath("相对路径的文件夹")  获取到绝对路径文件夹
+    file = os.listdir(filepath)
+    for f in file:
+        #字符串拼接
+        real_url = path.join (filepath , f)
+        #打印出来
+        print(real_url)
+```
 ## 非递归遍历文件夹，glob，连接文件名
 
 - os.listdir(path) 获取指定位目录下的所有文件名和子文件夹名称，非递归
