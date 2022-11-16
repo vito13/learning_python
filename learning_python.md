@@ -759,6 +759,11 @@ print([name for name in filenames if name.endswith(('.c', '.h')) ])
 [huawei@n148 doc]$ /usr/bin/python3 "/home/huawei/hwwork/doc/md/aaa/pyth.py"
 ['foo.c', 'spam.c', 'spam.h']
 ```
+
+## 判断空字符串
+
+- if len(username) == 0:
+
 ## 判断都是字母数字
 poem.isalnum()
 ## 首字母变大写
@@ -935,7 +940,7 @@ print(subject.find('!!!', 0, 16)) # 同时指定了起点和终点
 -1
 ```
 ## join、split
-split返回列表
+split返回列表，且只能指定一种分割符号，如需多种得用正则的split
 ```
 #!/usr/bin/python3
 seq = ['1', '2', '3', '4', '5'] 
@@ -5945,19 +5950,18 @@ print(regex2.findall(string))
 ## 替换 sub
 - re.sub(pattern,repl,string,count) 替换匹配的子字符串，返回值是替换之后的字符串。
 - 参数pattern是正则表达式；
-- 参数repl是用于替换的新字符串；
-- 参数string是即将被替换的旧字符串；
 - 参数count是要替换的最大数量，默认值为零，表示不限制替换数量。
+
+同时去除多种元素，可以使用 竖线| 将所有想要替换的元素隔开，表示或的意思。
 
 ```
 import re  # 导入库
-str = "umji is the best umji in the world although GFRIEND is so lovely"
-pattern = r"umji"
-newstr = re.sub(pattern,"sowon",str,2)
-print(newstr)
+a = '于枫#1立马#1立正#3，全身#1绷直#4！'
+b = re.sub('#1|#2|#3|#4','',a)
+print(b)   ## 于枫立马立正，全身绷直！
 
-[huawei@n161 ccc]$ python3 1.py
-sowon is the best sowon in the world although GFRIEND is so lovely
+[huawei@10 japanese_words]$ python3 test.py 
+于枫立马立正，全身绷直！
 ```
 
 ## 分割 split
@@ -5970,13 +5974,12 @@ sowon is the best sowon in the world although GFRIEND is so lovely
 
 ```
 import re
-mystr='www.csdn.com'
-print(mystr)
-print(re.split('\.',mystr))
+s = 'AAAA,BBBB:CCCC;DDDD'
+ret = re.split(r'[,:;]', s)
+print(ret)
 
-[huawei@n161 ccc]$ python3 1.py
-www.csdn.com
-['www', 'csdn', 'com']
+[huawei@10 japanese_words]$ python3 test.py 
+['AAAA', 'BBBB', 'CCCC', 'DDDD']
 ```
 
 
@@ -8834,6 +8837,60 @@ MainThread get result : admin
 MainThread cost 2 second
 ```
 
+另一个案例，演示了多线程对同一账户进行存款取款的并发操作
+
+```
+import threading
+from concurrent.futures import ThreadPoolExecutor
+
+#账户类
+class Account:
+    def __init__(self, account_no, balance):
+        #账户编号和账户余额
+        self.account_no = account_no
+        self.balance = balance
+
+        self._flag = False
+        self.cond = threading.Condition()
+    
+    def getBlance(self):
+        return self.balance
+    
+    #提取现金方法
+    def draw(self, draw_amount):
+        with self.cond:
+            if not self._flag:
+                self.cond.wait()
+            else:
+                if self.balance >= draw_amount:
+                    print(threading.current_thread().name+'	取钱成功!吐出钞票:'+str(draw_amount))
+                    self.balance -= draw_amount
+                    print(threading.current_thread().name+'操作之后	余额为:'+str(self.balance))
+                else:
+                    print(threading.current_thread().name+'	取钱失败!余额不足!	当前余额为:'+str(self.balance))
+                self._flag = False
+                self.cond.notify_all()
+
+    #存钱方法
+    def deposit(self, deposit_amount):
+        with self.cond:
+            if  self._flag:
+                self.cond.wait()
+            else:
+                print(threading.current_thread().name+'	存钱成功!存入钞票:'+str(deposit_amount))
+                self.balance += deposit_amount
+                print(threading.current_thread().name+'操作之后	余额为:'+str(self.balance))
+                self._flag = True
+                self.cond.notify_all()
+
+acct = Account('986623', 1000)
+
+with ThreadPoolExecutor(100, thread_name_prefix='Account_Thread_Pool') as pools:
+    for i in range(50):
+        pools.submit(acct.deposit, 1000)
+        pools.submit(acct.draw, 900)
+
+```
 
 # 协程
 http://www.gaohaiyan.com/2667.html
