@@ -5010,6 +5010,11 @@ id,name,age
 1002,李四,31
 ```
 
+## 读取excel
+- pip install xlrd==1.2.0 这个版本才行，新的版本不支持xlsx
+
+https://blog.csdn.net/m0_59235508/article/details/122808875
+
 ## 用 shelve 模块保存变量
 
 利用 shelve 模块可以将 Python 程序中的变量保存到二进制的 shelf 文件中。
