@@ -1373,6 +1373,11 @@ Hello, world!
 ['!', 'd', 'l', 'r', 'o', 'w', ' ', ',', 'o', 'l', 'l', 'e', 'H']
 !dlrow ,olleH
 ```
+
+## 乱序 shuffle
+
+见[伪随机数](#伪随机数)案例
+
 ## 判断空列表
 ```
 #!/usr/bin/python3
@@ -5495,7 +5500,7 @@ shutil.copystat(src, dst)
 shutil.copy2(src, dst)
 
 # 递归的去拷贝文件夹
-shutil.ignore_patterns(*patterns)
+shutil.copytree(old_path,new_path)
 
 
 # 创建压缩包并返回文件路径，例如：zip、tar
