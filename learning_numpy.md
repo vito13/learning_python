@@ -2,15 +2,63 @@
 
 ## 术语
 
-### 样本、特征
+### 机器学习 (Machine Learning)分类
 
-- 二维行是数据样本（第一维度），列是特征（第二维度）。
+- 监督学习 supervised learning：有数据和标签
+- 非监督学习 unsupervised learning：没有数据没有标签
+- 半监督学习 semi-supervised learning：两者结合
+- 强化学习 reinforcement learning：从经验中总结提升
+- 遗传算法 genetic algorithm：与强化学习类似，适者生存优胜劣汰
+
+### 样本、特征、张量
+
+- 数据：二维的行
+- 特征：二维的列
 - 组合特征：列合并
 - 组合样本：行合并
+- 张量：即矩阵
+- 激活函数：非线性函数
+- 可以被训练，能够拟合数据的模型
 
-## 创建数据
+### 前向传播、回归问题、分类问题
 
-一维二维三维
+- 前向传播：计算最终结果
+- 回归问题：预测事物的值
+- 分类问题：预测事物的类别
+
+### 元素数据类型 dtype
+
+即元素的数据类型，可以创建时候指定，元素非简单类型则是object
+
+```
+raw_data = [
+["Name", "StudentID", "Age", "AttendClass", "Score"],
+["小明", 20131, 10, 1, 67],
+["小花", 20132, 11, 1, 88],
+["小菜", 20133, None, 1, "98"],
+["小七", 20134, 8, 1, 110],
+["花菜", 20134, 98, 0, None],
+["刘欣", 20136, 12, 0, 12]
+]
+data = np.array(raw_data) # object
+test1 = np.array([1,2,3]) # int32
+test2 = np.array([1.1,2.3,3.4]) # float64
+test3 = np.array([1,2,3], dtype=np.float64)
+```
+
+### a*=2(快)、b=2*b
+
+```
+# 这会产生新的 b
+b = 2*b
+
+# 这不会产生新的a, 和a[:] *= 2 一样
+a *= 2    
+```
+
+## 创建与生成数据
+
+### 一维二维三维
 
 ```
 import numpy as np
@@ -40,11 +88,84 @@ print("场地 1 数据：\n", cars[0], "\n场地 1 维度：", cars[0].ndim)
 print("场地 2 数据：\n", cars[1], "\n场地 2 维度：", cars[1].ndim)
 ```
 
-## 取值
+### empty、全0、全1、full全部相同，xxx_like
 
-- 取一行
-- 取一个
-- 取多个
+empty生成的内容垃圾值，非随机，仅仅占位而已
+
+```
+img = np.zeros((8,8),dtype="uint8")  二维8行8列
+print(img)
+
+zeros = np.zeros([2, 3])
+print("zeros:\n", zeros)
+
+ones = np.ones([3, 2])
+print("\nones:\n", ones)
+
+nines = np.full([2,3], 9)
+print(nines)
+
+print(np.empty([4,3]))
+
+print(np.ones_like(nines))
+print(np.zeros_like(nines))
+print(np.empty_like(nines))
+print(np.full_like(nines, 100))
+```
+
+### range序列
+
+```
+print(list(range(5))) # [0, 1, 2, 3, 4]
+print(list(range(3, 10, 2))) # [3, 5, 7, 9]
+print(np.arange(5)) # [0 1 2 3 4]
+print(np.arange(3, 10, 2)) # [3 5 7 9]
+```
+
+### linspace 平均分布生成
+
+可以指定不包含终点
+
+```
+print("linspace:", np.linspace(-1, 1, 5)) # [-1.  -0.5  0.   0.5  1. ]
+print("5 segments:", np.linspace(-1, 1, 5, endpoint=False)) # 5 segments: [-1.  -0.6 -0.2  0.2  0.6]
+```
+
+### 正态分布、均匀分布
+
+```
+# (均值，方差，size)
+print("正态分布：", np.random.normal(1, 0.2, 10))
+
+# (最低，最高，size)
+print("均匀分布：", np.random.uniform(-1, 1, 10))
+```
+
+### 随机生成
+
+- seed：随机种子与以往不同，想要每次都相同才要设置...
+- rand、random：默认生成0~1的浮点
+- randn：标准正态分布
+- randint：整数
+
+```
+np.random.seed(2)
+print(np.random.rand(2,3))
+print(np.random.random([2, 3]))
+
+[[0.45146826 0.36094719 0.03049207]
+ [0.89936196 0.55207281 0.59825998]]
+
+print(np.random.randn(2,3))
+
+print(np.random.randint(0, 10, (2, 3)))
+[[9 4 7]
+ [7 8 1]]
+```
+
+## 取值（用索引取值会深拷贝）
+
+### 取一行、取一个、取多个
 
 ```
 a = np.array([1, 2, 3])
@@ -70,7 +191,79 @@ print("b[[1,0],[2,3]]:\n",
 b[[1,0],[2,3]])
 ```
 
-## 改变维度
+### 随机取
+
+```
+data = np.array([2,1,3,4,6])
+print("选一个：", np.random.choice(data))
+print("选多个：", np.random.choice(data, size=3))
+print("不重复地选多个(不放回)：", np.random.choice(data, size=3, replace=False))
+print("带权重地选择：", np.random.choice(data, size=10, p=[0,0,0,0.2,0.8]))
+```
+
+### take 按索引
+
+- indices	索引序列，可以是列表或数组
+- axis	沿哪个轴取值，默认展开成一维
+
+```
+arr = np.array([10, 20, 30, 40])
+res = np.take(arr, [0, 2])
+print(res) # [10 30]
+arr2d = np.array([[1,2],[3,4],[5,6]])
+res2d = np.take(arr2d, [0,2], axis=0)  # 取第0行和第2行
+print(res2d)
+
+[[1 2]
+ [5 6]]
+```
+
+### compress 布尔筛选
+
+类似掩码的作用
+
+```
+arr = np.array([10, 20, 30, 40])
+mask = np.array([True, False, True, False])
+res = np.compress(mask, arr)
+print(res) # [10 30]
+
+
+arr2d = np.array([[1,2],[3,4],[5,6]])
+mask = np.array([True, False, True])
+res2d = np.compress(mask, arr2d, axis=0)  # 选出第0轴中 True 的行
+print(res2d)
+[[1 2]
+ [5 6]]
+```
+
+## 拷贝、洗牌
+
+### copy、shuffle
+
+```
+data_copy = np.copy(data)
+np.random.shuffle(data)
+print("源数据：", data_copy)
+print("shuffled:", data)
+```
+
+### 将序号洗牌 permutation
+
+```
+data = np.array([2,1,3,4,6])
+print("直接出乱序序列：", np.random.permutation(10)) # [7 2 8 3 9 5 6 4 1 0]
+# 多维数据在第一维度上乱序
+arr2d = np.array([[1,2],[3,4],[5,6]])
+shuffled2d = np.random.permutation(arr2d)
+print(shuffled2d)
+
+[[3 4]
+ [5 6]
+ [1 2]]
+```
+
+## 一维变二维、改变维度
 
 ### expand_dims、squeeze 添加去除维度
 
@@ -340,7 +533,7 @@ print(parts[1])
  [14 15]]
 ```
 
-## 遍历、size、行列数
+## 遍历、size、len、行列数
 
 ```
 cars = np.array([
@@ -369,8 +562,10 @@ print("所有维度：", cars.shape)
 
 ## 切片
 
+- 切片是引用，不会深拷贝
 - 切片写法：[start : end : step]，从索引 start 开始，取到但不包括 end，每次跨 step 个。
-- 二维写法: [行切片，列切片]，
+- 二维写法: [行切片，列切片]
+
 ```
 :	表示“从头到尾”
 a:b	从第 a 行/列到第 b 行/列（不含 b）
@@ -405,9 +600,15 @@ b[1:3, -2:]:
 
 ```
 
-## 条件选择
+## 布尔索引，where
 
-可以使用bool运算检查每个元素的结果，并进行更新
+用布尔数组控制筛选结果
+
+```
+a = np.array([10, 20, 30, 40, 50])
+r = a > 25 # array([False, False,  True,  True,  True])
+print(a[r]) # [30 40 50]
+```
 
 ```
 a = np.array([
@@ -441,17 +642,40 @@ print(np.where(condition, b, c))
 
 ```
 
-## 加减乘除、点乘、累乘、总和、minmax(及索引)、标准差、取整、调到范围内
+## 查找、is_nan、flatten、ravel
+
+
+is_nan：判断nan，返回bool数组
+argwhere：返回结果为T的索引位置数组
+flatten：将所有数据连一起，返回1维数组，会深拷贝，速度慢
+ravel：比flatten快很多，没拷贝，是引用
 
 ```
-# 每个元素都进行的加减乘除
-a = np.array([150, 166, 183, 170])
-print("a + 3:", a + 3)
-print("a - 3:", a - 3)
-print("a * 3:", a * 3)
-print("a / 3:", a / 3)
+data = np.array([1.2, np.nan, 3.4, np.nan])
+is_nan = np.isnan(data)
+nan_idx = np.argwhere(is_nan)
+print(nan_idx)
+[[1]
+ [3]]
 
-# 点乘的2个方式
+b = np.array([[1, 2, 3],
+              [4, 0, 6],
+              [0, 8, 9]])
+
+idx = np.argwhere(b == 0)
+print(idx)
+[[1 1]
+ [2 0]]
+
+print(idx.flatten())
+[1 1 2 0]
+```
+
+## 点乘
+
+- 点乘的2个方式
+
+```
 a = np.array([
 [1, 2],
 [3, 4]
@@ -463,6 +687,28 @@ b = np.array([
 
 print(a.dot(b))
 print(np.dot(a, b))
+```
+
+```
+data = np.random.rand(4, 3)
+weights = np.random.rand(3, 2)
+output = np.dot(data, weights)
+
+print("data shape:", data.shape) # (4, 3)
+print("weights shape:", weights.shape) # (3, 2)
+print("output shape:", output.shape) # (4, 2)
+```
+
+## 加减乘除、累乘、总和、minmax(及索引)、平均值、中位数、标准差、取整、调到范围内
+
+```
+# 每个元素都进行的加减乘除
+a = np.array([150, 166, 183, 170])
+print("a + 3:", a + 3)
+print("a - 3:", a - 3)
+print("a * 3:", a * 3)
+print("a / 3:", a / 3)
+
 print("最大：", np.max(a))
 print("最小：", a.min())
 print(a.sum())
@@ -495,4 +741,72 @@ print("ceil:", np.ceil(a)) # [151. 167. 184. 171.]
 print("floor:", np.floor(a)) # [150. 166. 183. 170.]
 # 将所有数据调整到区间内
 print("clip:", a.clip(160, 180)) # [160.  166.4 180.  170.8]
+```
+
+## 文件操作
+
+### fromstring
+
+```
+row_string = "20131, 10, 67, 20132, 11, 88, 20133, 12, 98, 20134, 8, 100, 20135, 9, 75, 20136, 12, 78"
+data = np.fromstring(row_string, dtype=np.int64, sep=",")
+data = data.reshape(6, 3)
+```
+
+### genfromtxt
+
+可读字符串、自动处理缺失值
+
+```
+data = np.genfromtxt("covid19_day_wise.csv", delimiter=",", skip_header=1, dtype=None, encoding='utf-8')
+```
+
+### loadtxt
+
+只能读数值的字段
+- fname	文件路径或文件对象
+- delimiter	分隔符（CSV 一般用 ','）
+- skiprows	跳过前几行（如跳过标题行）
+- usecols	指定要读取的列，如 (0, 2, 3)
+- dtype	数据类型（默认 float）
+
+```
+data = np.loadtxt("read-save-data/data.csv", delimiter=",", skiprows=1, dtype=np.int64)
+```
+
+### 保存与读取
+
+- 保存为文本
+
+```
+print("numpy data:\n", data)
+np.savetxt("read-save-data/save_data.csv", data, delimiter=",", fmt='%s')
+
+print("data file in directory:", os.listdir("read-save-data"))
+with open("read-save-data/save_data.csv", "r") as f:
+    print("\n", f.read())
+```
+
+- 保存为二进制，可将多个NumPy数组保存到一个文件中.npz, 是一个压缩的zip文件，里面包含多个 .npy 文件，每个对应一个数组。
+
+```
+a = np.array([1, 2, 3])
+b = np.array([[4,5,6], [7,8,9]])
+
+# 保存多个数组（默认名字）
+np.savez('data.npz', a, b)
+loaded = np.load('data.npz')
+print(loaded['arr_0'])  # 输出: [1 2 3]
+print(loaded['arr_1'])  # 输出: [[4 5 6] [7 8 9]]
+
+# 保存多个数组（自定义名字）
+np.savez('data_named.npz', first=a, second=b)
+loaded = np.load('data_named.npz')
+print(loaded['first'])   # [1 2 3]
+print(loaded['second'])  # [[4 5 6] [7 8 9]]
+
+# 使用压缩保存
+np.savez_compressed('data_compressed.npz', first=a, second=b)
+loaded = np.load('data_compressed.npz')
+print(loaded['first'])
 ```
