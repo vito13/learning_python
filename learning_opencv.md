@@ -932,3 +932,426 @@ cv2.imshow("filter2D",r)
 cv2.waitKey()
 cv2.destroyAllWindows(
 ```
+
+# 形态学操作（Morphological Operation）
+
+## 概念、作用
+
+- 使用kernel（即卷积核、可理解为自定义的刷子）对二值图像、灰度图进行遍历，分析像素局部邻域，从而达到去噪、提取边缘、连接或分离目标、纹理增强、目标检测、工业/医学图像处理。
+
+- Kernel有形状（矩形、十字、椭圆）、大小、执行次数的属性，决定了操作的方向性和强度。
+
+## 总结对比
+
+| 操作                   | 原理          | 效果            | 应用              |
+| -------------------- | ----------- | ------------- | --------------- |
+| **腐蚀 (Erosion)**     | 白色区域收缩，前景缩小 | 去掉小白噪点，分离物体   | 噪声去除、物体分离       |
+| **膨胀 (Dilation)**    | 白色区域扩张，前景增大 | 填补小黑洞，连接白色物体  | 填洞、连接目标         |
+| **开运算 (Opening)**    | 先腐蚀再膨胀      | 去除小白噪声，平滑边缘   | 去噪、分离小物体        |
+| **闭运算 (Closing)**    | 先膨胀再腐蚀      | 填补小黑洞，平滑边界    | 填洞、连接断裂目标       |
+| **形态学梯度 (Gradient)** | 膨胀减去腐蚀      | 提取物体边缘，显示轮廓线  | 边缘检测、轮廓分析       |
+| **顶帽变换 (Top-hat)**   | 原图减去开运算     | 提取小亮点，增强局部亮特征 | 亮点检测、高光增强、纹理分析  |
+| **黑帽变换 (Black-hat)** | 闭运算减去原图     | 提取小暗点，强化局部阴影  | 暗特征检测、纹理增强、缺陷检测 |
+
+
+
+## 腐蚀（Erosion）
+
+- 目标“让白色（前景）区域变小，黑色（背景）区域扩大。”
+- 首先定义kernel（是矩阵）用于设置腐蚀的“力度”和“形状（对边缘形态影响不同）”，然后执行erode函数进行腐蚀，iterations腐蚀的重复次数
+
+```
+import cv2
+import numpy as np
+o=cv2.imread("erode.bmp",cv2.IMREAD_UNCHANGED)
+kernel = np.ones((9,9),np.uint8)
+erosion = cv2.erode(o,kernel,iterations =5)
+cv2.imshow("orriginal",o)
+cv2.imshow("erosion",erosion)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 膨胀（Dilation）
+
+会让白色前景扩大，用于填补空隙、连接断裂、强化形状，与腐蚀正好相反
+
+```
+o=cv2.imread("dilation.bmp",cv2.IMREAD_UNCHANGED)
+kernel = np.ones((5,5),np.uint8)
+dilation = cv2.dilate(o,kernel,iterations = 9)
+cv2.imshow("original",o)
+cv2.imshow("dilation", dilation)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 开运算（Opening）
+
+开运算是先腐蚀再膨胀，主要用于去除小白噪声、平滑物体边缘，而不会明显改变主体形状。
+
+```
+img1=cv2.imread("opening.bmp")
+img2=cv2.imread("opening2.bmp")
+k=np.ones((10,10),np.uint8)
+r1=cv2.morphologyEx(img1,cv2.MORPH_OPEN,k)
+r2=cv2.morphologyEx(img2,cv2.MORPH_OPEN,k)
+cv2.imshow("img1",img1)
+cv2.imshow("result1",r1)
+cv2.imshow("img2",img2)
+cv2.imshow("result2",r2)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 闭运算（Closing）
+
+闭运算是先膨胀再腐蚀，主要用于填补小黑洞、连接相邻白区域、平滑边界
+
+```
+img1=cv2.imread("closing.bmp")
+img2=cv2.imread("closing2.bmp")
+k=np.ones((10,10),np.uint8)
+r1=cv2.morphologyEx(img1,cv2.MORPH_CLOSE,k,iterations=3)
+r2=cv2.morphologyEx(img2,cv2.MORPH_CLOSE,k,iterations=3)
+cv2.imshow("img1",img1)
+cv2.imshow("result1",r1)
+cv2.imshow("img2",img2)
+cv2.imshow("result2",r2)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 形态学梯度（Morphological Gradient）
+
+即膨胀减去腐蚀，它的结果是物体的边缘轮廓，常用于边缘检测与目标分割。
+
+```
+o=cv2.imread("gradient.bmp",cv2.IMREAD_UNCHANGED)
+k=np.ones((5,5),np.uint8)
+r=cv2.morphologyEx(o,cv2.MORPH_GRADIENT,k)
+cv2.imshow("original",o)
+cv2.imshow("result",r)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 顶帽（Top-hat）
+
+原图减去开运算结果，用于提取小而亮的区域（噪声）、增强局部亮细节。
+
+```
+o1=cv2.imread("tophat.bmp",cv2.IMREAD_UNCHANGED)
+o2=cv2.imread("lena.bmp",cv2.IMREAD_UNCHANGED)
+k=np.ones((5,5),np.uint8)
+r1=cv2.morphologyEx(o1,cv2.MORPH_TOPHAT,k)
+r2=cv2.morphologyEx(o2,cv2.MORPH_TOPHAT,k)
+cv2.imshow("original1",o1)
+cv2.imshow("original2",o2)
+cv2.imshow("result1",r1)
+cv2.imshow("result2",r2)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 黑帽（Black-hat）
+
+是闭运算减去原图，用于提取小暗区域、增强局部阴影细节。
+
+```
+o1=cv2.imread("blackhat.bmp",cv2.IMREAD_UNCHANGED)
+o2=cv2.imread("lena.bmp",cv2.IMREAD_UNCHANGED)
+k=np.ones((5,5),np.uint8)
+r1=cv2.morphologyEx(o1,cv2.MORPH_BLACKHAT,k)
+r2=cv2.morphologyEx(o2,cv2.MORPH_BLACKHAT,k)
+cv2.imshow("original1",o1)
+cv2.imshow("original2",o2)
+cv2.imshow("result1",r1)
+cv2.imshow("result2",r2)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 自定义核函数
+
+可使用3种形状进行自定义那个核刷子的形状，用于影响刷出来的外观
+
+```
+o=cv2.imread("kernel.bmp",cv2.IMREAD_UNCHANGED)
+kernel1 = cv2.getStructuringElement(cv2.MORPH_RECT, (59,59))
+kernel2 = cv2.getStructuringElement(cv2.MORPH_CROSS,  (59,59))
+kernel3 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,  (59,59))
+dst1 = cv2.dilate(o,kernel1)
+dst2 = cv2.dilate(o,kernel2)
+dst3 = cv2.dilate(o,kernel3)
+cv2.imshow("orriginal",o)
+cv2.imshow("dst1",dst1)
+cv2.imshow("dst2",dst2)
+cv2.imshow("dst3",dst3)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+# 图像梯度计算
+
+## 概念作用
+
+- 求每个像素的灰度变化幅度和方向（如果某个区域灰度变化大即梯度大越亮）
+- 是提取边缘和局部结构的重要工具。
+
+## 对比总结
+
+| 算子            | 阶数 | 方向      | 核大小         | 特点               | 优点          | 缺点                  | 典型用途           |
+| ------------- | -- | ------- | ----------- | ---------------- | ----------- | ------------------- | -------------- |
+| **Sobel**     | 一阶 | X/Y 可分开 | 可调 (3,5,7…) | 计算一阶梯度，强调水平/竖直边缘 | 简单，通用       | 对弱边缘和细节敏感度一般        | 边缘检测、特征提取、图像分割 |
+| **Scharr**    | 一阶 | X/Y 可分开 | 固定 3x3，优化权重 | Sobel 升级版，更锐利    | 对细节和弱边缘敏感   | 只能单方向，不支持 dx=1,dy=1 | 边缘检测、细节增强      |
+| **Laplacian** | 二阶 | 全方向     | 3x3 或 5x5   | 计算二阶导数，全方向边缘一次提取 | 能一次提取所有方向边缘 | 对噪声敏感               | 边缘检测、图像锐化      |
+
+- Sobel：适合一般边缘检测，可调核大小，简单易用。
+- Scharr：对细节边缘更敏感，适合高精度边缘检测。
+- Sobel与Scharr可以X/Y 梯度先分别求，再加权合成 → 获得完整边缘图
+- Laplacian：一次提取全方向边缘，但噪声敏感，常结合平滑（如高斯模糊）使用。可单独用于全方向边缘检测或锐化
+
+## Sobel
+
+- Sobel 算子 = 边缘检测基础工具
+- dx/dy 决定梯度方向 → 决定边缘方向
+- addWeighted 合并 → 得到全局边缘
+- CV_64F + convertScaleAbs → 保证梯度计算准确且可显示
+- ksize=3，下面案例未使用，用于设置核大小3x3
+
+```
+# 得到竖线边缘信息，x=1,y=0,求x方向导数
+o = cv2.imread('sobel4.bmp',cv2.IMREAD_GRAYSCALE)
+sobelx = cv2.Sobel(o,cv2.CV_64F,1,0)
+sobelx = cv2.convertScaleAbs(sobelx)   # 转回uint8
+cv2.imshow("original",o)
+cv2.imshow("x",sobelx)
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+# 得到横线边缘信息,dx=0, dy=1,求 y 方向导数
+o = cv2.imread('sobel4.bmp',cv2.IMREAD_GRAYSCALE)
+sobely = cv2.Sobel(o,cv2.CV_64F,0,1)
+sobely = cv2.convertScaleAbs(sobely)
+cv2.imshow("original",o)
+cv2.imshow("y",sobely)
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+
+# 得到交叉点信息, x=1,y=1,同时对x和y求导（二阶混合导数，不是简单的 x+y，非下面案例的加权效果）
+# 仅角点或斜交区域亮，点状、不连续，线条不明显
+o = cv2.imread('sobel4.bmp',cv2.IMREAD_GRAYSCALE)
+sobelxy=cv2.Sobel(o,cv2.CV_64F,1,1)
+sobelxy=cv2.convertScaleAbs(sobelxy)
+cv2.imshow("original",o)
+cv2.imshow("xy",sobelxy)
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+# X+Y分别计算再addWeighted，水平和竖直边缘都保留，连续完整的边缘线
+# 0.5权重保证 x、y 贡献相等,得到综合边缘图
+o = cv2.imread('sobel4.bmp',cv2.IMREAD_GRAYSCALE)
+sobelx = cv2.Sobel(o,cv2.CV_64F,1,0)
+sobely = cv2.Sobel(o,cv2.CV_64F,0,1)
+sobelx = cv2.convertScaleAbs(sobelx)   # 转回uint8
+sobely = cv2.convertScaleAbs(sobely)
+sobelxy =  cv2.addWeighted(sobelx,0.5,sobely,0.5,0)
+cv2.imshow("original",o)
+cv2.imshow("xy",sobelxy)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## Scharr
+
+- Scharr 是 Sobel 的升级版，更精确地计算图像梯度，尤其在边缘较明显或细节复杂时比 Sobel 更敏感
+
+
+```
+import cv2
+import numpy as np
+
+# X 方向梯度,得到竖线
+o = cv2.imread('scharr.bmp',cv2.IMREAD_GRAYSCALE)
+scharrx = cv2.Scharr(o,cv2.CV_64F,1,0)
+scharrx = cv2.convertScaleAbs(scharrx)   # 转回uint8
+cv2.imshow("original",o)
+cv2.imshow("x",scharrx)
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+# Y 方向梯度,得到横线
+o = cv2.imread('scharr.bmp',cv2.IMREAD_GRAYSCALE)
+scharry = cv2.Scharr(o,cv2.CV_64F,0,1)
+scharry = cv2.convertScaleAbs(scharry)
+cv2.imshow("original",o)
+cv2.imshow("y",scharry)
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+# X、Y 加权融合，得到综合边缘图
+o = cv2.imread('scharr.bmp',cv2.IMREAD_GRAYSCALE)
+scharrx = cv2.Scharr(o,cv2.CV_64F,1,0)
+scharry = cv2.Scharr(o,cv2.CV_64F,0,1)
+scharrx = cv2.convertScaleAbs(scharrx)   # 转回uint8
+scharry = cv2.convertScaleAbs(scharry)
+scharrxy =  cv2.addWeighted(scharrx,0.5,scharry,0.5,0)
+cv2.imshow("original",o)
+cv2.imshow("xy",scharrxy)
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+# Scharr 不允许 dx=1,dy=1，因为它是专门优化单方向一阶导数的算子。想要综合边缘，必须 X/Y 分开计算再合并。此处会运行出错
+o = cv2.imread('scharr.bmp',cv2.IMREAD_GRAYSCALE)
+scharrxy11=cv2.Scharr(o,cv2.CV_64F,1,1)
+cv2.imshow("original",o)
+cv2.imshow("xy11",scharrxy11)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## Laplacian
+
+Laplacian 是二阶导数算子，直接检测全方向边缘，常用于边缘检测和图像锐化，但噪声敏感，需要结合平滑处理。
+
+```
+o = cv2.imread('Laplacian.bmp',cv2.IMREAD_GRAYSCALE)
+Laplacian = cv2.Laplacian(o,cv2.CV_64F)
+Laplacian = cv2.convertScaleAbs(Laplacian)
+cv2.imshow("original",o)
+cv2.imshow("Laplacian",Laplacian)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+# Canny 边缘检测
+
+是一个经典多阶段边缘检测算法，通过高斯滤波去噪平滑、用 Sobel 或 Scharr计算梯度、非极大值抑制和双阈值连接，能在噪声环境中提取精确、连续的全方向边缘（轮廓、形状、纹理）。
+
+- 双阈值 + 边缘连接 的机制：
+- threshold1（低阈值）：弱边缘阈值，梯度值低于这个值的像素被认为不是边缘，直接丢弃
+- threshold2（高阈值）：强边缘阈值，梯度值高于这个值的像素被认为一定是边缘
+- 梯度值在低阈值和高阈值之间：被认为是“弱边缘”，仅保留与强边缘相连部分
+- threshold1 决定弱边缘起点，threshold2 决定强边缘，双阈值 + 边缘连接让 Canny 得到干净、连续的边缘。
+
+```
+o=cv2.imread("lena.bmp",cv2.IMREAD_GRAYSCALE)
+r1=cv2.Canny(o,128,200)
+r2=cv2.Canny(o,32,128)
+cv2.imshow("original",o)
+cv2.imshow("result1",r1)
+cv2.imshow("result2",r2)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+# 金字塔操作（Pyramid）
+
+## 高频、低频
+
+- 图像可以看成是不同频率成分的叠加：
+- 高频：图像中快速变化的部分（边缘、细节、纹理）
+- 低频：平滑缓慢变化的部分（大块颜色或光照、轮廓）
+- 高斯金字塔保留低频，Laplace金字塔提取高频。
+
+| 图像成分 | 高频 / 低频 |
+| ---- | ------- |
+| 边缘   | 高频      |
+| 纹理   | 高频      |
+| 颜色渐变 | 低频      |
+| 光照背景 | 低频      |
+| 噪声   | 高频      |
+
+## 高斯金字塔 （Gaussian Pyramid）
+
+- 是一种多分辨率图像表示方法，核心就是不断下采样和模糊
+- 图像每向上一层，分辨率宽高各减半，同时图像会先进行高斯平滑（去掉高频噪声），保留低频
+
+## pyrUp、pyrDown（上下采样）
+
+- pyrDown：下采样，尺寸减半，同时经过高斯模糊（去除高频，保留低频）
+- pyrUp：上采样，尺寸倍增，依然模糊
+
+```
+import cv2
+import numpy as np
+o=cv2.imread("lena.bmp")
+r1=cv2.pyrDown(o)
+r2=cv2.pyrDown(r1)
+r3=cv2.pyrDown(r2)
+print("o.shape=",o.shape)
+print("r1.shape=",r1.shape)
+print("r2.shape=",r2.shape)
+print("r3.shape=",r3.shape)
+cv2.imshow("original",o)
+cv2.imshow("r1",r1)
+cv2.imshow("r2",r2)
+cv2.imshow("r3",r3)
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+o=cv2.imread("lenas.bmp")
+r1=cv2.pyrUp(o)
+r2=cv2.pyrUp(r1)
+r3=cv2.pyrUp(r2)
+print("o.shape=",o.shape)
+print("r1.shape=",r1.shape)
+print("r2.shape=",r2.shape)
+print("r3.shape=",r3.shape)
+cv2.imshow("original",o)
+cv2.imshow("r1",r1)
+cv2.imshow("r2",r2)
+cv2.imshow("r3",r3)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## Laplace 金字塔
+
+- 是多分辨率图像表示方法，在高斯金字塔的基础上，要保留每层的高频细节，用于无损恢复
+- 原图减去低频的模糊图，剩下的就是清晰的边缘和纹理（高频部分）
+- 流程：原图 → 下采样 → 上采样 → 差值 = 高频图
+
+```
+O = cv2.imread("lena.bmp")       # 原图
+G0 = O                           # 高斯金字塔第0层
+G1 = cv2.pyrDown(G0)             # 下采样，得到低频信息
+L0 = O - cv2.pyrUp(G1)           # 先上采样恢复尺寸，原图-低频=高频细节，Laplace 金字塔的核心操作
+RO = L0 + cv2.pyrUp(G1)          # 通过 Laplace 重建原图
+```
+
+```
+O=cv2.imread("lena.bmp")
+#=================生成高斯金字塔======================
+G0=O
+G1=cv2.pyrDown(G0)
+G2=cv2.pyrDown(G1)
+G3=cv2.pyrDown(G2)
+#===============生成拉普拉斯金字塔====================
+L0=G0-cv2.pyrUp(G1) #拉普拉斯金字塔第0层
+L1=G1-cv2.pyrUp(G2) #拉普拉斯金字塔第1层
+L2=G2-cv2.pyrUp(G3) #拉普拉斯金字塔第2层
+#=================复原G0======================
+RG0=L0+cv2.pyrUp(G1)  #通过拉普拉斯图像复原的原始图像G0
+print("G0.shape=",G0.shape)
+print("RG0.shape=",RG0.shape)
+result=RG0-G0  #将RG0和G0做减法
+#计算result的绝对值，避免求和时负负为正3+(-3)=0
+result=abs(result)  
+#计算result所有元素的和
+print("原始图像G0与恢复图像RG0差值的绝对值和：",np.sum(result))   
+#=================复原G1======================
+RG1=L1+cv2.pyrUp(G2) #通过拉普拉斯图像复原G1
+print("G1.shape=",G1.shape)
+print("RG1.shape=",RG1.shape)
+result=RG1-G1  #将o和ro做减法
+print("原始图像G1与恢复图像RG1差值的绝对值和：",np.sum(abs(result)))
+#=================复原G2======================
+RG2=L2+cv2.pyrUp(G3) #通过拉普拉斯图像复原G2
+print("G2.shape=",G2.shape)
+print("RG2.shape=",RG2.shape)
+result=RG2-G2  #将o和ro做减法
+print("原始图像G2与恢复图像RG2差值的绝对值和：",np.sum(abs(result)))
+```
