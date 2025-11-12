@@ -23,13 +23,23 @@ dst = cv2.imread('lean.jpg', cv2.IMREAD_UNCHANGED)
 print(dst.shape, dst.size, dst.dtype)
 ```
 
+## 坐标系
+
+OpenCV 的坐标系以左上为原点，x 向右增大，y 向下增大
+
+## 边缘、轮廓
+
+- 边缘：不连续的，可能是一段一段的
+- 轮廓：连续的，可以用于后续计算的
+
 ## 默认色彩顺序
 
 原始图像，默认是 BGR 格式（OpenCV 的默认色彩顺序）。
 
-## 自动灰度导入
+## 自动灰度导入，后期转换成灰度
 
-imread的末尾参数使用0，即使彩色也按照灰度图导入
+- imread的末尾参数使用0，即使彩色也按照灰度图导入
+- gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
 
 # 图形处理
 
@@ -220,7 +230,7 @@ cv2.imshow('bgr', r)
 
 ### 按位与（alpha测试）
 
-mask上像素为255即白全1，则src通过，否则非全1则失败
+src在mask相同位置上为白色（像素为255、即1）则通过，否则不通过
 
 - 一张图与mask
 
@@ -698,7 +708,7 @@ cv2.waitKey()
 cv2.destroyAllWindows()
 ```
 
-# 阈值处理
+# 阈值处理（二值化）
 
 一般要求输入 灰度图像（单通道），而不是彩色图。若直接传入彩色图像，它会对每个通道分别进行阈值处理。
 
@@ -1247,6 +1257,1046 @@ cv2.waitKey()
 cv2.destroyAllWindows()
 ```
 
+# 轮廓
+
+## 查找（findContours）、绘制（drawContours）
+
+- 彩色转灰度再转二值图后才可查找轮廓
+- findContours可以设置检测参数，如RETR_EXTERNAL仅外轮廓（RETR_LIST是所有轮廓），CHAIN_APPROX_SIMPLE是只保留拐点，减少数据量，返回轮廓列表和层级信息
+- drawContours是绘制轮廓，可设置颜色，线宽（为-1则绘制为实心的）等，返回绘制后的结果图
+
+```
+o = cv2.imread('contours.bmp')
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_EXTERNAL,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+
+# 一次全绘制到一个窗口
+o=cv2.drawContours(o,contours,-1,(0,0,255),5)
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+# 分着每个绘制到不同窗口
+n=len(contours)
+contoursImg=[]
+for i in range(n):
+    temp=np.zeros(o.shape,np.uint8)
+    contoursImg.append(temp)
+    contoursImg[i]=cv2.drawContours(
+            contoursImg[i],contours,i,(255,255,255),5)
+    cv2.imshow("contours[" + str(i)+"]",contoursImg[i])
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+
+## 抠图案例
+
+- 这段代码用 findContours() 找出物体边界，
+- 再用 drawContours() 生成掩膜，
+- 最后用 bitwise_and() 从原图中“抠出”目标区域。
+
+```
+o = cv2.imread('loc3.jpg')
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+mask=np.zeros(o.shape,np.uint8)
+mask=cv2.drawContours(mask,contours,-1,(255,255,255),-1)
+cv2.imshow("mask" ,mask)
+loc=cv2.bitwise_and(o,mask)
+cv2.imshow("location" ,loc)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 普通矩 cv2.moments
+
+- 是图像像素灰度值的加权统计量，一种用来描述图像形状、方向、质心、倾斜程度等特征的数学方式，简单理解为图像的几何特征
+- 从二值图像中提取出各个轮廓，然后可以得到它们的矩（moments），使用cv2.moments函数返回的是字典
+- 轮廓区域面积是字典的m00元素
+- 字典的“nuXX”开头的元素是归一化中心矩（Normalized Central Moments），它们与图像的平移、缩放无关，即使图像大小或位置改变，nu值也几乎相同。
+
+```
+o = cv2.imread('moments.bmp')
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+n=len(contours)
+contoursImg=[]
+for i in range(n):
+    temp=np.zeros(image.shape,np.uint8)
+    contoursImg.append(temp)
+    contoursImg[i]=cv2.drawContours(contoursImg[i],contours,i,255,3)
+    cv2.imshow("contours[" + str(i)+"]",contoursImg[i])
+print("观察各个轮廓的矩（moments）:")
+for i in range(n):
+    print("轮廓"+str(i)+"的矩:\n",cv2.moments(contours[i]))
+print("观察各个轮廓的面积:")
+for i in range(n):
+    print("轮廓"+str(i)+"的面积:%d" %cv2.moments(contours[i])['m00'])
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## Hu不变矩 cv2.HuMoments
+
+- Hu Moments（胡不变矩） 是 7 个数学特征值。把同一个图形放大、旋转、挪动位置，Hu 值几乎不变；因此它常用于“形状匹配”和“物体识别”。
+
+| Hu[i]       | 描述         | 不变性        |
+| ----------- | ---------- | ---------- |
+| Hu[0]       | 形状的总体方差    | 平移、旋转、缩放不变 |
+| Hu[1]       | 图像的对称性     | 同上         |
+| Hu[2]~Hu[6] | 更复杂的高阶形状特征 | 同上         |
+
+- 不变矩的Hu[0] 应该等于普通矩的 nu20 + nu02，下面代码进行了验证
+
+```
+o1 = cv2.imread('cs1.bmp')
+gray = cv2.cvtColor(o1,cv2.COLOR_BGR2GRAY)
+HuM1=cv2.HuMoments(cv2.moments(gray)).flatten()
+print("cv2.moments(gray)=\n",cv2.moments(gray))
+print("\nHuM1=\n",HuM1)
+print("\ncv2.moments(gray)['nu20']+cv2.moments(gray)['nu02']=%f+%f=%f\n"
+      %(cv2.moments(gray)['nu20'],cv2.moments(gray)['nu02'],
+        cv2.moments(gray)['nu20']+cv2.moments(gray)['nu02']))
+print("HuM1[0]=",HuM1[0])
+print("\nHu[0]-(nu02+nu20)=",
+      HuM1[0]-(cv2.moments(gray)['nu20']+cv2.moments(gray)['nu02']))
+```
+
+## 形状匹配案例（使用Hu不变矩）
+
+```
+
+import cv2
+import numpy as np
+
+o1 = cv2.imread('cs1.bmp')
+gray1 = cv2.cvtColor(o1,cv2.COLOR_BGR2GRAY)
+HuM1=cv2.HuMoments(cv2.moments(gray1)).flatten()
+#----------------计算图像2的Hu矩-------------------
+o2 = cv2.imread('cs3.bmp')
+gray2 = cv2.cvtColor(o2,cv2.COLOR_BGR2GRAY)
+HuM2=cv2.HuMoments(cv2.moments(gray2)).flatten()
+#----------------计算图像3的Hu矩-------------------
+o3 = cv2.imread('lena.bmp')
+gray3 = cv2.cvtColor(o3,cv2.COLOR_BGR2GRAY)
+HuM3=cv2.HuMoments(cv2.moments(gray3)).flatten()
+#---------打印图像1、图像2、图像3的特征值------------
+print("o1.shape=",o1.shape)
+print("o2.shape=",o2.shape)
+print("o3.shape=",o3.shape)
+print("cv2.moments(gray1)=\n",cv2.moments(gray1))
+print("cv2.moments(gray2)=\n",cv2.moments(gray2))
+print("cv2.moments(gray3)=\n",cv2.moments(gray3))
+print("\nHuM1=\n",HuM1)
+print("\nHuM2=\n",HuM2)
+print("\nHuM3=\n",HuM3)
+#---------计算图像1与图像2、图像3的Hu矩之差----------------
+def compareHu(H1, H2):
+    diff = np.sum(np.abs(H1 - H2))
+    if diff < 1e-5: # 1×10−5=0.00001
+        return "形状几乎完全相同"
+    elif diff < 1e-3: # 1e-3 = 0.001
+        return "形状相似"
+    else:
+        return "形状明显不同"
+
+print("图1 vs 图2：", compareHu(HuM1, HuM2))
+print("图1 vs 图3：", compareHu(HuM1, HuM3))
+#---------显示图像----------------
+cv2.imshow("original1",o1)
+cv2.imshow("original2",o2)
+cv2.imshow("original3",o3)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 形状匹配 cv2.matchShapes
+
+- cv2.matchShapes 是直接对比形状相似度，封装了 Hu矩计算和差值，数值越小形状越相似
+- 可以快速判断“同形状”、“相似形状”和“不同形状”，非常适合图像库匹配、模板识别、目标检测等场景
+- 参数的1表示方法1，基于 Hu 矩差异和对数，0.0 是额外参数，一般不变
+
+```
+o1 = cv2.imread('cs1.bmp')
+o2 = cv2.imread('cs2.bmp')
+o3 = cv2.imread('cc.bmp')
+#----------打印3幅原始图像的shape属性值-------------
+print("o1.shape=",o1.shape)
+print("o2.shape=",o2.shape)
+print("o3.shape=",o3.shape)
+#--------------色彩空间转换--------------------
+gray1 = cv2.cvtColor(o1,cv2.COLOR_BGR2GRAY)
+gray2 = cv2.cvtColor(o2,cv2.COLOR_BGR2GRAY)
+gray3 = cv2.cvtColor(o3,cv2.COLOR_BGR2GRAY)
+#-------------进行Hu矩匹配--------------------
+ret0 = cv2.matchShapes(gray1,gray1,1,0.0) # 自己 vs 自己 → 接近 0
+ret1 = cv2.matchShapes(gray1,gray2,1,0.0) # 类似图像 → 较小
+ret2 = cv2.matchShapes(gray1,gray3,1,0.0) # 完全不同 → 数值明显大
+#--------------打印差值--------------------
+print("相同图像的matchShape=",ret0)
+print("相似图像的matchShape=",ret1)
+print("不相似图像的matchShape=",ret2)
+#--------------显示3幅原始图像--------------------
+cv2.imshow("original1",o1)
+cv2.imshow("original2",o2)
+cv2.imshow("original3",o3)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 取轮廓内像素点集
+
+- 可以使用np、cv各自提供的两种方式，表格对应下面代码里说明
+- nonzero方法返回两个数组 (行索引数组, 列索引数组)，transpose() 将其组合成 [y, x] 的二维坐标列表
+- 空心轮廓只包含边界线像素（形状分析、边界提取）。实心轮廓包含轮廓内部所有像素（区域统计、掩膜操作）。
+- np.nonzero() 返回 (y,x)，需 transpose 调整。cv2.findNonZero() 返回 (x,y)，直接适合 OpenCV 使用。
+
+| 操作对象       | 方法/函数                                | 空心/实心 | 返回值形式        | 坐标顺序    | 备注/用途                |
+| ---------- | ------------------------------------ | ----- | ------------ | ------- | -------------------- |
+| 随机矩阵 a     | `np.nonzero(a)` + `np.transpose`     | —     | `N×2` 坐标数组   | `(y,x)` | 查找非零元素位置             |
+| 随机矩阵 a     | `cv2.findNonZero(a)`                 | —     | `N×1×2` 坐标数组 | `(x,y)` | 查找非零元素位置，OpenCV风格    |
+| 图像轮廓 mask1 | `np.nonzero(mask1)` + `np.transpose` | 空心    | `N×2` 坐标数组   | `(y,x)` | 查找轮廓边界像素位置           |
+| 图像轮廓 mask2 | `np.nonzero(mask2)` + `np.transpose` | 实心    | `N×2` 坐标数组   | `(y,x)` | 查找轮廓内部+边界像素          |
+| 图像轮廓 mask1 | `cv2.findNonZero(mask1)`             | 空心    | `N×1×2` 坐标数组 | `(x,y)` | 查找轮廓边界像素位置，OpenCV风格  |
+| 图像轮廓 mask2 | `cv2.findNonZero(mask2)`             | 实心    | `N×1×2` 坐标数组 | `(x,y)` | 查找轮廓内部+边界像素，OpenCV风格 |
+
+```
+
+#------------生成一个都是0值的a-------------------
+a=np.zeros((5,5),dtype=np.uint8)
+#-------随机将其中10个位置上的数值设置为1------------
+#---times控制次数
+#---i,j是随机生成的行、列位置
+#---a[i,j]=1,将随机挑选出来的位置上的值设置为1
+for times in range(10):
+    i=np.random.randint(0,5)
+    j=np.random.randint(0,5)
+    a[i,j]=1
+#-------打印a，观察a内值的情况-----------
+print("a=\n",a)
+#------查找a内非零值的位置信息------------
+loc=np.transpose(np.nonzero(a))
+#-----将a内非零值的位置信息输出------------
+print("a内非零值位置:\n",loc)
+
+
+
+
+#-----------------读取原始图像----------------------
+o = cv2.imread('cc.bmp')
+cv2.imshow("original",o)
+#-----------------获取轮廓------------------------
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+cnt=contours[0]
+#-----------------绘制空心轮廓------------------------
+mask1 = np.zeros(gray.shape,np.uint8)
+cv2.drawContours(mask1,[cnt],0,255,2)
+pixelpoints1 = np.transpose(np.nonzero(mask1))
+print("pixelpoints1.shape=",pixelpoints1.shape)
+print("pixelpoints1=\n",pixelpoints1)
+cv2.imshow("mask1",mask1)
+#-----------------绘制实心轮廓---------------------
+mask2 = np.zeros(gray.shape,np.uint8)
+cv2.drawContours(mask2,[cnt],0,255,-1)
+pixelpoints2 = np.transpose(np.nonzero(mask2))
+print("pixelpoints2.shape=",pixelpoints2.shape)
+print("pixelpoints2=\n",pixelpoints2)
+cv2.imshow("mask2",mask2)
+#-----------------释放窗口------------------------
+cv2.waitKey()
+cv2.destroyAllWindows()
+
+
+#------------生成一个都是0值的a-------------------
+a=np.zeros((5,5),dtype=np.uint8)
+#-------随机将其中10个位置上的数值设置为1------------
+#---times控制次数
+#---i,j是随机生成的行、列位置
+#---a[i,j]=1,将随机挑选出来的位置上的值设置为1
+for times in range(10):
+    i=np.random.randint(0,5)
+    j=np.random.randint(0,5)
+    a[i,j]=1
+#-------打印a，观察a内值的情况-----------
+print("a=\n",a)
+#------查找a内非零值的位置信息------------
+loc = cv2.findNonZero(a)
+#-----将a内非零值的位置信息输出------------
+print("a内非零值位置:\n",loc)
+
+
+#-----------------读取原始图像----------------------
+o = cv2.imread('cc.bmp')
+cv2.imshow("original",o)
+#-----------------获取轮廓------------------------
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+cnt=contours[0]
+#-----------------绘制空心轮廓------------------------
+mask1 = np.zeros(gray.shape,np.uint8)
+cv2.drawContours(mask1,[cnt],0,255,2)
+pixelpoints1 = cv2.findNonZero(mask1)
+print("pixelpoints1.shape=",pixelpoints1.shape)
+print("pixelpoints1=\n",pixelpoints1)
+cv2.imshow("mask1",mask1)
+#-----------------绘制实心轮廓---------------------
+mask2 = np.zeros(gray.shape,np.uint8)
+cv2.drawContours(mask2,[cnt],0,255,-1)
+pixelpoints2 = cv2.findNonZero(mask2)
+print("pixelpoints2.shape=",pixelpoints2.shape)
+print("pixelpoints2=\n",pixelpoints2)
+cv2.imshow("mask2",mask2)
+#-----------------释放窗口------------------------
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+# 外包
+
+## 外包矩形 cv2.boundingRect
+
+- 使用boundingRect获取矩形，rectangle进行获取与绘制
+
+```
+o = cv2.imread('cc.bmp')
+#---------------提取图像轮廓------------------
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+#---------------构造矩形边界------------------
+x,y,w,h = cv2.boundingRect(contours[0])
+cv2.rectangle(o,(x,y),(x+w,y+h),(255,255,255),2)
+#---------------显示矩形边界------------------
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 外包最小矩形 cv2.minAreaRect
+
+- 不规则图形的外包矩形可以是有角度的，所以比正常的矩形要更小
+- 返回点集，所以要再次构造进行绘制
+
+```
+o = cv2.imread('cc.bmp')
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+rect = cv2.minAreaRect(contours[0])
+print("返回值rect:\n",rect)
+points = cv2.boxPoints(rect) # 将 (center, size, angle) 转为四个角点坐标
+print("\n转换后的points：\n",points)
+points = np.int0(points)  #取整
+image=cv2.drawContours(o,[points],0,(255,255,255),2)
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 外包圆形 cv2.minEnclosingCircle
+
+- cv2.minEnclosingCircle 返回 圆心 (x, y) 和半径 radius
+- cv2.circle绘制
+
+```
+o = cv2.imread('cc.bmp')  
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)  
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)  
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)  
+(x,y),radius = cv2.minEnclosingCircle(contours[0])
+center = (int(x),int(y))
+radius = int(radius)
+cv2.circle(o,center,radius,(255,255,255),2)
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 外包三角形 cv2.minEnclosingTriangle
+
+三角形可以捕捉轮廓的主方向和尖角，用于对物体方向、尖角特征提取
+
+- cv2.minEnclosingTriangle 返回：area → 三角形面积，trgl → 三个顶点坐标（浮点数）
+- 使用cv2.line绘制三条线
+
+```
+o = cv2.imread('cc.bmp')  
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)  
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)  
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)  
+area,trgl = cv2.minEnclosingTriangle(contours[0])
+print("area=",area)
+print("trgl:",trgl)
+for i in range(0, 3):
+    cv2.line(o, tuple(trgl[i][0]), 
+             tuple(trgl[(i + 1) % 3][0]), (255,255,255), 2) 
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 外包椭圆 cv2.fitEllipse
+
+- cv2.fitEllipse 返回一个元组：
+- (center_x, center_y)：椭圆中心
+- (major_axis, minor_axis)：长轴和短轴长度
+- angle：长轴与水平线的夹角
+- cv2.ellipse绘制
+
+```
+o = cv2.imread('cc.bmp')
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+ellipse = cv2.fitEllipse(contours[0])
+retval=cv2.fitEllipse(contours[0])
+print("单个返回值形式：")
+print("retval=\n",retval)
+(x,y),(MA,ma),angle = cv2.fitEllipse(contours[0])
+print("三个返回值形式：")
+print("(x,y)=(",x,y,")")
+print("(MA,ma)=(",MA,ma,")")
+print("angle=",angle)
+cv2.ellipse(o,ellipse,(0,0,255),2)
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+```
+o = cv2.imread('cc.bmp')
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+cv2.imshow("original",o)
+ellipse = cv2.fitEllipse(contours[0])
+print("ellipse=",ellipse)
+cv2.ellipse(o,ellipse,(0,255,0),3)
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 拟合直线 cv2.fitLine
+
+用一条直线近似轮廓的整体方向，可以快速描述轮廓的倾斜方向，对长条或线状物体效果好，多用于方向估计、轮廓主轴分析、形状特征提取
+
+- cv2.fitLine 返回四个参数：(vx, vy) → 方向向量，(x, y) → 直线通过的点（质心附近）
+- cv2.line绘制
+
+```
+o = cv2.imread('cc.bmp')
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+rows,cols = image.shape[:2]
+[vx,vy,x,y] = cv2.fitLine(contours[0], cv2.DIST_L2,0,0.01,0.01)
+# 根据方向向量计算直线在图像左边界和右边界的 y 坐标
+# 确保绘制整条直线覆盖整个图像宽度
+lefty = int((-x*vy/vx) + y)
+righty = int(((cols-x)*vy/vx)+y)
+cv2.line(o,(cols-1,righty),(0,lefty),(0,255,0),2)
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 轮廓多边形逼近 cv2.approxPolyDP
+
+轮廓逼近是对轮廓进行多边形近似的算法，
+- cv2.approxPolyDP的参数epsilon值越小得到的多边形点越多，通常使用周长的比例，True表示闭合轮廓，返回顶点集合
+
+```
+o = cv2.imread('cc.bmp')
+cv2.imshow("original",o)
+#----------------获取轮廓-------------------------------
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+#----------------epsilon=0.1*周长-------------------------------
+adp = o.copy()
+epsilon = 0.1*cv2.arcLength(contours[0],True)
+approx = cv2.approxPolyDP(contours[0],epsilon,True)
+adp=cv2.drawContours(adp,[approx],0,(0,0,255),2)
+cv2.imshow("result0.1",adp)
+#----------------epsilon=0.09*周长-------------------------------
+adp = o.copy()
+epsilon = 0.09*cv2.arcLength(contours[0],True)
+approx = cv2.approxPolyDP(contours[0],epsilon,True)
+adp=cv2.drawContours(adp,[approx],0,(0,0,255),2)
+cv2.imshow("result0.09",adp)
+#----------------epsilon=0.055*周长-------------------------------
+adp = o.copy()
+epsilon = 0.055*cv2.arcLength(contours[0],True)
+approx = cv2.approxPolyDP(contours[0],epsilon,True)
+adp=cv2.drawContours(adp,[approx],0,(0,0,255),2)
+cv2.imshow("result0.055",adp)
+#----------------epsilon=0.05*周长-------------------------------
+adp = o.copy()
+epsilon = 0.05*cv2.arcLength(contours[0],True)
+approx = cv2.approxPolyDP(contours[0],epsilon,True)
+adp=cv2.drawContours(adp,[approx],0,(0,0,255),2)
+cv2.imshow("result0.05",adp)
+#----------------epsilon=0.02*周长-------------------------------
+adp = o.copy()
+epsilon = 0.02*cv2.arcLength(contours[0],True)
+approx = cv2.approxPolyDP(contours[0],epsilon,True)
+adp=cv2.drawContours(adp,[approx],0,(0,0,255),2)
+cv2.imshow("result0.02",adp)
+#----------------等待释放窗口-------------------------------
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+# 凸包（Convex Hull）与凸缺陷（Convexity Defects）
+
+## 概念
+
+- 凸包是物体的“外包轮廓”，也就是包住物体所有点的最小凸多边形
+- 如一只手，凸包包住了所有手指外沿，手指之间的空隙（“V”形）区域，就是凸缺陷。
+- 用于手势识别（比如计算手指数量），统计凹陷点（凸缺陷数量）即可推测有几根手指。形状分析（判断凹凸程度、凹陷深度），用 d 的值判断凹陷“深度”。轮廓平滑/形状简化，可根据缺陷修正非凸轮廓。
+
+## 凸包函数 cv2.convexHull
+
+- contours[0]参数是来自使用findContours获取轮廓的结果点集
+- 使用bool参数控制返回图标的点坐标、或是点索引
+- 第二个案例是polylines绘制凸包
+
+```
+o = cv2.imread('contours.bmp')
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_TREE,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+hull = cv2.convexHull(contours[0])   #返回坐标值
+print("returnPoints为默认值True时返回值hull的值：\n",hull)
+hull2 = cv2.convexHull(contours[0], returnPoints=False) #返回索引值
+print("returnPoints为False时返回值hull的值：\n",hull2)
+```
+
+```
+o = cv2.imread('hand.bmp')
+cv2.imshow("original",o)
+# --------------提取轮廓------------------
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+# --------------寻找凸包，得到凸包的角点------------------
+hull = cv2.convexHull(contours[0])
+# --------------绘制凸包------------------
+cv2.polylines(o, [hull], True, (0, 255, 0), 2)
+# --------------显示凸包------------------
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 判断凸多边形 cv2.isContourConvex
+
+```
+hull = cv2.convexHull(contours[0])
+cv2.polylines(image1, [hull], True, (0, 255, 0), 2)
+print("使用函数cv2.convexHull()构造的多边形是否是凸包：",
+      cv2.isContourConvex(hull))
+```
+
+## 凸缺陷函数 cv2.convexityDefects
+
+- 调用convexHull时要使用false，cv2.convexityDefects要用索引做参数
+- 返回一个四元组 [s, e, f, d]
+
+| 参数  | 含义                      |
+| --- | ----------------------- |
+| `s` | 凸缺陷起点索引（轮廓上的点）          |
+| `e` | 凸缺陷终点索引                 |
+| `f` | 凹陷处（最远点）索引              |
+| `d` | 起点终点到凹陷点的**距离（深度）×256** |
+
+
+```
+img = cv2.imread('hand.bmp')
+cv2.imshow('original',img)
+#----------------构造轮廓--------------------------
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray, 127, 255,0)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_TREE,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+#----------------凸包--------------------------
+cnt = contours[0]
+hull = cv2.convexHull(cnt,returnPoints = False)
+defects = cv2.convexityDefects(cnt,hull)
+print("defects=\n",defects)
+#----------------构造凸缺陷--------------------------
+for i in range(defects.shape[0]):
+    s,e,f,d = defects[i,0]
+    start = tuple(cnt[s][0])
+    end = tuple(cnt[e][0])
+    far = tuple(cnt[f][0])
+    cv2.line(img,start,end,[0,0,255],2)  # 红线连接凸包边缘；
+    cv2.circle(img,far,5,[255,0,0],-1) # 蓝点标出“手指间”的凹陷点（凸缺陷）。
+#----------------显示结果、释放图像--------------------------
+cv2.imshow('result',img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+## 点到轮廓的距离 cv2.pointPolygonTest
+
+- 参数contour：轮廓（可以是 cv2.convexHull() 的结果）
+- (x, y)：要测试的点坐标
+- measureDist：False → 只返回点在内部、外部、边界（+1 / -1 / 0），True → 返回实际“有符号距离”
+- 返回值：
+
+| 点位置 | 返回值 | 含义               |
+| :-- | :-- | :--------------- |
+| 内部  | 正数  | 距离轮廓的最近边界线的距离    |
+| 边界上 | 0   | 在边缘上             |
+| 外部  | 负数  | 到轮廓的最近边界线的距离（取负） |
+
+```
+o = cv2.imread('cs.bmp')
+cv2.imshow("original",o)
+#----------------获取凸包------------------------
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+hull = cv2.convexHull(contours[0])
+# 把二值图转换为彩色以便绘制多色信息
+image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+cv2.polylines(image, [hull], True, (0, 255, 0), 2)
+#----------------内部点A的距离-------------------------
+distA = cv2.pointPolygonTest(hull, (300, 150), True)
+font=cv2.FONT_HERSHEY_SIMPLEX
+cv2.putText(image,'A',(300,150), font, 1,(0,255,0),3)
+print("distA=",distA)
+#----------------外部点B的距离-------------------------
+distB = cv2.pointPolygonTest(hull, (300, 250), True)
+font=cv2.FONT_HERSHEY_SIMPLEX
+cv2.putText(image,'B',(300,250), font, 1,(0,255,0),3)
+print("distB=",distB)
+#------------正好处于边缘上的点C的距离-----------------
+distC = cv2.pointPolygonTest(hull, (423, 112), True)
+font=cv2.FONT_HERSHEY_SIMPLEX
+cv2.putText(image,'C',(423,112), font, 1,(0,255,0),3)
+print("distC=",distC)
+#print(hull)   #测试边缘到底在哪里，然后再使用确定位置的
+#----------------显示-------------------------
+cv2.imshow("result",image)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+# 轮廓形状匹配（Shape Context Distance Extractor）
+
+## 比较特性
+
+| 特性        | Shape Context | Hausdorff |
+| --------- | ------------- | --------- |
+| 核心原理      | 匹配点分布统计       | 最大最小距离    |
+| 对噪声的敏感度   | 较低            | 较高        |
+| 对旋转/缩放鲁棒性 | 一般            | 一般        |
+| 计算速度      | 较慢            | 较快        |
+| 适用场景      | 复杂形状分类        | 快速相似检测    |
+
+## 形状上下文距离算子 cv2.createShapeContextDistanceExtractor
+
+- 创建出的是一个形状上下文（Shape Context）算法的对象，用与分析两个轮廓的整体形状分布，通过匹配点的相对位置来衡量形状的相似度。
+- 使用此对象的computeDistance()计算形状相似度
+- 算法输出的距离值没有固定单位；0 表示完全相同；<0.2 表示非常相似（可能是同一物体的不同角度或比例）；0.5 表示形状差异较大；1 表示明显不同。
+
+```
+o1 = cv2.imread('cs.bmp')
+cv2.imshow("original1",o1)
+gray1 = cv2.cvtColor(o1,cv2.COLOR_BGR2GRAY)
+ret, binary1 = cv2.threshold(gray1,127,255,cv2.THRESH_BINARY)
+image,contours1, hierarchy = cv2.findContours(binary1,
+                                              cv2.RETR_LIST,
+                                              cv2.CHAIN_APPROX_SIMPLE)
+cnt1 = contours1[0]
+#-----------原始图像o2边缘--------------------
+o2 = cv2.imread('cs3.bmp')
+cv2.imshow("original2",o2)
+gray2 = cv2.cvtColor(o2,cv2.COLOR_BGR2GRAY)
+ret, binary2 = cv2.threshold(gray2,127,255,cv2.THRESH_BINARY)
+image,contours2, hierarchy = cv2.findContours(binary2,
+                                              cv2.RETR_LIST,
+                                              cv2.CHAIN_APPROX_SIMPLE)
+cnt2 = contours2[0]
+#-----------原始图像o3边缘--------------------
+o3 = cv2.imread('hand.bmp')
+cv2.imshow("original3",o3)
+gray3 = cv2.cvtColor(o3,cv2.COLOR_BGR2GRAY)
+ret, binary3 = cv2.threshold(gray3,127,255,cv2.THRESH_BINARY)
+image,contours3, hierarchy = cv2.findContours(binary3,
+                                              cv2.RETR_LIST,
+                                              cv2.CHAIN_APPROX_SIMPLE)
+cnt3 = contours3[0]
+#-----------构造距离提取算子--------------------
+sd = cv2.createShapeContextDistanceExtractor()
+#-----------计算距离--------------------
+d1 = sd.computeDistance(cnt1,cnt1)
+print("自身距离d1=", d1)
+d2 = sd.computeDistance(cnt1,cnt2)
+print("旋转缩放后距离d2=", d2)
+d3 = sd.computeDistance(cnt1,cnt3)
+print("不相似对象距离d3=", d3)
+#-----------显示距离--------------------
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## Hausdorff距离算子 cv2.createHausdorffDistanceExtractor
+
+- 使用cv2.createHausdorffDistanceExtractor创建算子，使用hd.computeDistance计算两个点集（或轮廓）之间的最大“最短距离”。
+
+| 距离范围    | 形状关系        |
+| ------- | ----------- |
+| 0 ~ 1   | 完全相同        |
+| 1 ~ 10  | 高度相似（旋转/缩放） |
+| 10 ~ 50 | 有明显差异       |
+| >50     | 完全不同        |
+
+
+| 变量   | 对比对象         | 含义   | 期望结果         |
+| ---- | ------------ | ---- | ------------ |
+| `d1` | 自身 vs 自身     | 完全相同 | 应接近 0        |
+| `d2` | 原图 vs 旋转/缩放后 | 相似   | 值较小（例如 2~10） |
+| `d3` | 原图 vs 不同形状   | 不相似  | 值较大（几十甚至上百）  |
+
+
+```
+o1 = cv2.imread('cs.bmp')
+o2 = cv2.imread('cs3.bmp')
+o3 = cv2.imread('hand.bmp')
+cv2.imshow("original1",o1)
+cv2.imshow("original2",o2)
+cv2.imshow("original3",o3)
+#-----------色彩转换--------------------
+gray1 = cv2.cvtColor(o1,cv2.COLOR_BGR2GRAY)
+gray2 = cv2.cvtColor(o2,cv2.COLOR_BGR2GRAY)
+gray3 = cv2.cvtColor(o3,cv2.COLOR_BGR2GRAY)
+#-----------阈值处理--------------------
+ret, binary1 = cv2.threshold(gray1,127,255,cv2.THRESH_BINARY)
+ret, binary2 = cv2.threshold(gray2,127,255,cv2.THRESH_BINARY)
+ret, binary3 = cv2.threshold(gray3,127,255,cv2.THRESH_BINARY)
+#-----------提取轮廓--------------------
+image,contours1, hierarchy = cv2.findContours(binary1,
+                                              cv2.RETR_LIST,
+                                              cv2.CHAIN_APPROX_SIMPLE)
+image,contours2, hierarchy = cv2.findContours(binary2,
+                                              cv2.RETR_LIST,
+                                              cv2.CHAIN_APPROX_SIMPLE)
+image,contours3, hierarchy = cv2.findContours(binary3,
+                                              cv2.RETR_LIST,
+                                              cv2.CHAIN_APPROX_SIMPLE)
+cnt1 = contours1[0]
+cnt2 = contours2[0]
+cnt3 = contours3[0]
+#-----------构造距离提取算子--------------------
+hd = cv2.createHausdorffDistanceExtractor()
+#-----------计算距离--------------------
+d1 = hd.computeDistance(cnt1,cnt1)
+print("自身Hausdorff距离d1=", d1)
+d2 = hd.computeDistance(cnt1,cnt2)
+print("旋转缩放后Hausdorff距离d2=", d2)
+d3 = hd.computeDistance(cnt1,cnt3)
+print("不相似对象Hausdorff距离d3=", d3)
+#-----------显示距离--------------------
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+# 形状特征综合分析
+
+## 算面积 contourArea
+
+- 使用cv2.contourArea函数计算轮廓面积，比使用矩（cv2.moments）的方式快一点
+
+```
+o = cv2.imread('contours.bmp')
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+cv2.imshow("original",o)
+n=len(contours)
+contoursImg=[]
+for i in range(n):
+    print("contours["+str(i)+"]面积=",cv2.contourArea(contours[i]))
+    temp=np.zeros(o.shape,np.uint8)
+    contoursImg.append(temp)
+    contoursImg[i]=cv2.drawContours(contoursImg[i],
+                                   contours,
+                                   i,
+                                   (255,255,255),
+                                   3)
+    cv2.imshow("contours[" + str(i)+"]",contoursImg[i])
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 占空比（extent）
+
+- 可理解为：轮廓面积 / 外接矩形面积
+- 它描述了图形在包围矩形中“填满”的程度。例如：圆形的占空比 ≈ 0.785（π/4），正方形的占空比 = 1.0，细长条或星形的占空比 < 0.5
+
+## 算周长 arcLength
+
+- arcLength：参数 True 表示轮廓是封闭的；如果是曲线（非封闭），则用 False。
+
+```
+#--------------读取及显示原始图像--------------------
+o = cv2.imread('contours0.bmp')
+cv2.imshow("original",o)
+#--------------获取轮廓--------------------
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+#--------------计算各个轮廓的长度和、平均长度--------------------
+n=len(contours)   #获取轮廓个数
+cntLen=[]           #存储各个轮廓的长度
+for i in range(n):
+    cntLen.append(cv2.arcLength(contours[i],True))
+    print("第"+str(i)+"个轮廓的长度:%d"%cntLen[i])
+cntLenSum=np.sum(cntLen)  #各个轮廓长度和
+cntLenAvr=cntLenSum/n    #各个轮廓长度平均值
+print("各个轮廓的总长度为：%d"%cntLenSum)
+print("各个轮廓的平均长度为：%d"%cntLenAvr)
+#--------------显示超过平均值的轮廓--------------------
+contoursImg=[]
+for i in range(n):
+    temp=np.zeros(o.shape,np.uint8)
+    contoursImg.append(temp)
+    contoursImg[i]=cv2.drawContours(contoursImg[i],
+               contours,i,(255,255,255),3)
+    if cv2.arcLength(contours[i],True)>cntLenAvr:
+        cv2.imshow("contours[" + str(i)+"]",contoursImg[i])
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 凸度（solidity）
+
+- 可以用来衡量一个图形轮廓是否有凹陷或复杂边缘
+- 凸度 = 轮廓面积 / 凸包面积，结果越接近 1，形状越凸；越小，凹陷越明显。如手指间空隙会让 solidity 明显小于 1（比如 0.7~0.8）
+- 实际用途：手形、叶子、物体检测 → 判断凹凸
+
+```
+o = cv2.imread('hand.bmp')
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+cv2.drawContours(o,contours[0],-1,(0,0,255),3)
+cntArea=cv2.contourArea(contours[0])
+hull = cv2.convexHull(contours[0])
+hullArea = cv2.contourArea(hull)
+cv2.polylines(o, [hull], True, (0, 255, 0), 2)
+solidity=float(cntArea)/hullArea
+print(solidity)
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 等效直径（equivalent diameter）
+
+- 把任意形状的面积用一个“圆的直径”来表示，方便比较不同物体的大小
+- 公式：np.sqrt(4*Area/np.pi)
+- 用于尺寸比较：把任意形状的面积统一转换成一个圆的直径，便于比较大小。形状分析：与圆形度、凸度结合，可了解物体的形状特征。形态学测量：适合植物叶子、细胞、零件等分析
+
+```
+o = cv2.imread('cc.bmp')
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+cv2.drawContours(o,contours[0],-1,(0,0,255),3)
+cntArea=cv2.contourArea(contours[0])
+equiDiameter = np.sqrt(4*cntArea/np.pi)
+print(equiDiameter)
+cv2.circle(o,(100,100),int(equiDiameter/2),(0,0,255),3) #展示等直径大小的圆
+cv2.imshow("result",o)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 区域内灰度最值 cv2.minMaxLoc
+
+使用cv2.minMaxLoc(gray, mask=mask)在掩膜区域内找出最亮点和最暗点（maxVal / minVal）及其位置
+
+| 场景           | 说明                                 |
+| ------------ | ---------------------------------- |
+| **医学影像分析**   | 提取肿瘤、器官等特定区域，分析亮度差异或密度分布（如CT、MRI）。 |
+| **工业检测**     | 检测零件缺陷或特定区域的磨损、划痕、颜色异常。            |
+| **目标跟踪/识别**  | 只关注图像中的目标区域，对目标进行特征提取和匹配。          |
+| **图像分割后的分析** | 分割出对象轮廓后，统计该对象内部的灰度、颜色或纹理特征。       |
+| **形态学测量**    | 结合轮廓或掩膜，测量面积、直径、亮度范围等指标。           |
+
+```
+o = cv2.imread('ct.png')
+cv2.imshow("original",o)
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+cnt=contours[2]   #coutours[0]、coutours[1]是左侧字母R
+#--------使用掩膜获取感兴趣区域的最值-----------------
+#需要注意minMaxLoc处理的对象为灰度图像，本例中处理对象为灰度图像gray
+#如果希望获取彩色图像的，需要提取各个通道，将每个通道独立计算最值
+mask = np.zeros(gray.shape,np.uint8)
+mask=cv2.drawContours(mask,[cnt],-1,255,-1)
+minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(gray,mask = mask)
+print("minVal=",minVal)
+print("maxVal=",maxVal)
+print("minLoc=",minLoc)
+print("maxLoc=",maxLoc)
+#--------使用掩膜获取感兴趣区域并显示-----------------
+masko = np.zeros(o.shape,np.uint8)
+masko=cv2.drawContours(masko,[cnt],-1,(255,255,255),-1)
+loc=cv2.bitwise_and(o,masko)
+cv2.imshow("mask",loc)
+#显示灰度结果
+#loc=cv2.bitwise_and(gray,mask)
+#cv2.imshow("mask",loc)
+#--------释放窗口-----------------
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 区域内灰度平均值 cv2.mean
+
+- cv2.mean() 计算彩色图像在掩膜区域的 BGR通道平均值。结果是包含B、G、R、A四个值，alpha 一般为 0。
+
+```
+o = cv2.imread('ct.png')
+cv2.imshow("original",o)
+#--------获取轮廓-----------------
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,
+                                             cv2.RETR_LIST,
+                                             cv2.CHAIN_APPROX_SIMPLE)
+cnt=contours[2]
+#--------使用掩膜获取感兴趣区域的均值-----------------
+mask = np.zeros(gray.shape,np.uint8)#构造mean所使用的掩膜，必须是单通道的
+cv2.drawContours(mask,[cnt],0,(255,255,255),-1)
+meanVal = cv2.mean(o,mask = mask)  #mask是区域，所以必须是单通道的
+print("meanVal=\n",meanVal)
+#--------使用掩膜获取感兴趣区域并显示-----------------
+masko = np.zeros(o.shape,np.uint8)
+cv2.drawContours(masko,[cnt],-1,(255,255,255),-1)
+loc=cv2.bitwise_and(o,masko) # 原图中感兴趣区域提取出来，其他部分置黑，o是彩色图、masko是二值图
+cv2.imshow("mask",loc)
+#--------释放窗口-----------------
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+## 极值点（最左、最右、最上、最下的点）
+
+典型应用
+
+- 形状分析：获取对象的边界极限，计算尺寸、比例。
+- 目标定位：快速得到轮廓的范围，用于裁剪、跟踪。
+- 姿态估计：手或物体关键点提取。
+- 碰撞检测：游戏或机器人，判断对象边界位置。
+
+```
+o = cv2.imread('cs.bmp')
+#--------获取并绘制轮廓-----------------
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+ret, binary = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+image,contours, hierarchy = cv2.findContours(binary,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+mask = np.zeros(gray.shape,np.uint8)
+cnt=contours[0]
+cv2.drawContours(mask,[cnt],0,255,-1)
+#--------计算极值-----------------
+leftmost = tuple(cnt[cnt[:,:,0].argmin()][0])
+rightmost = tuple(cnt[cnt[:,:,0].argmax()][0])
+topmost = tuple(cnt[cnt[:,:,1].argmin()][0])
+bottommost = tuple(cnt[cnt[:,:,1].argmax()][0])
+#--------计算极值-----------------
+print("leftmost=",leftmost)
+print("rightmost=",rightmost)
+print("topmost=",topmost)
+print("bottommost=",bottommost)
+#--------绘制说明文字-----------------
+font=cv2.FONT_HERSHEY_SIMPLEX
+cv2.putText(o,'A',leftmost, font, 1,(0,0,255),2)
+cv2.putText(o,'B',rightmost, font, 1,(0,0,255),2)
+cv2.putText(o,'C',topmost, font, 1,(0,0,255),2)
+cv2.putText(o,'D',bottommost, font, 1,(0,0,255),2)
+#--------绘制图像-----------------
+cv2.imshow("result",o)
+#--------释放窗口-----------------
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+# 渲染
+
+- cv2.putText 文字
+- cv2.polylines 多边形
+- cv2.line 线
+- cv2.circle 圆
+- cv2.rectangle 矩形
+- cv2.ellipse 椭圆
+- cv2.drawContours 轮廓
+
 # 金字塔操作（Pyramid）
 
 ## 高频、低频
@@ -1308,7 +2358,7 @@ cv2.waitKey()
 cv2.destroyAllWindows()
 ```
 
-## Laplace 金字塔
+## Laplace金字塔
 
 - 是多分辨率图像表示方法，在高斯金字塔的基础上，要保留每层的高频细节，用于无损恢复
 - 原图减去低频的模糊图，剩下的就是清晰的边缘和纹理（高频部分）
@@ -1321,6 +2371,8 @@ G1 = cv2.pyrDown(G0)             # 下采样，得到低频信息
 L0 = O - cv2.pyrUp(G1)           # 先上采样恢复尺寸，原图-低频=高频细节，Laplace 金字塔的核心操作
 RO = L0 + cv2.pyrUp(G1)          # 通过 Laplace 重建原图
 ```
+
+## Laplace无损案例
 
 ```
 O=cv2.imread("lena.bmp")
