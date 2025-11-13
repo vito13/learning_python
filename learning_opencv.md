@@ -228,9 +228,21 @@ r = cv2.addWeighted(img, 0.1, rc, 0.9, 0)
 cv2.imshow('bgr', r)
 ```
 
-### 按位与（alpha测试）
+### 按位与（掩码、alpha测试）
 
 src在mask相同位置上为白色（像素为255、即1）则通过，否则不通过
+
+- 构造掩码图
+
+```
+import cv2
+import numpy as np
+mask=np.zeros([600,600],np.uint8)
+mask[200:400,200:400]=255
+cv2.imshow('mask',mask)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
 
 - 一张图与mask
 
@@ -2406,4 +2418,296 @@ print("G2.shape=",G2.shape)
 print("RG2.shape=",RG2.shape)
 result=RG2-G2  #将o和ro做减法
 print("原始图像G2与恢复图像RG2差值的绝对值和：",np.sum(abs(result)))
+```
+
+# 直方图 Histogram
+
+## 概念作用
+
+### 普通直方图
+
+- 是一种统计图，每个灰度值（0~255）出现的“像素数量”。
+- 对灰度图来说，横轴是 像素值（0～255），纵轴是 该灰度值出现的次数。
+- 对彩色图像来说，每个通道（R、G、B）都有一个独立的直方图。
+- 直方图能非常直观地反映图像的整体特征，在 图像分析、增强、分割、特征识别 等方面都有重要作用。
+
+| 应用方向             | 作用说明                     |
+| ---------------- | ------------------------ |
+| **亮度/对比度分析**     | 观察图像偏亮、偏暗还是灰度集中（对比度低）    |
+| **图像增强（直方图均衡化）** | 自动拉伸亮度分布，增强对比度           |
+| **阈值分割**         | 通过直方图找到前景与背景分界点（如 Otsu法） |
+| **特征描述**         | 灰度分布模式可作为图像特征进行匹配        |
+| **颜色校正**         | 分析 RGB 各通道直方图判断色偏或曝光问题   |
+
+|  直方图形态  |           图像特性          |
+| :-----: | :---------------------: |
+| 分布集中在左边 |           图像偏暗          |
+| 分布集中在右边 |           图像偏亮          |
+|  分布窄而集中 |        对比度低、灰度层次少       |
+|  分布宽而均匀 |        对比度高、层次丰富        |
+|   双峰形状  | 通常表示图像有明显的前景与背景（适合阈值分割） |
+
+### 归一化直方图 cv2.normalize
+
+- 如果两张图大小不同（比如一张 100×100，一张 1000×1000），灰度为 128 的像素数量就无法直接比较。
+- 归一化直方图统计的是每个灰度级像素出现的“概率”而不是“次数”。它把像素数量转为比例，使不同大小或亮度范围的图像可直接比较。所有灰度的概率之和等于1
+
+| 项目        | 普通直方图  | 归一化直方图       |
+| --------- | ------ | ------------ |
+| 数值含义      | 像素数量   | 像素比例（概率）     |
+| 是否受图像大小影响 | ✅ 会受影响 | ❌ 不受影响       |
+| 应用场景      | 观察亮度分布 | 图像比较、匹配、统计分析 |
+| 总和        | 不定     | 恒为 1         |
+
+| 应用场景              | 为什么要用归一化直方图    |
+| ----------------- | -------------- |
+| 图像特征提取（例如直方图匹配）   | 尺寸不同但分布需可比     |
+| 图像分类 / 检索         | 可作为纹理或亮度特征输入   |
+| 图像相似度计算（如巴氏距离）    | 需要概率分布形式       |
+| 图像增强（直方图均衡化算法的基础） | 算法内部需归一化累积分布函数 |
+
+### dims、range、bins
+
+| 名称      | 中文含义          | 控制什么        | 举例               |
+| ------- | ------------- | ----------- | ---------------- |
+| `dims`  | 维度（Dimension） | 要计算的颜色通道数量  | 灰度图是1维，彩色图RGB是3维 |
+| `range` | 取值范围          | 灰度或颜色值的上下限  | 一般是 `[0, 256]`   |
+| `bins`  | 等级分片 | 把灰度值分成多少个区间进行统计 | 一般为 256          |
+
+## 统计 cv2.calcHist
+
+下面案例的参数作用
+
+| 参数        | 含义     | 示例值       | 说明              |
+| --------- | ------ | --------- | --------------- |
+| `[img]`   | 输入图像列表 | `[img]`   | 可以传多张图像（一般只有一张） |
+| `[0]`     | 通道索引   | `[0]`     | 对灰度或B通道统计       |
+| `None`    | 掩膜     | `None`    | 不使用掩膜（即全图参与统计）  |
+| `[256]`   | bin 数  | `[256]`   | 共有256个灰度区间      |
+| `[0,255]` | 范围     | `[0,255]` | 灰度值从0到255       |
+
+
+```
+import cv2
+import matplotlib.pyplot as plt
+
+img = cv2.imread('lena.bmp', 0)  # 读入灰度图
+hist = cv2.calcHist([img],[0],None,[256],[0,255])
+print(type(hist)) # 其实就是一个 NumPy 数组。
+print(hist.shape) # 共 256 行（对应 256 个灰度值 bin）
+print(hist.size) # 256 个统计点
+print(hist) # 每一行代表对应灰度值的像素数量。例如：hist[0][0] 是灰度为0的像素个数（黑），hist[255][0] 是灰度为255的像素个数（白）
+```
+
+## 均衡化 cv2.equalizeHist
+
+- 案例见绘制篇章内
+- 增强图像对比度，使暗亮区域更分明，便于后续处理（如边缘检测、分割）
+- 直方图更加平坦，灰度级利用更充分。
+- 应用场景：医学影像处理CT、X光、MRI 提高可见细节，摄像头图像增强，低光照条件下提高可见度。OCR/文字识别，使文字与背景对比增强。计算机视觉算法预处理，边缘检测、分割、目标识别
+
+## 绘制 plt.plot
+
+### xy轴简单案例
+
+```
+import cv2
+import matplotlib.pyplot as plt
+
+x = [0,1,2,3,4,5,6]
+y = [0.3,0.4,2,5,3,4.5,4]
+plt.plot(x,y)
+plt.show()
+```
+
+### 缺省x轴
+
+默认从1整数递增
+
+```
+y = [0.3,0.4,2,5,3,4.5,4]
+plt.plot(y)
+plt.show()
+```
+
+### 两条线
+
+均衡化绘制案例有更丰富的两个数据绘制在同一图里
+
+```
+import matplotlib.pyplot as plt
+a = [0.3,0.4,2,5,3,4.5,4]
+b=[3,5,1,2,1,5,3]
+plt.plot(a,color='r')
+plt.plot(b,color='g')
+plt.show()
+```
+
+### 绘制黑白统计
+
+```
+import matplotlib.pyplot as plt
+o=cv2.imread("boatGray.bmp")
+histb = cv2.calcHist([o],[0],None,[256],[0,255])
+plt.plot(histb,color='b')
+plt.show()
+```
+
+### 绘制彩色统计
+
+```
+import cv2
+
+import matplotlib.pyplot as plt
+o=cv2.imread("girl.bmp")
+histb = cv2.calcHist([o],[0],None,[256],[0,255])
+histg = cv2.calcHist([o],[1],None,[256],[0,255])
+histr = cv2.calcHist([o],[2],None,[256],[0,255])
+plt.plot(histb,color='b')
+plt.plot(histg,color='g')
+plt.plot(histr,color='r')
+plt.show()
+```
+
+### 绘制局部统计（掩码）
+
+掩码就像一个“选择框”，告诉函数“只处理这里，不处理那里”，可以对图像进行 局部分析、局部增强或局部特征提取。
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+image=cv2.imread("girl.bmp",cv2.IMREAD_GRAYSCALE)
+mask=np.zeros(image.shape,np.uint8)
+mask[200:400,200:400]=255
+histImage=cv2.calcHist([image],[0],None,[256],[0,255])
+histMI=cv2.calcHist([image],[0],mask,[256],[0,255])
+plt.plot(histImage)
+plt.plot(histMI)
+plt.show()
+```
+
+### 绘制均衡化
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+#-----------读取原始图像---------------
+img = cv2.imread('equ.bmp',cv2.IMREAD_GRAYSCALE)
+#-----------直方图均衡化处理---------------
+equ = cv2.equalizeHist(img)
+#-----------显示均衡化前后的直方图---------------
+cv2.imshow("original",img)
+cv2.imshow("result",equ)
+#-----------在同一个窗口绘制直方图---------------
+plt.figure("灰度直方图对比")
+# ravel将二维图像展平成一维，用于绘制直方图
+plt.hist(img.ravel(), bins=256, range=(0,255), color='blue', alpha=0.5, label='原始图像')
+plt.hist(equ.ravel(), bins=256, range=(0,255), color='red', alpha=0.5, label='均衡化图像')
+plt.xlabel('灰度值')
+plt.ylabel('像素数量')
+plt.title('原始图像 vs 均衡化图像直方图')
+plt.legend()
+plt.show()
+#----------等待释放窗口---------------------
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+### 多个直方图 plt.subplot
+
+- 不是一个直方图上两条线，而是将2个直方图绘制到一个窗口里
+- plt.subplot(121)：窗口分成 1 行 2 列，当前绘制在第 1 个区域
+- plt.subplot(122)：同上，第 2 个区域
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('equ.bmp',cv2.IMREAD_GRAYSCALE)
+equ = cv2.equalizeHist(img)
+plt.figure("subplot示例")
+plt.subplot(121),plt.hist(img.ravel(),256)
+plt.subplot(122),plt.hist(equ.ravel(),256)
+plt.show()
+```
+
+### 绘制彩色图片 plt.imshow
+
+- OpenCV 读取彩色图像时是 BGR，而Matplotlib 显示图像时是 RGB，所以要cvtColor转换
+- plt.imshow直接显示 OpenCV 读入的 BGR 图像
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('girl.bmp')
+imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+plt.figure("显示结果")
+plt.subplot(121)
+plt.imshow(img),plt.axis('off')
+plt.subplot(122)
+plt.imshow(imgRGB),plt.axis('off')
+plt.show()
+```
+
+### 绘制灰度图片
+
+| 子图位置 | 数据       | cmap | 显示效果 | 说明                     |
+| ---- | -------- | ---- | ---- | ---------------------- |
+| 221  | 彩色图像 BGR | 默认   | 颜色偏蓝 | Matplotlib 默认是 RGB，未转换 |
+| 222  | 彩色图像 BGR | gray | 灰度映射 | 强制灰度显示，数据未改变           |
+| 223  | 灰度图像 g   | 默认   | 伪彩色  | Matplotlib 自动映射为彩色显示   |
+| 224  | 灰度图像 g   | gray | 正确灰度 | 标准灰度显示，最常用             |
+
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+o = cv2.imread('girl.bmp')
+g=cv2.cvtColor(o, cv2.COLOR_BGR2GRAY)
+plt.figure("灰度图像显示演示")
+plt.subplot(221)
+plt.imshow(o),plt.axis('off')
+plt.subplot(222)
+plt.imshow(o,cmap=plt.cm.gray),plt.axis('off')
+plt.subplot(223)
+plt.imshow(g),plt.axis('off')
+plt.subplot(224)
+plt.imshow(g,cmap=plt.cm.gray),plt.axis('off') # 这个是正确的，其余的色彩模式是错误的
+plt.show()
+```
+
+### 灰度图像的colormap色彩映射表
+
+| 子图位置 | cmap                   | 说明             |
+| ---- | ---------------------- | -------------- |
+| 221  | gray / plt.cm.gray     | 正常灰度显示，亮→白，暗→黑 |
+| 222  | gray_r / plt.cm.gray_r | 反转灰度显示，亮→黑，暗→白 |
+| 223  | gray                   | 同 221，标准灰度显示   |
+| 224  | gray_r                 | 同 222，反转灰度显示   |
+
+应用场景：
+
+- gray_r 适合突出图像暗区或需要反色显示的情况
+- 在医学图像、热图、掩码可视化等场景常用
+- 不改变图像数据，只改变显示效果
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+o = cv2.imread('8.bmp')
+g=cv2.cvtColor(o, cv2.COLOR_BGR2GRAY)
+plt.figure("灰度图像显示演示")
+plt.subplot(221); plt.imshow(g, cmap=plt.cm.gray)
+plt.subplot(222); plt.imshow(g, cmap=plt.cm.gray_r)
+plt.subplot(223); plt.imshow(g, cmap='gray')
+plt.subplot(224); plt.imshow(g, cmap='gray_r')
+plt.show()
 ```
