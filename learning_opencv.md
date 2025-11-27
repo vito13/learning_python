@@ -1248,7 +1248,9 @@ cv2.waitKey()
 cv2.destroyAllWindows()
 ```
 
-# Canny 边缘检测
+# 车道线检测（Canny + 霍夫变换）
+
+## Canny 边缘检测
 
 是一个经典多阶段边缘检测算法，通过高斯滤波去噪平滑、用 Sobel 或 Scharr计算梯度、非极大值抑制和双阈值连接，能在噪声环境中提取精确、连续的全方向边缘（轮廓、形状、纹理）。
 
@@ -1257,6 +1259,15 @@ cv2.destroyAllWindows()
 - threshold2（高阈值）：强边缘阈值，梯度值高于这个值的像素被认为一定是边缘
 - 梯度值在低阈值和高阈值之间：被认为是“弱边缘”，仅保留与强边缘相连部分
 - threshold1 决定弱边缘起点，threshold2 决定强边缘，双阈值 + 边缘连接让 Canny 得到干净、连续的边缘。
+
+
+```
+edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+50 = 最小阈值
+150 = 最大阈值
+apertureSize=3 → Sobel 卷积核大小
+输出 edges → 二值边缘图
+```
 
 ```
 o=cv2.imread("lena.bmp",cv2.IMREAD_GRAYSCALE)
@@ -1267,6 +1278,135 @@ cv2.imshow("result1",r1)
 cv2.imshow("result2",r2)
 cv2.waitKey()
 cv2.destroyAllWindows()
+```
+
+## 霍夫变换
+
+HoughLinesP 更适合实际应用，因为它直接返回线段端点，不需要延长到无限大，绘制更直观。
+
+| 特性   | HoughLines            | HoughLinesP                         |
+| ---- | --------------------- | ----------------------------------- |
+| 返回值  | `(rho, theta)` → 无限直线 | `(x1, y1, x2, y2)` → 线段端点           |
+| 适用场景 | 需要全图延长直线              | 需要实际线段（如车道、物体边框）                    |
+| 处理方式 | 需要计算端点再绘制             | 直接绘制即可                              |
+| 控制参数 | 阈值                    | 阈值 + `minLineLength` + `maxLineGap` |
+
+
+### 直线变换 HoughLines
+
+- 首先使用Canny检测图像中连续、清晰的边缘
+- 霍夫直线变换检测直线（将边缘点映射到极坐标空间检测直线，HoughLines检测的是无限延长直线，HoughLinesP返回线段而不是无限延长直线，更实际）
+
+    lines = cv2.HoughLines(edges, 1, np.pi/180, 140)，参数解释：  
+    1 → 距离精度 1 像素  
+    np.pi/180 → 角度精度 1 度
+    140 → 阈值，累加器票数大于 140 才认为是一条直线  
+    返回 lines → 每条线的 (rho, theta)  
+    rho → 到原点距离  
+    theta → 与 x 轴夹角  
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+img = cv2.imread('computer.jpg')
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+edges = cv2.Canny(gray,50,150,apertureSize = 3)
+
+# 转 RGB 用于绘制颜色线
+orgb=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+oShow=orgb.copy()
+
+lines = cv2.HoughLines(edges,1,np.pi/180,140)
+
+# x0, y0 → 直线在极坐标下的基准点
+# (x1,y1),(x2,y2) → 直线两端点，延长很长（1000 像素）确保覆盖整图
+# (0,0,255) → 红色直线
+# 2 → 线宽
+for line in lines:
+    rho,theta = line[0]
+    a = np.cos(theta)
+    b = np.sin(theta)
+    x0 = a*rho
+    y0 = b*rho
+    x1 = int(x0 + 1000*(-b))
+    y1 = int(y0 + 1000*(a))
+    x2 = int(x0 - 1000*(-b))
+    y2 = int(y0 - 1000*(a))
+    cv2.line(orgb,(x1,y1),(x2,y2),(0,0,255),2)
+plt.subplot(121)
+plt.imshow(oShow)
+plt.axis('off')
+plt.subplot(122)
+plt.imshow(orgb)
+plt.axis('off')
+plt.show()
+```
+
+### 概率直线变换 HoughLinesP
+
+- 不同于 HoughLines 返回无限长直线，HoughLinesP 直接返回线段端点 (x1, y1, x2, y2)。所以绘制代码是不同的，不需要再计算极坐标
+
+    lines = cv2.HoughLinesP(edges, 1, np.pi/180, 160, minLineLength=100, maxLineGap=10)
+
+| 参数                  | 含义                         |
+| ------------------- | -------------------------- |
+| `edges`             | 边缘图像                       |
+| `1`                 | 距离分辨率 = 1 像素               |
+| `np.pi/180`         | 角度分辨率 = 1 度                |
+| `160`               | 阈值，累加器票数 ≥ 160 才认为是直线      |
+| `minLineLength=100` | 最短线段长度，短于它会被忽略             |
+| `maxLineGap=10`     | 同一条直线上点之间最大间隙，小于它会被连接成一条线段 |
+
+### 霍夫圆环
+
+霍夫圆变换 (Hough Circle Transform) 来检测图像中的圆形
+
+- circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 300,
+                           param1=50, param2=30, minRadius=100, maxRadius=200)
+
+| 参数                   | 含义                |
+| -------------------- | ----------------- |
+| `img`                | 输入灰度图             |
+| `cv2.HOUGH_GRADIENT` | 霍夫梯度法检测圆          |
+| `1`                  | 累加器分辨率 = 输入图像分辨率  |
+| `300`                | 圆心最小距离（避免重复检测）    |
+| `param1=50`          | Canny 高阈值（边缘检测使用） |
+| `param2=30`          | 累加器阈值（圆检测灵敏度）     |
+| `minRadius=100`      | 最小圆半径             |
+| `maxRadius=200`      | 最大圆半径             |
+
+- 输出 circles → 圆的参数 (x_center, y_center, radius)，先通过 np.uint16(np.around(circles)) 转为整数绘制
+
+| 步骤    | 作用                                                        |
+| ----- | --------------------------------------------------------- |
+| 中值滤波  | 去噪声，提高圆检测准确率                                              |
+| 霍夫圆变换 | 检测图像中的圆形，返回圆心和半径                                          |
+| 绘制圆   | 可视化检测结果（圆和圆心）                                             |
+| 参数调节  | `param1/param2` 控制边缘检测与灵敏度，`minRadius/maxRadius` 控制检测半径范围 |
+
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+img = cv2.imread('chess.jpg',0)
+imgo=cv2.imread('chess.jpg',-1)
+o=cv2.cvtColor(imgo,cv2.COLOR_BGR2RGB)
+oshow=o.copy()
+img = cv2.medianBlur(img,5)
+circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,300,param1=50,param2=30,minRadius=100,maxRadius=200)
+circles = np.uint16(np.around(circles))
+for i in circles[0,:]:
+  cv2.circle(o,(i[0],i[1]),i[2],(255,0,0),12)
+  cv2.circle(o,(i[0],i[1]),2,(255,0,0),12)
+plt.subplot(121)
+plt.imshow(oshow)
+plt.axis('off')
+plt.subplot(122)
+plt.imshow(o)
+plt.axis('off')
+plt.show()
 ```
 
 # 轮廓
@@ -2709,5 +2849,291 @@ plt.subplot(221); plt.imshow(g, cmap=plt.cm.gray)
 plt.subplot(222); plt.imshow(g, cmap=plt.cm.gray_r)
 plt.subplot(223); plt.imshow(g, cmap='gray')
 plt.subplot(224); plt.imshow(g, cmap='gray_r')
+plt.show()
+```
+
+# 傅里叶变换
+
+## 重要概念
+
+- 频谱、频域：都是指的通过傅里叶变化（np.fft.fft2、cv2.dft）后的初步结果数组
+- 低频区域，即频谱中心，是通过np.fft.fft2得到的矩阵（即频谱）的中心
+- 通过中心化操作后得到的结果应是中心低频（0、白，代表光照不均或大面积阴影）四周高频（1、黑，信息量大）
+
+
+## numpy的傅里叶
+
+### 变换
+
+- 二维Fourier Transform
+  
+    原始频谱 = np.fft.fft2(原始图像) ，对灰度图做二维傅里叶、得到复数数组，每个点代表某个频率的振幅（幅度）+相位信息。
+- 频谱中心化
+  
+    频谱值 = np.fft.fftshift(原始频谱)，结果零频率默认左上角，将其移到图像中心便于观察。
+- 取绝对值得到灰度图
+  
+    像素新值 = 20*np.log(np.abs(频谱值))，复数数组转为0-255的灰度值
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+img = cv2.imread('lena.bmp',0)
+f = np.fft.fft2(img)
+fshift = np.fft.fftshift(f)
+magnitude_spectrum = 20*np.log(np.abs(fshift))
+plt.subplot(121)
+plt.imshow(img, cmap = 'gray')
+plt.title('original')
+plt.axis('off')
+plt.subplot(122)
+plt.imshow(magnitude_spectrum, cmap = 'gray')
+plt.title('result')
+plt.axis('off')
+plt.show()
+```
+
+### 逆变换
+
+FFT → 频谱平移 → 逆平移 → IFFT 会还原原图
+
+- 把中心化后的频谱移回原来的布局
+  
+    ishift = np.fft.ifftshift(fshift)
+
+- 逆傅里叶变换恢复图像
+
+    iimg = np.fft.ifft2(ishift)
+
+- 取绝对值得到灰度图
+
+    iimg = np.abs(iimg)
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+img = cv2.imread('boat.jpg',0)
+f = np.fft.fft2(img)
+fshift = np.fft.fftshift(f)
+ishift = np.fft.ifftshift(fshift)
+iimg = np.fft.ifft2(ishift)
+#print(iimg)
+iimg = np.abs(iimg)
+#print(iimg)
+plt.subplot(121),plt.imshow(img, cmap = 'gray')
+plt.title('original'),plt.axis('off')
+plt.subplot(122),plt.imshow(iimg, cmap = 'gray')
+plt.title('iimg'),plt.axis('off')
+plt.show()
+```
+
+## opencv的傅里叶
+
+### 变换
+
+| 功能   | numpy.fft | cv2.dft     |
+| ---- | --------- | ----------- |
+| 输入格式 | 任意数组      | float32     |
+| 输出格式 | 复数矩阵      | 两通道矩阵（实/虚）  |
+| 性能   | 较慢        | 更快（大图更明显）   |
+| 工业用  | 较少        | 常用（尤其大图、实时） |
+
+
+- cv2.dft不能处理uint8。默认输出频谱为两通道（[:,:,0] = 实部、[:,:,1] = 虚部）、shape = (H, W, 2)
+  
+    dft = cv2.dft(np.float32(img), flags=cv2.DFT_COMPLEX_OUTPUT)
+- 把低频移到中心、计算幅度谱
+  
+    dftShift = np.fft.fftshift(dft)  
+    result = 20*np.log(cv2.magnitude(dftShift[:,:,0], dftShift[:,:,1]))
+
+ 
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+img = cv2.imread('lena.bmp',0)
+dft = cv2.dft(np.float32(img),flags = cv2.DFT_COMPLEX_OUTPUT)
+dftShift = np.fft.fftshift(dft)
+result = 20*np.log(cv2.magnitude(dftShift[:,:,0],dftShift[:,:,1]))
+plt.subplot(121),plt.imshow(img, cmap = 'gray')
+plt.title('original'),plt.axis('off')
+plt.subplot(122),plt.imshow(result, cmap = 'gray')
+plt.title('result'), plt.axis('off')
+plt.show()
+#print(dft)
+```
+
+### 逆变换
+
+过程类似于numpy的逆操作案例，仅逆变换回空间域操作函数不同，iImg = cv2.idft(ishift)
+
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+img = cv2.imread('lena.bmp',0)
+dft = cv2.dft(np.float32(img),flags = cv2.DFT_COMPLEX_OUTPUT)
+dftShift = np.fft.fftshift(dft)
+ishift = np.fft.ifftshift(dftShift)
+iImg = cv2.idft(ishift)
+iImg= cv2.magnitude(iImg[:,:,0],iImg[:,:,1])
+plt.subplot(121),plt.imshow(img, cmap = 'gray')
+plt.title('original'), plt.axis('off')
+plt.subplot(122),plt.imshow(iImg, cmap = 'gray')
+plt.title('inverse'), plt.axis('off')
+plt.show()
+```
+
+
+## 高通滤波与低通滤波
+
+| 项目              | **低通滤波 (Low-pass)**  | **高通滤波 (High-pass)**       |
+| --------------- | -------------------- | -------------------------- |
+| **核心目的**        | 保留低频，去掉高频            | 保留高频，去掉低频                  |
+| **保留内容**        | 整体亮度趋势、大范围变化、轮廓      | 边缘、细节、纹理、快速变化              |
+| **去除内容**        | 细节、噪声、边缘             | 平坦区域、背景、整体亮度趋势             |
+| **图像效果**        | 模糊、变平滑               | 边缘增强，看起来更锐利                |
+| **应用场景**        | 去噪、模糊、抗锯齿、下采样前滤波     | 边缘检测、锐化、特征提取               |
+| **典型 mask**（频域） | 中心为 1（保低频），周围为 0     | 中心为 0（去低频），周围为 1           |
+| **代码直观效果**      | fshift * mask → 模糊图像 | fshift * mask → 类似“素描/边缘图” |
+| **数学意义**        | 平滑信号，去掉“快速变化”成分      | 强化信号变化，突出突变点               |
+
+
+### 高通（强化边缘细节）
+
+高通滤波用于边缘增强、锐化、去除光照、特征增强、边缘细节增强。案例的操作是很理想化的，直接置零，实际中要更复杂
+- 取图像中心位置
+  
+    rows, cols = img.shape  
+    crow, ccol = int(rows/2), int(cols/2) ，是整幅图的中心坐标，用来定位低频区域（频谱中心）
+- 核心操作：屏蔽低频部分（高通滤波）
+
+    fshift[crow-30:crow+30, ccol-30:ccol+30] = 0  
+    对频谱中心 60×60 的区域置零，中心区域 = 低频，把低频设为 0 → 只剩中高频 → 高通滤波
+- 逆shift、逆 Fourier 变换，回到空间域
+  
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+img = cv2.imread('lena.bmp',0)
+f = np.fft.fft2(img)
+fshift = np.fft.fftshift(f)
+rows, cols = img.shape
+crow,ccol = int(rows/2) , int(cols/2)
+fshift[crow-30:crow+30, ccol-30:ccol+30] = 0
+ishift = np.fft.ifftshift(fshift)
+iimg = np.fft.ifft2(ishift)
+iimg = np.abs(iimg)
+plt.subplot(121),plt.imshow(img, cmap = 'gray')
+plt.title('original'),plt.axis('off')
+plt.subplot(122),plt.imshow(iimg, cmap = 'gray')
+plt.title('iimg'),plt.axis('off')
+plt.show()
+```
+
+### 低通（模糊保留轮廓）
+
+- 通过mask实现alpha测试的效果，去除了高频（四周），保留了低频（中心），实际结果是变模糊了
+
+- mask要2通道的，矩形中心部分为1，四周为0，确保src保留中心部分内容
+  
+    mask = np.zeros((rows, cols, 2), np.uint8)  
+    mask[crow-30:crow+30, ccol-30:ccol+30] = 1
+
+- 频率屏蔽使用矩阵相乘（数学意义上的点乘，按 mask 清零），fShift = dftShift * mask
+- 把频谱移回原来布局、做逆傅里叶变换、将结果变成真实图像
+  
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+img = cv2.imread('lena.bmp',0)
+dft = cv2.dft(np.float32(img),flags = cv2.DFT_COMPLEX_OUTPUT)
+dftShift = np.fft.fftshift(dft)
+rows, cols = img.shape
+crow,ccol = int(rows/2) , int(cols/2)
+mask = np.zeros((rows,cols,2),np.uint8)
+#两个通道，与频谱图像匹配
+mask[crow-30:crow+30, ccol-30:ccol+30] = 1
+fShift = dftShift*mask
+ishift = np.fft.ifftshift(fShift)
+iImg = cv2.idft(ishift)
+iImg= cv2.magnitude(iImg[:,:,0],iImg[:,:,1])
+plt.subplot(121),plt.imshow(img, cmap = 'gray')
+plt.title('original'), plt.axis('off')
+plt.subplot(122),plt.imshow(iImg, cmap = 'gray')
+plt.title('result'), plt.axis('off')
+plt.show()
+```
+
+# 模板匹配
+
+此枚举还有其它类型，以下仅案例里使用的
+
+| 案例        | 方法                 | 特点                             |
+| --------- | ------------------ | ------------------------------ |
+| 单模板匹配平方差  | `TM_SQDIFF`        | 最小值为匹配点，亮度差越小越好，敏感光照变化         |
+| 单模板匹配相关系数 | `TM_CCOEFF`        | 最大值为匹配点，考虑均值偏移，对亮度变化更稳健        |
+| 多目标匹配     | `TM_CCOEFF_NORMED` | 找出所有匹配度高于阈值的位置，归一化后光照差异影响小，最常用 |
+
+
+## 单目标
+
+- 用平方差匹配法找到模板（小图，即src）在大图中的位置，两个都要是灰度的，因为模板匹配不支持彩色图直接用平方差
+
+- 获取模板尺寸，th, tw = template.shape[::]，用于绘制找到的位置
+
+- 执行模板匹配，cv2.TM_SQDIFF是匹配方式枚举。输出是结果矩阵，可以转为4角在大图上的坐标，绘制的rv内容显示的是匹配“得分矩阵”，不是图像
+  
+    rv = cv2.matchTemplate(img, template, cv2.TM_SQDIFF)
+
+
+```
+import cv2
+import numpy as np
+from matplotlib import pyplot as plt
+img = cv2.imread('lena512g.bmp',0)
+template = cv2.imread('temp.bmp',0)
+th, tw = template.shape[::]
+rv = cv2.matchTemplate(img,template,cv2.TM_SQDIFF)
+minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(rv)
+topLeft = minLoc
+bottomRight = (topLeft[0] + tw, topLeft[1] + th)
+cv2.rectangle(img,topLeft, bottomRight, 255, 2)
+plt.subplot(121),plt.imshow(rv,cmap = 'gray')
+plt.title('Matching Result'), plt.xticks([]), plt.yticks([])
+plt.subplot(122),plt.imshow(img,cmap = 'gray')
+# 隐藏坐标轴刻度
+plt.title('Detected Point'), plt.xticks([]), plt.yticks([])
+plt.show()
+```
+
+## 多目标
+
+- 通过设置阈值进行循环匹配，loc是匹配位置的坐标集合 (行索引, 列索引)
+  
+    loc = np.where(res >= threshold)
+- 循环画矩形，  loc[::-1] → 反转顺序 → (列, 行) 对应 (x, y) 坐标，zip(*...) → 遍历每个匹配点
+
+    for pt in zip(*loc[::-1])
+
+```
+import cv2
+import numpy as np
+from matplotlib import pyplot as plt
+img = cv2.imread('lena4.bmp',0)
+template = cv2.imread('lena4Temp.bmp',0)
+w, h = template.shape[::-1] # [::-1] → 反转顺序 → (宽, 高)
+res = cv2.matchTemplate(img,template,cv2.TM_CCOEFF_NORMED)
+threshold = 0.9
+loc = np.where( res >= threshold)
+for pt in zip(*loc[::-1]):
+    cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), 255, 1)
+plt.imshow(img,cmap = 'gray')
+plt.xticks([]), plt.yticks([])
 plt.show()
 ```

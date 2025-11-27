@@ -578,6 +578,7 @@ a:b	从第 a 行/列到第 b 行/列（不含 b）
 :b	从开头到第 b 行/列（不含 b）
 a:	从第 a 行/列到结尾
 ::2	每隔 2 个取 1 个（步长为 2）
+[::-1] → 倒序切片，即反转元组
 ```
 
 ```
@@ -605,15 +606,69 @@ b[1:3, -2:]:
 
 ```
 
-## 布尔索引，where
+```
+import numpy as np
+list2d =np.arange(18).reshape(3,6)
+print(list2d)
+h,w=list2d.shape[::]
+print(h,w)
+w,h=list2d.shape[::-1]
+print(w,h)
 
-用布尔数组控制筛选结果
+[[ 0  1  2  3  4  5]
+ [ 6  7  8  9 10 11]
+ [12 13 14 15 16 17]]
+3 6
+6 3
+```
+
+## 比较（返回布尔索引），where
+
+### 一维数组
 
 ```
-a = np.array([10, 20, 30, 40, 50])
-r = a > 25 # array([False, False,  True,  True,  True])
-print(a[r]) # [30 40 50]
+a = np.array([3,6,8,1,2,88])
+b = np.where(a > 5)
+print(b)
+
+
+a > 5 会得到布尔数组：
+[False, True, True, False, False, True]
+np.where(a > 5) 会返回 符合条件元素的索引：
+(array([1, 2, 5]),)
 ```
+
+### 二维数组
+
+```
+a = np.array([
+    [3, 6, 8, 77, 66],
+    [1, 2, 88, 3, 98],
+    [11, 2, 67, 5, 2]
+])
+print(a)
+b = np.where(a > 5)
+print(b)
+
+
+a > 5 对每个元素判断，得到布尔矩阵：
+[[False, True, True, True, True],
+ [False, False, True, False, True],
+ [True, False, True, False, False]]
+
+np.where(a > 5) 返回 两个数组：
+(array([0, 0, 0, 0, 1, 1, 2, 2]), array([1, 2, 3, 4, 2, 4, 0, 2]))
+
+第一个数组 → 符合条件元素的 行索引，
+第二个数组 → 符合条件元素的 列索引
+(0,1) → a[0,1] = 6
+(0,2) → a[0,2] = 8
+(1,2) → a[1,2] = 88
+(2,0) → a[2,0] = 11
+(2,2) → a[2,2] = 67
+
+```
+
 
 ```
 a = np.array([
