@@ -268,9 +268,13 @@ print(shuffled2d)
  [1 2]]
 ```
 
-## 一维变二维、改变维度
+## 扩展维度、改变维度
 
-### expand_dims、squeeze 添加去除维度
+### np.newaxis、expand_dims、squeeze 添加去除维度
+
+```
+mask2[:,:,np.newaxis] → 将二维 mask 扩展成三通道
+```
 
 ```
 # 一维数组，6列
@@ -567,7 +571,14 @@ print("所有维度：", cars.shape)
 
 ## 切片
 
-- 切片是引用，不会深拷贝
+| 类型            | 切片返回     | 修改切片是否影响原对象     |
+| ------------- | -------- | --------------- |
+| list          | 新列表（浅拷贝） | 顶层不影响，嵌套可变对象影响  |
+| tuple         | 新元组      | 不影响顶层，内部可变对象可影响 |
+| str           | 新字符串     | 不影响             |
+| numpy.ndarray | 视图（view） | 会影响原数组          |
+
+
 - 切片写法：[start : end : step]，从索引 start 开始，取到但不包括 end，每次跨 step 个。
 - 二维写法: [行切片，列切片]
 
@@ -622,7 +633,44 @@ print(w,h)
 6 3
 ```
 
-## 比较（返回布尔索引），where
+### 元组切片
+
+切片不会修改原元组（元组不可变），会返回一个新的元组
+
+```
+t = (10, 20, 30, 40, 50)
+print(t[1:4])  # 输出 (20, 30, 40)
+print(t[:3])   # 输出 (10, 20, 30)
+print(t[2:])   # 输出 (30, 40, 50)
+```
+
+### 字符串切片
+
+```
+s = "hello world"
+print(s[0:5])  # 'hello'
+print(s[6:])   # 'world'
+```
+
+### NumPy 数组切片
+
+```
+import numpy as np
+a = np.array([[1,2,3],[4,5,6],[7,8,9]])
+print(a[:2, 1:3])
+
+[[2 3]
+ [5 6]]
+
+
+
+mask2[30:512, 50:400] = 3
+对 mask2 的行 30~511 和列 50~399 区域赋值为3，左闭右开 [start:end]
+```
+
+## bool掩码，where
+
+使用bool操作符进行比较，入参与结果尺寸不变，结果为bool数组
 
 ### 一维数组
 
@@ -639,6 +687,65 @@ np.where(a > 5) 会返回 符合条件元素的索引：
 ```
 
 ### 二维数组
+
+```
+unknown =
+[[  0, 0, 0],
+ [255, 0, 0],
+ [0, 255, 0]]
+
+mask = (unknown == 255) 
+# 结果：生成布尔掩码
+[[False, False, False],
+ [ True, False, False],
+ [False,  True, False]]
+
+
+markers2 =
+[[1, 1, 2],
+ [1, 3, 2],
+ [4, 2, 1]]
+markers2[mask] = 0 # 用布尔掩码选中 markers2 中对应像素,设置为 0
+
+# markers2 结果：只有 mask 为 True 的位置被赋值为 0
+[[1, 1, 2],
+ [0, 3, 2],
+ [4, 0, 1]]
+```
+
+### where
+
+np.where(condition, 0, 1)  
+np.where(条件, 条件为 True 的值, 条件为 False 的值)
+
+```
+mask = np.array([[0,1,2],
+                 [2,3,0]])
+mask==2
+# 输出：
+# [[False False  True]
+#  [ True False False]]
+
+mask==0
+# 输出：
+# [[ True False False]
+#  [False False  True]]
+
+(mask==2)|(mask==0)
+# 输出：
+# [[ True False  True]
+#  [ True False  True]]
+
+
+mask2 = np.where((mask==2)|(mask==0), 0, 1)
+# 逻辑：
+# 条件 True → 0（背景）
+# 条件 False → 1（前景）
+# 对应上面 mask 示例：
+mask2 = [[0, 1, 0],
+         [0, 1, 0]]
+
+```
 
 ```
 a = np.array([

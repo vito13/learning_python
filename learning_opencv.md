@@ -994,6 +994,7 @@ cv2.waitKey()
 cv2.destroyAllWindows()
 ```
 
+
 ## 膨胀（Dilation）
 
 会让白色前景扩大，用于填补空隙、连接断裂、强化形状，与腐蚀正好相反
@@ -3135,5 +3136,424 @@ for pt in zip(*loc[::-1]):
     cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), 255, 1)
 plt.imshow(img,cmap = 'gray')
 plt.xticks([]), plt.yticks([])
+plt.show()
+```
+
+
+# 分割、提取
+
+
+## 提取简单不连接子物体边界
+
+![](/cv/%E8%8E%B7%E5%8F%96%E8%BE%B9%E7%95%8C.png)
+
+先进行腐蚀（erode）操作，然后计算原图与腐蚀图之间的差，得到边界，但仅适用于简单无连接子物体
+
+- 定义卷积核，核越大，腐蚀效果越强。
+
+    k = np.ones((5,5), np.uint8)
+- 腐蚀操作，缩小亮区域（使白色部分变小）
+
+    e = cv2.erode(o, k)
+- 图像相减，计算原图与腐蚀图的差值（结果是二值图、仅0和255）。由于腐蚀会让物体边界“往里收缩”，因此 o - e 会突出物体的边缘。
+  
+    b = cv2.subtract(o, e)
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+o=cv2.imread("rice.png",cv2.IMREAD_UNCHANGED)
+k=np.ones((5,5),np.uint8)
+e=cv2.erode(o,k)
+b=cv2.subtract(o,e)
+plt.subplot(131)
+plt.imshow(o)
+plt.axis('off')
+plt.subplot(132)
+plt.imshow(e)
+plt.axis('off')
+plt.subplot(133)
+plt.imshow(b)
+plt.axis('off')
+plt.show()
+```
+
+## 距离变换函数
+
+![](/cv/%E8%B7%9D%E7%A6%BB%E5%8F%98%E6%8D%A2.png)
+
+距离变换对一个二值图像进行处理：对图像中的每个像素，计算它到最近的背景像素（通常是值为 0 的像素）的距离。结果是一张灰度图：越靠近前景中心的像素，距离值越大；靠近边界的值越小；背景像素的距离为 0。因此可以利用它找出物体中心区域。
+
+- 二值化
+
+    ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+
+- 开运算去噪
+
+    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
+
+- 距离变换
+
+    dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
+
+- 对距离变换图做阈值（取较高比例，例如 0.6~0.8 的最大值），只保留峰顶，就能得到 “确定的前景”。max()的目的就是避免边界模糊导致子物体合并
+
+    ret, fore = cv2.threshold(dist_transform, 0.7*dist_transform.max(), 255, 0)
+
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+img = cv2.imread('water_coins.jpg')
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+ishow=img.copy()
+ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+kernel = np.ones((3,3),np.uint8)
+opening = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel, iterations = 2)
+dist_transform = cv2.distanceTransform(opening,cv2.DIST_L2,5)
+ret, fore = cv2.threshold(dist_transform,0.7*dist_transform.max(),255,0)
+plt.subplot(131)
+plt.imshow(ishow)
+plt.axis('off')
+plt.subplot(132)
+plt.imshow(dist_transform)
+plt.axis('off')
+plt.subplot(133)
+plt.imshow(fore)
+plt.axis('off')
+plt.show()
+```
+
+## 未知区域
+
+![](/cv/%E7%A1%AE%E5%AE%9A%E6%9C%AA%E7%9F%A5%E5%8C%BA%E5%9F%9F.png)
+
+在现实图像中，物体边缘部分可能既不是明显前景，也不是明显背景，如果直接用 markers = fore + bg，边缘区域可能被错误地标记成前景或背景。这会导致分水岭算法划分不准确，物体边界不清晰。
+可理解为前景与背景的交界处，至于要作为前景还是背景则由用户来决定。
+未知区域：unknown = bg − fore
+
+- fore（白色核心）：物体中心 → 肯定是前景
+- bg（膨胀背景）：明显背景 → 肯定是背景
+- unknown（边缘区域）：既不是核心，也不是背景 → 等待算法自己判定
+
+从结果来看unknown都是环状的，且通过subtract得到的是个二值图，元素值只有0和255
+
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+img = cv2.imread('water_coins.jpg')
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+ishow=img.copy()
+ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+kernel = np.ones((3,3),np.uint8)
+opening = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel, iterations = 2)
+# 膨胀得到绝对背景区域
+bg = cv2.dilate(opening,kernel,iterations=3)
+dist = cv2.distanceTransform(opening,cv2.DIST_L2,5)
+ret, fore = cv2.threshold(dist,0.7*dist.max(),255,0)
+fore = np.uint8(fore)
+un = cv2.subtract(bg,fore)
+plt.subplot(221)
+plt.imshow(ishow)
+plt.axis('off')
+plt.subplot(222)
+plt.imshow(bg)
+plt.axis('off')
+plt.subplot(223)
+plt.imshow(fore)
+plt.axis('off')
+plt.subplot(224)
+plt.imshow(un)
+plt.axis('off')
+plt.show()
+```
+
+## 标注前景对象
+
+![](/cv/%E6%A0%87%E6%B3%A8.png)
+
+可理解为通过此方法获取每个前景连通组件一个唯一的整数标签，比如位置，序号等等
+
+ret, markers = cv2.connectedComponents(二值图fore)
+
+- markers：与原图同大小（二维数组），每个像素的值表示所属组件，背景像素 = 0，第一个前景连通区域 = 1，第二个前景连通区域 = 2
+- ret：连通组件总数 包括背景，例如，如果图中有 5 个硬币，ret 会返回 6（背景 + 5 个前景区域）
+
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+img = cv2.imread('water_coins.jpg')
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+ishow=img.copy()
+ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+kernel = np.ones((3,3),np.uint8)
+opening = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel, iterations = 2)
+sure_bg = cv2.dilate(opening,kernel,iterations=3)
+dist_transform = cv2.distanceTransform(opening,cv2.DIST_L2,5)
+ret, fore = cv2.threshold(dist_transform,0.7*dist_transform.max(),255,0)
+fore = np.uint8(fore)
+ret, markers = cv2.connectedComponents(fore)
+plt.subplot(131)
+plt.imshow(ishow)
+plt.axis('off')
+plt.subplot(132)
+plt.imshow(fore)
+plt.axis('off')
+plt.subplot(133)
+plt.imshow(markers)
+plt.axis('off')
+print(ret)
+plt.show()
+```
+
+## 调整标注结果
+
+![](/cv/%E7%BB%98%E5%88%B6%E4%B8%BA%E6%AD%A2%E5%8C%BA%E5%9F%9F.png)
+
+- 标注前景
+  
+  ret, markers1 = cv2.connectedComponents(fore)  
+  markers1：直接给每个连通组件一个标签（0 背景，1、2、… 前景），可以理解为最基础的 前景标记图
+
+- 计算未知区域，unknown = 背景 - 前景核心。结果是边缘不确定区域（既不是核心前景，也不是肯定背景）。这一步是为 分水岭算法准备 markers 的标准做法
+
+    foreAdv = fore.copy()  
+    unknown = cv2.subtract(sure_bg, foreAdv)
+
+- 再次标注后调整内容，markers2 + 1的作用是将二维数组里的每个值都加一，因为背景要置1，前景要从2开始，0用于未知区域
+
+    ret, markers2 = cv2.connectedComponents(foreAdv)  
+    markers2 = markers2 + 1  
+
+- 通过unknown==255创建布尔掩码二维数组（unknown里值为255的元素为t，0为f），用布尔掩码选中markers2中对应像素（对应元素为t的被选中），设置为0
+
+    markers2[unknown==255] = 0
+
+结果：0是未知、1是背景、>=2是前景，作用是用于分割的参数（见cv2.watershed案例）
+
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+img = cv2.imread('water_coins.jpg')
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+ishow=img.copy()
+ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+kernel = np.ones((3,3),np.uint8)
+opening = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel, iterations = 2)
+sure_bg = cv2.dilate(opening,kernel,iterations=3)
+dist_transform = cv2.distanceTransform(opening,cv2.DIST_L2,5)
+ret, fore = cv2.threshold(dist_transform,0.7*dist_transform.max(),255,0)
+fore = np.uint8(fore)
+ret, markers1 = cv2.connectedComponents(fore)
+foreAdv=fore.copy()
+unknown = cv2.subtract(sure_bg,foreAdv)
+ret, markers2 = cv2.connectedComponents(foreAdv)
+markers2 = markers2+1
+markers2[unknown==255] = 0
+plt.subplot(121)
+plt.imshow(markers1)
+plt.axis('off')
+plt.subplot(122)
+plt.imshow(markers2)
+plt.axis('off')
+plt.show()
+```
+
+## 分水岭 cv2.watershed
+
+![](/cv/%E5%88%86%E6%B0%B4%E5%B2%AD.png)
+
+- 用于未知区域的最终确定，判断是属于前景还是分割线
+- 入参markers里的0是未知、1是背景、>=2是前景，出参就会将0的值进行改写为边界-1、或是前景或背景值
+  
+    markers = cv2.watershed(img, markers)  
+
+- 通过markers == -1创建布尔掩码二维数组（markers里值为-1的元素为t，0为f），用布尔掩码选中img中对应像素（对应元素为t的被选中），设置为绿色用于绘制
+
+    img[markers == -1] = [0,255,0]
+
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+img = cv2.imread('water_coins.jpg')
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+ishow=img.copy()
+ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+kernel = np.ones((3,3),np.uint8)
+opening = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel, iterations = 2)
+sure_bg = cv2.dilate(opening,kernel,iterations=3)
+dist_transform = cv2.distanceTransform(opening,cv2.DIST_L2,5)
+ret, sure_fg = cv2.threshold(dist_transform,0.7*dist_transform.max(),255,0)
+sure_fg = np.uint8(sure_fg)
+unknown = cv2.subtract(sure_bg,sure_fg)
+ret, markers = cv2.connectedComponents(sure_fg)
+markers = markers+1
+markers[unknown==255] = 0
+markers = cv2.watershed(img,markers)
+img[markers == -1] = [0,255,0]
+plt.subplot(121)
+plt.imshow(ishow)
+plt.axis('off')
+plt.subplot(122)
+plt.imshow(img)
+plt.axis('off')
+plt.show()
+```
+
+## GrabCut 前景分割
+
+算法原理：基于 GMM（高斯混合模型）+ 图割，算法会迭代更新 mask，把前景和背景分开
+
+| 初始化方式    | 精度 | 操作难度 | 前景复杂度适应性 | 使用场景               |
+| -------- | -- | ---- | -------- | ------------------ |
+| 无 mask   | 低  | 简单   | 差        | 前景很明显或辅助 mask/rect |
+| mask 是图片 | 高  | 较高   | 好        | 前景复杂，需要精确分割        |
+| mask 是矩形 | 中  | 简单   | 中        | 前景大致规则，快速分割        |
+
+
+### 无mask
+此案例比较简单，分割效果不够好，仅用于演示函数作用
+
+![](/cv/%E5%89%8D%E6%99%AF%E5%88%86%E5%89%B21.png)
+
+- cv2.grabCut(o, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_RECT)
+
+    参数说明：
+    - o → 输入图像
+    - mask → 同图片大小，初始化为0，被算法标记每个像素是前景还是背景
+    - rect → 输入的粗略的前景矩形
+    - bgdModel / fgdModel → 固定为 np.zeros((1,65), np.float64)
+    - 5 → 迭代次数
+    - cv2.GC_INIT_WITH_RECT → 迭代模式
+
+    结果mask的标记值：
+
+    - 0 = 确定背景
+    - 1 = 确定前景
+    - 2 = 可能背景
+    - 3 = 可能前景
+  
+- mask2 = np.where((mask==2)|(mask==0), 0, 1).astype('uint8')
+
+    把 GrabCut 输出的 mask 转为只有1前景、0背景的二值图，规则：
+    - 将确定/可能背景（0,2）设为 0
+    - 将确定/可能前景（1,3）设为 1
+    - mask2 就可以直接用来提取前景的掩码
+
+- ogc = o * mask2[:, :, np.newaxis]
+
+    mask2[:,:,np.newaxis] → 将二维 mask 扩展成三通道  
+    与原图逐元素相乘 → 得到只保留前景的图像，其余背景为 0
+
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+o = cv2.imread('lenacolor.png')
+orgb=cv2.cvtColor(o,cv2.COLOR_BGR2RGB)
+mask = np.zeros(o.shape[:2],np.uint8)
+bgdModel = np.zeros((1,65),np.float64)
+fgdModel = np.zeros((1,65),np.float64)
+rect = (50,50,400,400)
+cv2.grabCut(o,mask,rect,bgdModel,fgdModel,5,cv2.GC_INIT_WITH_RECT)
+mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')
+ogc = o*mask2[:,:,np.newaxis]
+ogc=cv2.cvtColor(ogc,cv2.COLOR_BGR2RGB)
+plt.subplot(121)
+plt.imshow(orgb)
+plt.axis('off')
+plt.subplot(122)
+plt.imshow(ogc)
+plt.axis('off')
+plt.show()
+```
+
+### 加载mask图
+
+![](/cv/%E5%89%8D%E6%99%AF%E5%88%86%E5%89%B22.png)
+
+- 加载掩码图，mask2 作为手动标注的前景/背景辅助，0 → 背景，255 → 前景
+  
+    mask2 = cv2.imread('mask.png',0)      # 灰度  
+
+- 更新 mask，将用户 mask 信息合并到 GrabCut 的 mask，0 = 背景，1 = 前景
+
+    mask[mask2 == 0] = 0  
+    mask[mask2 == 255] = 1
+
+- 使用 mask 初始化 GrabCut 再次迭代，使用 cv2.GC_INIT_WITH_MASK，算法根据已有 mask 再优化前景分割
+
+    mask, bgd, fgd = cv2.grabCut(o, mask, None, bgd, fgd, 5, cv2.GC_INIT_WITH_MASK)
+
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+o = cv2.imread('lenacolor.png')
+orgb=cv2.cvtColor(o,cv2.COLOR_BGR2RGB)
+mask = np.zeros(o.shape[:2],np.uint8)
+bgd = np.zeros((1,65),np.float64)
+fgd = np.zeros((1,65),np.float64)
+rect = (50,50,400,500)
+cv2.grabCut(o,mask,rect,bgd,fgd,5,cv2.GC_INIT_WITH_RECT)
+mask2 = cv2.imread('mask.png',0)
+mask2Show = cv2.imread('mask.png',-1)
+m2rgb=cv2.cvtColor(mask2Show,cv2.COLOR_BGR2RGB)
+mask[mask2 == 0] = 0
+mask[mask2 == 255] = 1
+mask, bgd, fgd = cv2.grabCut(o,mask,None,bgd,fgd,5,cv2.GC_INIT_WITH_MASK)
+mask = np.where((mask==2)|(mask==0),0,1).astype('uint8')
+ogc = o*mask[:,:,np.newaxis]
+ogc=cv2.cvtColor(ogc,cv2.COLOR_BGR2RGB)
+plt.subplot(121)
+plt.imshow(m2rgb)
+plt.axis('off')
+plt.subplot(122)
+plt.imshow(ogc)
+plt.axis('off')
+plt.show()
+```
+
+### mask是矩形
+
+
+![](/cv/%E5%89%8D%E6%99%AF%E5%88%86%E5%89%B23.png)
+- 初始化 mask2（自定义前景/背景），mask2 初始全 0 → 确定背景
+
+    mask2 = np.zeros(o.shape[:2], np.uint8)  
+    mask2[30:512,50:400] = 3  对行 30~511 和列 50~399 区域赋值为可能前景 
+    mask2[50:300,150:200] = 1  设定 确定前景  
+    这样就定义了一个粗略的前景区域（1）和更大的可能前景区域（3）
+
+```
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+o = cv2.imread('lenacolor.png')
+orgb=cv2.cvtColor(o,cv2.COLOR_BGR2RGB)
+bgd = np.zeros((1,65),np.float64)
+fgd = np.zeros((1,65),np.float64)
+mask2 = np.zeros(o.shape[:2],np.uint8)
+mask2[30:512,50:400]=3
+mask2[50:300,150:200]=1
+cv2.grabCut(o,mask2,None,bgd,fgd,5,cv2.GC_INIT_WITH_MASK)
+mask2 = np.where((mask2==2)|(mask2==0),0,1).astype('uint8')
+ogc = o*mask2[:,:,np.newaxis]
+ogc=cv2.cvtColor(ogc,cv2.COLOR_BGR2RGB)
+plt.subplot(121)
+plt.imshow(orgb)
+plt.axis('off')
+plt.subplot(122)
+plt.imshow(ogc)
+plt.axis('off')
 plt.show()
 ```
