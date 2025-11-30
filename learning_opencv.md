@@ -41,6 +41,205 @@ OpenCV 的坐标系以左上为原点，x 向右增大，y 向下增大
 - imread的末尾参数使用0，即使彩色也按照灰度图导入
 - gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
 
+# 鼠标操作
+
+## 鼠标事件
+
+- 单击、拖拽
+
+```
+import cv2
+import numpy as np
+def Demo(event,x,y,flags,param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        print("单击了鼠标左键")
+    elif event==cv2.EVENT_RBUTTONDOWN :
+        print("单击了鼠标右键")
+    elif flags==cv2.EVENT_FLAG_LBUTTON:
+        print("按住左键拖动了鼠标")
+    elif event==cv2.EVENT_MBUTTONDOWN :
+        print("单击了中间键")
+#创建名称为Demo的响应（回调）函数OnMouseAction
+#将回调函数Demo与窗口“Demo19.9”建立连接
+img = np.ones((300,300,3),np.uint8)*255
+cv2.namedWindow('Demo19.9')
+cv2.setMouseCallback('Demo19.9',Demo)
+cv2.imshow('Demo19.9',img)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
+
+- 双击
+
+```
+import cv2
+import numpy as np
+d = 400
+def draw(event,x,y,flags,param):
+    if event==cv2.EVENT_LBUTTONDBLCLK:
+        p1x=x
+        p1y=y
+        p2x=np.random.randint(1,d-50)
+        p2y=np.random.randint(1,d-50)
+        color = np.random.randint(0,high = 256,size = (3,)).tolist()
+        cv2.rectangle(img,(p1x,p1y),(p2x,p2y),color,2)
+img = np.ones((d,d,3),dtype="uint8")*255
+cv2.namedWindow('Demo19.10')
+cv2.setMouseCallback('Demo19.10',draw)
+while(1):
+    cv2.imshow('Demo19.10',img)
+    if cv2.waitKey(20)==27:
+        break
+cv2.destroyAllWindows()
+```
+
+## 键盘事件
+
+```
+import cv2
+import numpy as np
+thickness=-1
+mode=1
+d=400
+def draw_circle(event,x,y,flags,param):
+    if event==cv2.EVENT_LBUTTONDOWN:
+        a=np.random.randint(1,d-50)
+        r=np.random.randint(1,d/5)
+        angle = np.random.randint(0,361)
+        color = np.random.randint(0,high = 256,size = (3,)).tolist()
+        if mode==1:
+            cv2.rectangle(img,(x,y),(a,a),color,thickness)
+        elif mode==2:
+            cv2.circle(img,(x,y),r,color,thickness)
+        elif mode==3:
+            cv2.line(img,(a,a),(x,y),color,3)
+        elif mode==4:
+            cv2.ellipse(img, (x,y), (100,150), angle, 0, 360,color,thickness)
+        elif mode==5:
+            cv2.putText(img,'OpenCV',(0,round(d/2)),
+                        cv2.FONT_HERSHEY_SIMPLEX, 2,color,5)
+img=np.ones((d,d,3),np.uint8)*255
+cv2.namedWindow('image')
+cv2.setMouseCallback('image',draw_circle)
+while(1):
+    cv2.imshow('image',img)
+    k=cv2.waitKey(1)&0xFF
+    if k==ord('r'):
+        mode=1
+    elif k==ord('c'):
+        mode=2
+    elif k==ord('l'):
+        mode=3
+    elif k==ord('e'):
+        mode=4
+    elif k==ord('t'):
+        mode=5
+    elif k==ord('f'):
+        thickness=-1
+    elif k==ord('u'):
+        thickness=3
+    elif k==27:
+        break
+cv2.destroyAllWindows()
+```
+
+# GUI
+
+## 滚动条案例1
+
+```
+import cv2
+import numpy as np
+def changeColor(x):
+    r=cv2.getTrackbarPos('R','image')
+    g=cv2.getTrackbarPos('G','image')
+    b=cv2.getTrackbarPos('B','image')
+    img[:]=[b,g,r]
+img=np.zeros((100,700,3),np.uint8)
+cv2.namedWindow('image')
+cv2.createTrackbar('R','image',100,255,changeColor)
+cv2.createTrackbar('G','image',0,255,changeColor)
+cv2.createTrackbar('B','image',0,255,changeColor)
+while(1):
+    cv2.imshow('image',img)
+    k=cv2.waitKey(1)&0xFF
+    if k==27:
+        break   
+cv2.destroyAllWindows()
+```
+
+## 滚动条案例2
+
+```
+import cv2
+
+Type = 0  # 阈值处理类型值
+Value = 0  # 使用的阈值
+
+
+def onType(a):
+    Type = cv2.getTrackbarPos(tType, windowName)
+    Value = cv2.getTrackbarPos(tValue, windowName)
+    ret, dst = cv2.threshold(o, Value, 255, Type)
+    cv2.imshow(windowName, dst)
+
+
+def onValue(a):
+    Type = cv2.getTrackbarPos(tType, windowName)
+    Value = cv2.getTrackbarPos(tValue, windowName)
+    ret, dst = cv2.threshold(o, Value, 255, Type)
+    cv2.imshow(windowName, dst)
+
+
+o = cv2.imread("lena512.bmp", 0)
+windowName = "Demo19.13"  # 窗体名
+cv2.namedWindow(windowName)
+cv2.imshow(windowName, o)
+# 创建两个滑动条
+tType = "Type"  # 用来选取阈值处理类型的滚动条
+tValue = "Value"  # 用来选取阈值的滚动条
+cv2.createTrackbar(tType, windowName, 0, 4, onType)
+cv2.createTrackbar(tValue, windowName, 0, 255, onValue)
+if cv2.waitKey(0) == 27:
+    cv2.destroyAllWindows()
+```
+
+## 滚动条案例3
+
+```
+import cv2
+import numpy as np
+d=400
+global thickness
+thickness=-1
+def fill(x):
+    pass
+def draw(event,x,y,flags,param):
+    if event==cv2.EVENT_LBUTTONDBLCLK:
+        p1x=x
+        p1y=y
+        p2x=np.random.randint(1,d-50)
+        p2y=np.random.randint(1,d-50)
+        color = np.random.randint(0,high = 256,size = (3,)).tolist()
+        cv2.rectangle(img,(p1x,p1y),(p2x,p2y),color,thickness)
+
+img=np.ones((d,d,3),np.uint8)*255
+cv2.namedWindow('image')
+cv2.setMouseCallback('image',draw)
+cv2.createTrackbar('R','image',0,1,fill)
+while(1):
+    cv2.imshow('image',img)
+    k=cv2.waitKey(1)&0xFF
+    g=cv2.getTrackbarPos('R','image')
+    if g==0:
+        thickness=-1
+    else:
+        thickness=2
+    if k==27:
+        break
+cv2.destroyAllWindows()
+```
+
 # 图形处理
 
 ## 创建随机灰度图、彩色图
@@ -854,6 +1053,8 @@ cv2.destroyAllWindows()
 
 ## 均值滤波（Mean Filtering）
 
+![](/cv/%E5%9D%87%E5%80%BC%E6%BB%A4%E6%B3%A2.png)
+
 - 是线性平滑滤波，用于去除图像中的随机噪声。用矩阵在图像上滑动，将矩阵覆盖的所有像素的平均值作为中心像素的新值。
 
 - 权值全部相等(矩阵元素都相同)
@@ -870,6 +1071,8 @@ cv2.destroyAllWindows()
 ```
 
 ## 方框滤波（box Filter）
+
+![](/cv/%E6%96%B9%E6%A1%86%E6%BB%A4%E6%B3%A2.png)
 
 - 如果参数 normalize（归一化）=True（默认）结果是求平均值（即均值滤波）。
 - 否则是求加总值，不除以像素个数。所以亮度会显著增（最大255全白）
@@ -889,6 +1092,7 @@ cv2.destroyAllWindows()
 
 ## 高斯滤波（Gaussian Blur，高斯平滑）
 
+![](/cv/%E9%AB%98%E6%96%AF%E6%BB%A4%E6%B3%A2.png)
 - 高斯滤波是一种加权的平滑滤波，利用“高斯分布”控制权重，是让离中心越近的像素权重越大，离得越远权重越小。 平滑噪声更有效，又能较好地保留图像边缘信息，图像预处理、边缘检测前降噪
 - 参数σX：X方向标准差控制模糊程度
 - 参数σY：Y方向标准差，一般设为 0，表示与 X 相同
@@ -906,6 +1110,7 @@ cv2.destroyAllWindows()
 
 ## 中值滤波（Median Filtering）
 
+![](/cv/%E4%B8%AD%E5%80%BC%E6%BB%A4%E6%B3%A2.png)
 - 与均值滤波不同，它不会计算平均值，而是取“排序后居中的那个值”。来代替中心像素的值。
 - 能有效去除椒盐噪声（即随机出现的黑白点噪声）、对边缘结构的破坏小，平滑效果自然
 
@@ -922,6 +1127,7 @@ cv2.destroyAllWindows()
 
 ## 双边滤波（Bilateral Filter）
 
+![](/cv/%E5%8F%8C%E8%BE%B9%E6%BB%A4%E6%B3%A2.png)
 - 既能平滑图像、又能保留边缘的“高级滤波算法”。人像磨皮（光滑皮肤但保留眼鼻等边缘）
 - 只有“距离近”且“颜色相似”的像素才参与平均，边缘两侧颜色差很大的像素不会互相混合，因此边缘可以被保留下来。
 - 参数d：像素的邻域范围；
@@ -941,6 +1147,7 @@ cv2.destroyAllWindows()
 
 ## 卷积滤波（filter2D）
 
+![](/cv/%E5%8D%B7%E7%A7%AF%E6%BB%A4%E6%B3%A2.png)
 自定义矩阵进行滤波操作
 
 ```
@@ -952,7 +1159,7 @@ r = cv2.filter2D(o,-1,kernel)
 cv2.imshow("original",o)
 cv2.imshow("filter2D",r)
 cv2.waitKey()
-cv2.destroyAllWindows(
+cv2.destroyAllWindows()
 ```
 
 # 形态学操作（Morphological Operation）
@@ -979,6 +1186,7 @@ cv2.destroyAllWindows(
 
 ## 腐蚀（Erosion）
 
+![](/cv/%E8%85%90%E8%9A%80.png)
 - 目标“让白色（前景）区域变小，黑色（背景）区域扩大。”
 - 首先定义kernel（是矩阵）用于设置腐蚀的“力度”和“形状（对边缘形态影响不同）”，然后执行erode函数进行腐蚀，iterations腐蚀的重复次数
 
@@ -996,7 +1204,7 @@ cv2.destroyAllWindows()
 
 
 ## 膨胀（Dilation）
-
+![](/cv/%E8%86%A8%E8%83%80.png)
 会让白色前景扩大，用于填补空隙、连接断裂、强化形状，与腐蚀正好相反
 
 ```
@@ -1010,7 +1218,7 @@ cv2.destroyAllWindows()
 ```
 
 ## 开运算（Opening）
-
+![](/cv/%E5%BC%80%E8%BF%90%E7%AE%97.png)
 开运算是先腐蚀再膨胀，主要用于去除小白噪声、平滑物体边缘，而不会明显改变主体形状。
 
 ```
@@ -1028,7 +1236,7 @@ cv2.destroyAllWindows()
 ```
 
 ## 闭运算（Closing）
-
+![](/cv/%E9%97%AD%E8%BF%90%E7%AE%97.png)
 闭运算是先膨胀再腐蚀，主要用于填补小黑洞、连接相邻白区域、平滑边界
 
 ```
@@ -1046,7 +1254,7 @@ cv2.destroyAllWindows()
 ```
 
 ## 形态学梯度（Morphological Gradient）
-
+![](/cv/%E5%BD%A2%E6%80%81%E5%AD%A6%E6%A2%AF%E5%BA%A6.png)
 即膨胀减去腐蚀，它的结果是物体的边缘轮廓，常用于边缘检测与目标分割。
 
 ```
@@ -1060,7 +1268,7 @@ cv2.destroyAllWindows()
 ```
 
 ## 顶帽（Top-hat）
-
+![](/cv/%E9%A1%B6%E5%B8%BD.png)
 原图减去开运算结果，用于提取小而亮的区域（噪声）、增强局部亮细节。
 
 ```
@@ -1078,7 +1286,7 @@ cv2.destroyAllWindows()
 ```
 
 ## 黑帽（Black-hat）
-
+![](/cv/%E9%BB%91%E5%B8%BD.png)
 是闭运算减去原图，用于提取小暗区域、增强局部阴影细节。
 
 ```
@@ -1096,7 +1304,7 @@ cv2.destroyAllWindows()
 ```
 
 ## 自定义核函数
-
+![](/cv/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A0%B8%E5%87%BD%E6%95%B0.png)
 可使用3种形状进行自定义那个核刷子的形状，用于影响刷出来的外观
 
 ```
@@ -1143,6 +1351,7 @@ cv2.destroyAllWindows()
 - CV_64F + convertScaleAbs → 保证梯度计算准确且可显示
 - ksize=3，下面案例未使用，用于设置核大小3x3
 
+![](/cv/Sobelx.png)
 ```
 # 得到竖线边缘信息，x=1,y=0,求x方向导数
 o = cv2.imread('sobel4.bmp',cv2.IMREAD_GRAYSCALE)
@@ -1152,7 +1361,10 @@ cv2.imshow("original",o)
 cv2.imshow("x",sobelx)
 cv2.waitKey()
 cv2.destroyAllWindows()
+```
 
+![](/cv/Sobely.png)
+```
 # 得到横线边缘信息,dx=0, dy=1,求 y 方向导数
 o = cv2.imread('sobel4.bmp',cv2.IMREAD_GRAYSCALE)
 sobely = cv2.Sobel(o,cv2.CV_64F,0,1)
@@ -1161,8 +1373,9 @@ cv2.imshow("original",o)
 cv2.imshow("y",sobely)
 cv2.waitKey()
 cv2.destroyAllWindows()
-
-
+```
+![](/cv/Sobelxy.png)
+```
 # 得到交叉点信息, x=1,y=1,同时对x和y求导（二阶混合导数，不是简单的 x+y，非下面案例的加权效果）
 # 仅角点或斜交区域亮，点状、不连续，线条不明显
 o = cv2.imread('sobel4.bmp',cv2.IMREAD_GRAYSCALE)
@@ -1172,7 +1385,9 @@ cv2.imshow("original",o)
 cv2.imshow("xy",sobelxy)
 cv2.waitKey()
 cv2.destroyAllWindows()
-
+```
+![](/cv/Sobelxy2.png)
+```
 # X+Y分别计算再addWeighted，水平和竖直边缘都保留，连续完整的边缘线
 # 0.5权重保证 x、y 贡献相等,得到综合边缘图
 o = cv2.imread('sobel4.bmp',cv2.IMREAD_GRAYSCALE)
@@ -1191,7 +1406,7 @@ cv2.destroyAllWindows()
 
 - Scharr 是 Sobel 的升级版，更精确地计算图像梯度，尤其在边缘较明显或细节复杂时比 Sobel 更敏感
 
-
+![](/cv/Scharrx.png)
 ```
 import cv2
 import numpy as np
@@ -1204,7 +1419,9 @@ cv2.imshow("original",o)
 cv2.imshow("x",scharrx)
 cv2.waitKey()
 cv2.destroyAllWindows()
-
+```
+![](/cv/Scharry.png)
+```
 # Y 方向梯度,得到横线
 o = cv2.imread('scharr.bmp',cv2.IMREAD_GRAYSCALE)
 scharry = cv2.Scharr(o,cv2.CV_64F,0,1)
@@ -1213,7 +1430,9 @@ cv2.imshow("original",o)
 cv2.imshow("y",scharry)
 cv2.waitKey()
 cv2.destroyAllWindows()
-
+```
+![](/cv/Scharrxy.png)
+```
 # X、Y 加权融合，得到综合边缘图
 o = cv2.imread('scharr.bmp',cv2.IMREAD_GRAYSCALE)
 scharrx = cv2.Scharr(o,cv2.CV_64F,1,0)
@@ -1225,7 +1444,8 @@ cv2.imshow("original",o)
 cv2.imshow("xy",scharrxy)
 cv2.waitKey()
 cv2.destroyAllWindows()
-
+```
+```
 # Scharr 不允许 dx=1,dy=1，因为它是专门优化单方向一阶导数的算子。想要综合边缘，必须 X/Y 分开计算再合并。此处会运行出错
 o = cv2.imread('scharr.bmp',cv2.IMREAD_GRAYSCALE)
 scharrxy11=cv2.Scharr(o,cv2.CV_64F,1,1)
@@ -1238,7 +1458,7 @@ cv2.destroyAllWindows()
 ## Laplacian
 
 Laplacian 是二阶导数算子，直接检测全方向边缘，常用于边缘检测和图像锐化，但噪声敏感，需要结合平滑处理。
-
+![](/cv/Laplacian.png)
 ```
 o = cv2.imread('Laplacian.bmp',cv2.IMREAD_GRAYSCALE)
 Laplacian = cv2.Laplacian(o,cv2.CV_64F)
@@ -1270,6 +1490,7 @@ apertureSize=3 → Sobel 卷积核大小
 输出 edges → 二值边缘图
 ```
 
+![](/cv/candy.png)
 ```
 o=cv2.imread("lena.bmp",cv2.IMREAD_GRAYSCALE)
 r1=cv2.Canny(o,128,200)
@@ -1295,6 +1516,7 @@ HoughLinesP 更适合实际应用，因为它直接返回线段端点，不需�
 
 ### 直线变换 HoughLines
 
+![](/cv/HoughLines.png)
 - 首先使用Canny检测图像中连续、清晰的边缘
 - 霍夫直线变换检测直线（将边缘点映射到极坐标空间检测直线，HoughLines检测的是无限延长直线，HoughLinesP返回线段而不是无限延长直线，更实际）
 
@@ -1345,7 +1567,7 @@ plt.show()
 ```
 
 ### 概率直线变换 HoughLinesP
-
+![](/cv/HoughLinesp.png)
 - 不同于 HoughLines 返回无限长直线，HoughLinesP 直接返回线段端点 (x1, y1, x2, y2)。所以绘制代码是不同的，不需要再计算极坐标
 
     lines = cv2.HoughLinesP(edges, 1, np.pi/180, 160, minLineLength=100, maxLineGap=10)
@@ -1359,8 +1581,30 @@ plt.show()
 | `minLineLength=100` | 最短线段长度，短于它会被忽略             |
 | `maxLineGap=10`     | 同一条直线上点之间最大间隙，小于它会被连接成一条线段 |
 
-### 霍夫圆环
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+img = cv2.imread('computer.jpg',-1)
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+edges = cv2.Canny(gray,50,150,apertureSize =3)
+orgb=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+oShow=orgb.copy()
+lines = cv2.HoughLinesP(edges,1,np.pi/180,160,minLineLength=100,maxLineGap=10)
+for line in lines:
+    x1,y1,x2,y2 = line[0]
+    cv2.line(orgb,(x1,y1),(x2,y2),(255,255,255),2)
+plt.subplot(121)
+plt.imshow(oShow)
+plt.axis('off')
+plt.subplot(122)
+plt.imshow(orgb)
+plt.axis('off')
+plt.show()
+```
 
+### 霍夫圆环
+![](/cv/Houghc.png)
 霍夫圆变换 (Hough Circle Transform) 来检测图像中的圆形
 
 - circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 300,
@@ -1418,6 +1662,8 @@ plt.show()
 - findContours可以设置检测参数，如RETR_EXTERNAL仅外轮廓（RETR_LIST是所有轮廓），CHAIN_APPROX_SIMPLE是只保留拐点，减少数据量，返回轮廓列表和层级信息
 - drawContours是绘制轮廓，可设置颜色，线宽（为-1则绘制为实心的）等，返回绘制后的结果图
 
+![](/cv/%E8%BD%AE%E5%BB%93.png)
+![](/cv/%E8%BD%AE%E5%BB%932.png)
 ```
 o = cv2.imread('contours.bmp')
 cv2.imshow("original",o)
@@ -1452,7 +1698,7 @@ cv2.destroyAllWindows()
 - 这段代码用 findContours() 找出物体边界，
 - 再用 drawContours() 生成掩膜，
 - 最后用 bitwise_and() 从原图中“抠出”目标区域。
-
+![](/cv/%E6%8A%A0%E5%9B%BE.png)
 ```
 o = cv2.imread('loc3.jpg')
 cv2.imshow("original",o)
@@ -1471,7 +1717,7 @@ cv2.destroyAllWindows()
 ```
 
 ## 普通矩 cv2.moments
-
+![](/cv/%E6%99%AE%E9%80%9A%E7%9F%A9.png)
 - 是图像像素灰度值的加权统计量，一种用来描述图像形状、方向、质心、倾斜程度等特征的数学方式，简单理解为图像的几何特征
 - 从二值图像中提取出各个轮廓，然后可以得到它们的矩（moments），使用cv2.moments函数返回的是字典
 - 轮廓区域面积是字典的m00元素
@@ -2442,13 +2688,153 @@ cv2.destroyAllWindows()
 
 # 渲染
 
-- cv2.putText 文字
-- cv2.polylines 多边形
-- cv2.line 线
-- cv2.circle 圆
-- cv2.rectangle 矩形
-- cv2.ellipse 椭圆
-- cv2.drawContours 轮廓
+## cv2.putText 文字
+
+```
+import numpy as np
+import cv2
+d = 400
+img = np.ones((d,d,3),dtype="uint8")*255
+#生成白色背景
+font=cv2.FONT_HERSHEY_SIMPLEX
+cv2.putText(img,'OpenCV',(0,200),font, 3,(0,0,255),15)
+cv2.putText(img,'OpenCV',(0,200),font, 3,(0,255,0),5)
+cv2.imshow("demo19.7",img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+```
+import numpy as np
+import cv2
+d = 400
+img = np.ones((d,d,3),dtype="uint8")*255
+#生成白色背景
+font=cv2.FONT_HERSHEY_SIMPLEX
+cv2.putText(img,'OpenCV',(0,150),font, 3,(0,0,255),15)
+cv2.putText(img,'OpenCV',(0,250),font, 3,(0,255,0),15,
+            cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,True)
+cv2.imshow("demo19.7",img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+## cv2.polylines 多线段、多边形
+
+```
+import numpy as np
+import cv2
+d = 400
+img = np.ones((d,d,3),dtype="uint8")*255
+#生成白色背景
+pts=np.array([[200,50],[300,200],[200,350],[100,200]], np.int32)
+#生成各个顶点,注意数据类型为int32
+pts=pts.reshape((-1,1,2))
+#第1个参数为-1, 表明这一维的长度是根据后面的维度的计算出来的。
+cv2.polylines(img,[pts],True,(0,255,0),8)
+#调用函数polylines完成多边形绘图，注意第3个参数控制多边形封闭
+# cv2.polylines(img,[pts],False,(0,255,0),8)  #不闭合的的多边形
+cv2.imshow("demo19.6",img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+## cv2.line 线
+```
+import numpy as np
+import cv2
+n = 300
+img = np.zeros((n+1,n+1,3), np.uint8)
+img = cv2.line(img,(0,0),(n,n),(255,0,0),3)
+img = cv2.line(img,(0,100),(n,100),(0,255,0),1)
+img = cv2.line(img,(100,0),(100,n),(0,0,255),6)
+winname = 'Demo19.1'
+cv2.namedWindow(winname)
+cv2.imshow(winname, img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+## cv2.circle 圆
+
+```
+import numpy as np
+import cv2
+d = 400
+img = np.ones((d,d,3),dtype="uint8")*255
+(centerX,centerY) = (round(img.shape[1] / 2),round(img.shape[0] / 2))
+#将图像的中心作为圆心,实际值为=d/2
+red = (0,0,255)#设置白色变量
+for r in range(5,round(d/2),12):
+    cv2.circle(img,(centerX,centerY),r,red,3)
+    #circle(载体图像，圆心，半径，颜色)
+cv2.imshow("Demo19.3",img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+```
+import numpy as np
+import cv2
+d = 400
+img = np.ones((d,d,3),dtype="uint8")*255
+#生成白色背景
+for i in range(0,100):
+    centerX = np.random.randint(0,high = d)
+    #生成随机圆心X,确保在画布img内
+    centerY = np.random.randint(0,high = d)
+    #生成随机圆心Y,确保在画布img内
+    radius = np.random.randint(5,high = d/5)
+    #生成随机半径，值范围：[5,d/5)，最大半径是d/5
+    color = np.random.randint(0,high = 256,size = (3,)).tolist()
+    #生成随机颜色，3个[0,256)的随机数
+    cv2.circle(img,(centerX,centerY),radius,color,-1)
+    #使用上述随机数，在画布img内画圆
+cv2.imshow("demo19.4",img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+## cv2.rectangle 矩形
+
+```
+import numpy as np
+import cv2
+n = 300
+img = np.ones((n,n,3), np.uint8)*255
+img = cv2.rectangle(img,(50,50),(n-100,n-50),(0,0,255),-1)
+winname = 'Demo19.1'
+cv2.namedWindow(winname)
+cv2.imshow(winname, img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+## cv2.ellipse 椭圆
+
+```
+import numpy as np
+import cv2
+d = 400
+img = np.ones((d,d,3),dtype="uint8")*255
+#生成白色背景
+center=(round(d/2),round(d/2))
+#注意数值类型，center=(d/2,d/2)不可以
+size=(100,200)
+#轴的长度
+for i in range(0,10):
+    angle = np.random.randint(0,361)
+    #偏移角度    
+    color = np.random.randint(0,high = 256,size = (3,)).tolist()
+    #生成随机颜色，3个[0,256)的随机数    
+    thickness = np.random.randint(1,9)
+    cv2.ellipse(img, center, size, angle, 0, 360, color,thickness)
+cv2.imshow("demo19.5",img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+## cv2.drawContours 轮廓
 
 # 金字塔操作（Pyramid）
 
@@ -3556,4 +3942,181 @@ plt.subplot(122)
 plt.imshow(ogc)
 plt.axis('off')
 plt.show()
+```
+
+# 视频
+
+## 打开摄像头
+
+```
+import numpy as np
+import cv2
+cap = cv2.VideoCapture(0)
+while(cap.isOpened()):
+    ret, frame = cap.read()
+    cv2.imshow('frame',frame)
+    c = cv2.waitKey(1)
+    if c==27:   #ESC键
+        break
+cap.release()
+cv2.destroyAllWindows()
+```
+
+## 保存摄像头视频
+
+```
+import numpy as np
+import cv2
+cap = cv2.VideoCapture(0)
+fourcc = cv2.VideoWriter_fourcc(*'XVID')  # 可读性高，最推荐
+out = cv2.VideoWriter('output.avi',fourcc, 20, (640,480))
+while(cap.isOpened()):
+    ret, frame = cap.read()
+    if ret==True:
+        out.write(frame)
+        cv2.imshow('frame',frame)
+        if cv2.waitKey(1) == 27:
+            break
+    else:
+        break
+cap.release()
+out.release()
+cv2.destroyAllWindows()
+```
+
+## 播放视频
+
+- 注意路径文件名不要有中文
+- cv是不管理声音的，所以都没声音
+ 
+```
+import cv2
+cap = cv2.VideoCapture('mov.mp4')
+while(cap.isOpened()):
+    ret, frame = cap.read()
+    cv2.imshow('frame',frame)
+    c = cv2.waitKey(1)
+    if c==27:   #ESC键
+        break
+cap.release()
+cv2.destroyAllWindows()
+```
+
+## 对视频进行candy
+
+```
+import numpy as np
+import cv2
+cap = cv2.VideoCapture('mov.mp4')
+while(cap.isOpened()):
+    ret, frame = cap.read()
+    frame=cv2.Canny(frame,100,200)
+    cv2.imshow('frame',frame)
+    c = cv2.waitKey(1)
+    if c==27:   #ESC键
+        break
+cap.release()
+cv2.destroyAllWindows()
+```
+
+# KNN（K临近）
+
+KNN 的核心思想是：“离我最近的训练样本，它的数字最像我”，距离越小越相似，距离越大差异越大
+
+- 读100张训练图、每个数字10张、都存在a数组里，是三维数组
+
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+# 读取样本（特征）图像的值
+
+s = 'image\\'  # 图像所在路径
+num = 100  # 共有样本数量
+row = 240  # 每个数字图像的行数
+col = 240  # 每个数字图像的列数
+a = np.zeros((num, row, col))  # 用来存储所有样本的数值
+# print(a.shape)
+n = 0  # 用来存储当前图像的编号。
+for i in range(0, 10):
+    for j in range(1, 11):
+        a[n, :, :] = cv2.imread(s + str(i) + '\\' + str(i) + '-' + str(j) + '.bmp', 0)
+        n = n + 1
+```
+
+- 把 240×240 的图像压缩成 48×48 的小方块特征图，每块大小5×5像素（降维，为了减少计算量，同时又保留了数字的形状信息），feature也是三维数组
+
+```
+# 提取样本图像的特征
+feature = np.zeros((num, round(row / 5), round(col / 5)))  # 用来存储所有样本的特征值
+# print(feature.shape)  #看看feature的shape长什么样子
+# print(row)            #看看row的值，有多少个特征（100）个
+
+```
+
+- 统计每个小方块的白色像素数，这是对原始图像的简单特征提取
+    - 遍历每个像素 (nr, nc)
+    - 判断是否为白色
+    - 如果是白色，找到它属于的方块
+    - 方块对应位置 feature[ni, 方块行号, 方块列号] +1
+
+```
+for ni in range(0, num):
+    for nr in range(0, row):
+        for nc in range(0, col):
+            if a[ni, nr, nc] == 255:
+                feature[ni, int(nr / 5), int(nc / 5)] += 1
+f = feature  # 简化变量名称
+```
+
+- 读测试图，也做一样的特征提取
+```
+#####计算当前待识别图像的特征值
+o = cv2.imread('image\\test\\5.bmp', 0)  # 读取待测图像
+##读取图像值
+of = np.zeros((round(row / 5), round(col / 5)))  # 用来存储测试图像的特征值
+for nr in range(0, row):
+    for nc in range(0, col):
+        if o[nr, nc] == 255:
+            of[int(nr / 5), int(nc / 5)] += 1
+```
+
+- 计算测试图与每个训练图的距离。f[i,:,:]是第i张训练图的特征，of是待测试图特征，of - f[i, :, :]是2个二维数组逐元素相减，即得到了差异（结果还是二维数组），然后再逐个元素进行平方（结果依然是二维数组），np.sum()是将所有元素值加起来求和。得到的值就是测试图与第i张训练图的距离，d是一维数组
+
+```
+###开始计算，数字识别，计算最近的times个数字是谁，判断结果
+d = np.zeros(100)
+for i in range(0, 100):
+    d[i] = np.sum((of - f[i, :, :]) ** 2)
+# print(d)
+```
+
+- 选前k=7个最相似样本，使用min(d)找到d里最小的值，通过d.index找到此值对应的idx、插入temp里，并将d里的原值改为inf（作用是避免重复选中），循环结束后temp里存了k个最接近的idx
+
+```
+d = d.tolist()
+temp = []
+Inf = max(d)
+# print(Inf)
+k = 7
+for i in range(k):
+    temp.append(d.index(min(d)))
+    d[d.index(min(d))] = Inf
+# print(temp)   #看看都被识别为哪些特征值了。
+
+```
+- [i / 10 for i in temp]的作用是将每个值都除以10（因为每个数字有10个样品，得到浮点值），第二个循环会取整得到对应的数字（投票哪个数字出现最多），r里存的是每个数字的票数，np.argmax返回r里最大元素值的idx（其实对应的就是那个数字）
+
+```
+temp = [i / 10 for i in temp]
+# 也可以返回去，处理为array,使用函数处理，意思差不多。
+# temp=np.array(temp)
+# temp=np.trunc(temp/10)
+# print(temp)
+# 数组r用来存储结果，r[0]表示k近邻中0的个数，r[n]K近邻中n的个数
+r = np.zeros(10)
+for i in temp:
+    r[int(i)] += 1
+# print(r)
+print('当前的数字可能为:' + str(np.argmax(r)))
 ```

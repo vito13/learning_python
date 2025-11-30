@@ -668,6 +668,15 @@ mask2[30:512, 50:400] = 3
 对 mask2 的行 30~511 和列 50~399 区域赋值为3，左闭右开 [start:end]
 ```
 
+此案例里a是有100张图的数组，a[n, :, :]则代表取第n张图的全部行和列。a的size是a.shape = (100, 240, 240)
+
+```
+for i in range(0, 10):
+    for j in range(1, 11):
+        a[n, :, :] = cv2.imread(s + str(i) + '\\' + str(i) + '-' + str(j) + '.bmp', 0)
+        n = n + 1
+```
+
 ## bool掩码，where
 
 使用bool操作符进行比较，入参与结果尺寸不变，结果为bool数组
@@ -878,7 +887,7 @@ print("a / 3:", a / 3)
 
 print("最大：", np.max(a))
 print("最小：", a.min())
-print(a.sum())
+print(a.sum()) # 对所有元素求和
 print("累乘：", a.prod())
 print("总数：", a.size)
 a = np.array([0, 1, 2, 3])
